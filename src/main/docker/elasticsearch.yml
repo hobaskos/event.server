@@ -1,0 +1,10 @@
+version: '2'
+services:
+    backend-elasticsearch:
+        container_name: backend-elasticsearch
+        image: elasticsearch:2.4.1
+        # volumes:
+        #     - ~/volumes/jhipster/backend/elasticsearch/:/usr/share/elasticsearch/data/
+        ports:
+            - 9200:9200
+            - 9300:9300

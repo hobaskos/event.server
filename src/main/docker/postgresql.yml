@@ -1,0 +1,12 @@
+version: '2'
+services:
+    backend-postgresql:
+        container_name: backend-postgresql
+        image: postgres:9.5.4
+        # volumes:
+        #     - ~/volumes/jhipster/backend/postgresql/:/var/lib/postgresql/
+        environment:
+            - POSTGRES_USER=backend
+            - POSTGRES_PASSWORD=
+        ports:
+            - 5432:5432
