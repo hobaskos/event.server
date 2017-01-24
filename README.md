@@ -1,4 +1,10 @@
-# backend
+# Hobaskos Event Server
+
+[![Build Status](https://travis-ci.org/hobaskos/event.server.svg)](https://travis-ci.org/hobaskos/event.server)
+[![Build Coverage](https://sonarqube.com/api/badges/measure?key=hobaskos:event:server&metric=coverage)](https://sonarqube.com/dashboard?id=hobaskos%3Aevent%3Aserver)
+[![Build Bugs](https://sonarqube.com/api/badges/measure?key=hobaskos:event:server&metric=bugs)](https://sonarqube.com/dashboard?id=hobaskos%3Aevent%3Aserver)
+[![Build Vulnerabilities](https://sonarqube.com/api/badges/measure?key=hobaskos:event:server&metric=vulnerabilities)](https://sonarqube.com/dashboard?id=hobaskos%3Aevent%3Aserver)
+[![Build Duplications](https://sonarqube.com/api/badges/measure?key=hobaskos:event:server&metric=duplicated_lines_density)](https://sonarqube.com/dashboard?id=hobaskos%3Aevent%3Aserver)
 
 This application was generated using JHipster 3.12.2, you can find documentation and help at [https://jhipster.github.io/documentation-archive/v3.12.2](https://jhipster.github.io/documentation-archive/v3.12.2).
 
