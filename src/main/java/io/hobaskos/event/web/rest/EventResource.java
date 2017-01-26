@@ -39,7 +39,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventResource {
 
     private final Logger log = LoggerFactory.getLogger(EventResource.class);
-        
+
     @Inject
     private EventRepository eventRepository;
 
@@ -66,7 +66,7 @@ public class EventResource {
         Event event = eventMapper.eventDTOToEvent(eventDTO);
         event = eventRepository.save(event);
         EventDTO result = eventMapper.eventToEventDTO(event);
-        eventSearchRepository.save(event);
+        //eventSearchRepository.save(event);
         return ResponseEntity.created(new URI("/api/events/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("event", result.getId().toString()))
             .body(result);
@@ -91,7 +91,7 @@ public class EventResource {
         Event event = eventMapper.eventDTOToEvent(eventDTO);
         event = eventRepository.save(event);
         EventDTO result = eventMapper.eventToEventDTO(event);
-        eventSearchRepository.save(event);
+        //eventSearchRepository.save(event);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert("event", eventDTO.getId().toString()))
             .body(result);
@@ -144,7 +144,7 @@ public class EventResource {
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         log.debug("REST request to delete Event : {}", id);
         eventRepository.delete(id);
-        eventSearchRepository.delete(id);
+        //eventSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("event", id.toString())).build();
     }
 
@@ -152,7 +152,7 @@ public class EventResource {
      * SEARCH  /_search/events?query=:query : search for the event corresponding
      * to the query.
      *
-     * @param query the query of the event search 
+     * @param query the query of the event search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
@@ -162,7 +162,8 @@ public class EventResource {
     public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query, @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
-        Page<Event> page = eventSearchRepository.search(queryStringQuery(query), pageable);
+        //Page<Event> page = eventSearchRepository.search(queryStringQuery(query), pageable);
+        Page<Event> page = eventRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/events");
         return new ResponseEntity<>(eventMapper.eventsToEventDTOs(page.getContent()), headers, HttpStatus.OK);
     }

@@ -103,7 +103,7 @@ public class SocialService {
         newUser.setAuthorities(authorities);
         newUser.setLangKey(langKey);
 
-        userSearchRepository.save(newUser);
+        //userSearchRepository.save(newUser);
         return userRepository.save(newUser);
     }
 
