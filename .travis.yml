@@ -27,10 +27,13 @@ before_install:
 install: npm install
 script:
   - ./gradlew clean
-  - ./gradlew test
+  - ./gradlew test jacocoTestReport
   - sonar-scanner
   - gulp test
   - ./gradlew bootRepackage -Pprod -x test
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
 notifications:
   webhooks:
     on_success: change  # options: [always|never|change] default: always
