@@ -1,0 +1,66 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipName": "event",
+            "otherEntityName": "event",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "lat",
+            "fieldType": "Double",
+            "fieldValidateRules": [
+                "required",
+                "min",
+                "max"
+            ],
+            "fieldValidateRulesMin": "-90",
+            "fieldValidateRulesMax": "90"
+        },
+        {
+            "fieldName": "lon",
+            "fieldType": "Double",
+            "fieldValidateRules": [
+                "required",
+                "min",
+                "max"
+            ],
+            "fieldValidateRulesMin": "-180",
+            "fieldValidateRulesMax": "180"
+        },
+        {
+            "fieldName": "vector",
+            "fieldType": "Integer",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "fromDate",
+            "fieldType": "ZonedDateTime"
+        },
+        {
+            "fieldName": "toDate",
+            "fieldType": "ZonedDateTime"
+        }
+    ],
+    "changelogDate": "20170206102433",
+    "dto": "mapstruct",
+    "service": "serviceImpl",
+    "entityTableName": "location",
+    "pagination": "pagination"
+}

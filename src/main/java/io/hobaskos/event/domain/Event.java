@@ -1,5 +1,6 @@
 package io.hobaskos.event.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -8,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
 
 /**
@@ -43,6 +46,11 @@ public class Event implements Serializable {
     @ManyToOne
     @NotNull
     private User owner;
+
+    @OneToMany(mappedBy = "event")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Location> locations = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -128,6 +136,31 @@ public class Event implements Serializable {
 
     public void setOwner(User user) {
         this.owner = user;
+    }
+
+    public Set<Location> getLocations() {
+        return locations;
+    }
+
+    public Event locations(Set<Location> locations) {
+        this.locations = locations;
+        return this;
+    }
+
+    public Event addLocations(Location location) {
+        locations.add(location);
+        location.setEvent(this);
+        return this;
+    }
+
+    public Event removeLocations(Location location) {
+        locations.remove(location);
+        location.setEvent(null);
+        return this;
+    }
+
+    public void setLocations(Set<Location> locations) {
+        this.locations = locations;
     }
 
     @Override

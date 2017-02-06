@@ -3,20 +3,19 @@
 
     angular
         .module('backendApp')
-        .controller('EventDialogController', EventDialogController);
+        .controller('LocationDialogController', LocationDialogController);
 
-    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event', 'User', 'Location'];
+    LocationDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Location', 'Event'];
 
-    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event, User, Location) {
+    function LocationDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Location, Event) {
         var vm = this;
 
-        vm.event = entity;
+        vm.location = entity;
         vm.clear = clear;
         vm.datePickerOpenStatus = {};
         vm.openCalendar = openCalendar;
         vm.save = save;
-        vm.users = User.query();
-        vm.locations = Location.query();
+        vm.events = Event.query();
 
         $timeout(function (){
             angular.element('.form-group:eq(1)>input').focus();
@@ -28,15 +27,15 @@
 
         function save () {
             vm.isSaving = true;
-            if (vm.event.id !== null) {
-                Event.update(vm.event, onSaveSuccess, onSaveError);
+            if (vm.location.id !== null) {
+                Location.update(vm.location, onSaveSuccess, onSaveError);
             } else {
-                Event.save(vm.event, onSaveSuccess, onSaveError);
+                Location.save(vm.location, onSaveSuccess, onSaveError);
             }
         }
 
         function onSaveSuccess (result) {
-            $scope.$emit('backendApp:eventUpdate', result);
+            $scope.$emit('backendApp:locationUpdate', result);
             $uibModalInstance.close(result);
             vm.isSaving = false;
         }

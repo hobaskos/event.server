@@ -1,0 +1,134 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myLocationLabel" data-translate="backendApp.location.home.createOrEditLabel">Create or edit a Location</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.location.id">
+            <label for="id" data-translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.location.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.name" for="field_name">Name</label>
+            <input type="text" class="form-control" name="name" id="field_name"
+                    ng-model="vm.location.name"
+                     />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.description" for="field_description">Description</label>
+            <input type="text" class="form-control" name="description" id="field_description"
+                    ng-model="vm.location.description"
+                     />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.lat" for="field_lat">Lat</label>
+            <input type="number" class="form-control" name="lat" id="field_lat"
+                    ng-model="vm.location.lat"
+                    required min="-90" max="90" />
+            <div ng-show="editForm.lat.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.lat.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.lat.$error.min" data-translate="entity.validation.min" translate-value-min="-90">
+                    This field should be more than -90.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.lat.$error.max" data-translate="entity.validation.max" translate-value-max="90">
+                    This field cannot be more than 90.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.lat.$error.number" data-translate="entity.validation.number">
+                    This field should be a number.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.lon" for="field_lon">Lon</label>
+            <input type="number" class="form-control" name="lon" id="field_lon"
+                    ng-model="vm.location.lon"
+                    required min="-180" max="180" />
+            <div ng-show="editForm.lon.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.lon.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.lon.$error.min" data-translate="entity.validation.min" translate-value-min="-180">
+                    This field should be more than -180.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.lon.$error.max" data-translate="entity.validation.max" translate-value-max="180">
+                    This field cannot be more than 180.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.lon.$error.number" data-translate="entity.validation.number">
+                    This field should be a number.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.vector" for="field_vector">Vector</label>
+            <input type="number" class="form-control" name="vector" id="field_vector"
+                    ng-model="vm.location.vector"
+                    required />
+            <div ng-show="editForm.vector.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.vector.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.vector.$error.number" data-translate="entity.validation.number">
+                    This field should be a number.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.fromDate" for="field_fromDate">From Date</label>
+                <div class="input-group">
+                    <input id="field_fromDate" type="text" class="form-control" name="fromDate" datetime-picker="{{dateformat}}" ng-model="vm.location.fromDate" is-open="vm.datePickerOpenStatus.fromDate"
+                      />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="vm.openCalendar('fromDate')"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.location.toDate" for="field_toDate">To Date</label>
+                <div class="input-group">
+                    <input id="field_toDate" type="text" class="form-control" name="toDate" datetime-picker="{{dateformat}}" ng-model="vm.location.toDate" is-open="vm.datePickerOpenStatus.toDate"
+                      />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="vm.openCalendar('toDate')"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+        </div>
+
+        <div class="form-group">
+            <label data-translate="backendApp.location.event" for="field_event">Event</label>
+            <select class="form-control" id="field_event" name="event" ng-model="vm.location.eventId" ng-options="event.id as event.id for event in vm.events"             required>
+                <option value=""></option>
+            </select>
+        </div>
+        <div ng-show="editForm.event.$invalid">
+            <p class="help-block"
+                ng-show="editForm.event.$error.required" data-translate="entity.validation.required">
+                This field is required.
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span data-translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span data-translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

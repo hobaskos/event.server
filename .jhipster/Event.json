@@ -10,6 +10,12 @@
             ],
             "otherEntityField": "id",
             "ownerSide": true
+        },
+        {
+            "relationshipName": "locations",
+            "otherEntityName": "location",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "event"
         }
     ],
     "fields": [
