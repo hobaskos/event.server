@@ -18,6 +18,7 @@ public interface EventMapper {
     List<EventDTO> eventsToEventDTOs(List<Event> events);
 
     @Mapping(source = "ownerId", target = "owner")
+    @Mapping(target = "locations", ignore = true)
     Event eventDTOToEvent(EventDTO eventDTO);
 
     List<Event> eventDTOsToEvents(List<EventDTO> eventDTOs);

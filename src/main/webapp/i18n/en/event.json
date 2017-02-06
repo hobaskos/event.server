@@ -21,7 +21,8 @@
             "imageUrl": "Image Url",
             "fromDate": "From Date",
             "toDate": "To Date",
-            "owner": "Owner"
+            "owner": "Owner",
+            "locations": "Locations"
         }
     }
 }

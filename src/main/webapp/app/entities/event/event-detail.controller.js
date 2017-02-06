@@ -5,9 +5,9 @@
         .module('backendApp')
         .controller('EventDetailController', EventDetailController);
 
-    EventDetailController.$inject = ['$scope', '$rootScope', '$stateParams', 'previousState', 'entity', 'Event', 'User'];
+    EventDetailController.$inject = ['$scope', '$rootScope', '$stateParams', 'previousState', 'entity', 'Event', 'User', 'Location'];
 
-    function EventDetailController($scope, $rootScope, $stateParams, previousState, entity, Event, User) {
+    function EventDetailController($scope, $rootScope, $stateParams, previousState, entity, Event, User, Location) {
         var vm = this;
 
         vm.event = entity;
