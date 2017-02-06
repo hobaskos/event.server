@@ -5,7 +5,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -26,6 +28,22 @@ public class Event implements Serializable {
     @Column(name = "title")
     private String title;
 
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "from_date")
+    private ZonedDateTime fromDate;
+
+    @Column(name = "to_date")
+    private ZonedDateTime toDate;
+
+    @ManyToOne
+    @NotNull
+    private User owner;
+
     public Long getId() {
         return id;
     }
@@ -45,6 +63,71 @@ public class Event implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Event description(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public Event imageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+        return this;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public ZonedDateTime getFromDate() {
+        return fromDate;
+    }
+
+    public Event fromDate(ZonedDateTime fromDate) {
+        this.fromDate = fromDate;
+        return this;
+    }
+
+    public void setFromDate(ZonedDateTime fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public ZonedDateTime getToDate() {
+        return toDate;
+    }
+
+    public Event toDate(ZonedDateTime toDate) {
+        this.toDate = toDate;
+        return this;
+    }
+
+    public void setToDate(ZonedDateTime toDate) {
+        this.toDate = toDate;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public Event owner(User user) {
+        this.owner = user;
+        return this;
+    }
+
+    public void setOwner(User user) {
+        this.owner = user;
     }
 
     @Override
@@ -72,6 +155,10 @@ public class Event implements Serializable {
         return "Event{" +
             "id=" + id +
             ", title='" + title + "'" +
+            ", description='" + description + "'" +
+            ", imageUrl='" + imageUrl + "'" +
+            ", fromDate='" + fromDate + "'" +
+            ", toDate='" + toDate + "'" +
             '}';
     }
 }

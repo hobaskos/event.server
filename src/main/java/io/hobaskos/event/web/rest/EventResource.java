@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
@@ -58,7 +59,7 @@ public class EventResource {
      */
     @PostMapping("/events")
     @Timed
-    public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) throws URISyntaxException {
+    public ResponseEntity<EventDTO> createEvent(@Valid @RequestBody EventDTO eventDTO) throws URISyntaxException {
         log.debug("REST request to save Event : {}", eventDTO);
         if (eventDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("event", "idexists", "A new event cannot already have an ID")).body(null);
@@ -83,7 +84,7 @@ public class EventResource {
      */
     @PutMapping("/events")
     @Timed
-    public ResponseEntity<EventDTO> updateEvent(@RequestBody EventDTO eventDTO) throws URISyntaxException {
+    public ResponseEntity<EventDTO> updateEvent(@Valid @RequestBody EventDTO eventDTO) throws URISyntaxException {
         log.debug("REST request to update Event : {}", eventDTO);
         if (eventDTO.getId() == null) {
             return createEvent(eventDTO);

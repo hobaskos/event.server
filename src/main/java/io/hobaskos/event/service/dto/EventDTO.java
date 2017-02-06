@@ -1,6 +1,10 @@
 package io.hobaskos.event.service.dto;
 
+import java.time.ZonedDateTime;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
 
 
@@ -13,7 +17,17 @@ public class EventDTO implements Serializable {
 
     private String title;
 
+    private String description;
 
+    private String imageUrl;
+
+    private ZonedDateTime fromDate;
+
+    private ZonedDateTime toDate;
+
+
+    private Long ownerId;
+    
     public Long getId() {
         return id;
     }
@@ -27,6 +41,42 @@ public class EventDTO implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    public ZonedDateTime getFromDate() {
+        return fromDate;
+    }
+
+    public void setFromDate(ZonedDateTime fromDate) {
+        this.fromDate = fromDate;
+    }
+    public ZonedDateTime getToDate() {
+        return toDate;
+    }
+
+    public void setToDate(ZonedDateTime toDate) {
+        this.toDate = toDate;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long userId) {
+        this.ownerId = userId;
     }
 
     @Override
@@ -55,6 +105,10 @@ public class EventDTO implements Serializable {
         return "EventDTO{" +
             "id=" + id +
             ", title='" + title + "'" +
+            ", description='" + description + "'" +
+            ", imageUrl='" + imageUrl + "'" +
+            ", fromDate='" + fromDate + "'" +
+            ", toDate='" + toDate + "'" +
             '}';
     }
 }

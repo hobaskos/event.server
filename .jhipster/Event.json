@@ -1,10 +1,38 @@
 {
     "fluentMethods": true,
-    "relationships": [],
+    "relationships": [
+        {
+            "relationshipName": "owner",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id",
+            "ownerSide": true
+        }
+    ],
     "fields": [
         {
             "fieldName": "title",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "imageUrl",
+            "fieldType": "String",
+            "fieldValidateRules": []
+        },
+        {
+            "fieldName": "fromDate",
+            "fieldType": "ZonedDateTime"
+        },
+        {
+            "fieldName": "toDate",
+            "fieldType": "ZonedDateTime"
         }
     ],
     "changelogDate": "20170123132303",

@@ -28,8 +28,30 @@
                 <constraints nullable="true" />
             </column>
             
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            
+            <column name="image_url" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            
+            <column name="from_date" type="timestamp">
+                <constraints nullable="true" />
+            </column>
+            
+            <column name="to_date" type="timestamp">
+                <constraints nullable="true" />
+            </column>
+            
+            <column name="owner_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="event" columnName="from_date" columnDataType="datetime"/>
+        <dropDefaultValue tableName="event" columnName="to_date" columnDataType="datetime"/>
         
     </changeSet>
 </databaseChangeLog>

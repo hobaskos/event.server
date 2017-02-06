@@ -5,14 +5,17 @@
         .module('backendApp')
         .controller('EventDialogController', EventDialogController);
 
-    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event'];
+    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event', 'User'];
 
-    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event) {
+    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event, User) {
         var vm = this;
 
         vm.event = entity;
         vm.clear = clear;
+        vm.datePickerOpenStatus = {};
+        vm.openCalendar = openCalendar;
         vm.save = save;
+        vm.users = User.query();
 
         $timeout(function (){
             angular.element('.form-group:eq(1)>input').focus();
@@ -41,6 +44,11 @@
             vm.isSaving = false;
         }
 
+        vm.datePickerOpenStatus.fromDate = false;
+        vm.datePickerOpenStatus.toDate = false;
 
+        function openCalendar (date) {
+            vm.datePickerOpenStatus[date] = true;
+        }
     }
 })();
