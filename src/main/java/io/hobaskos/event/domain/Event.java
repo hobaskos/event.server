@@ -47,9 +47,8 @@ public class Event implements Serializable {
     @NotNull
     private User owner;
 
-    @OneToMany(mappedBy = "event")
-    @JsonIgnore
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONE)
     private Set<Location> locations = new HashSet<>();
 
     public Long getId() {

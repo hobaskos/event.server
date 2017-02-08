@@ -5,6 +5,7 @@ import io.hobaskos.event.domain.Event;
 
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.search.EventSearchRepository;
+import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
@@ -50,6 +51,9 @@ public class EventResource {
     @Inject
     private EventSearchRepository eventSearchRepository;
 
+    @Inject
+    private UserService userService;
+
     /**
      * POST  /events : Create a new event.
      *
@@ -65,9 +69,10 @@ public class EventResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("event", "idexists", "A new event cannot already have an ID")).body(null);
         }
         Event event = eventMapper.eventDTOToEvent(eventDTO);
+        event.setOwner(userService.getUserWithAuthorities());
         event = eventRepository.save(event);
         EventDTO result = eventMapper.eventToEventDTO(event);
-        //eventSearchRepository.save(event);
+        eventSearchRepository.save(event);
         return ResponseEntity.created(new URI("/api/events/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("event", result.getId().toString()))
             .body(result);
@@ -92,7 +97,7 @@ public class EventResource {
         Event event = eventMapper.eventDTOToEvent(eventDTO);
         event = eventRepository.save(event);
         EventDTO result = eventMapper.eventToEventDTO(event);
-        //eventSearchRepository.save(event);
+        eventSearchRepository.save(event);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert("event", eventDTO.getId().toString()))
             .body(result);
@@ -145,7 +150,7 @@ public class EventResource {
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         log.debug("REST request to delete Event : {}", id);
         eventRepository.delete(id);
-        //eventSearchRepository.delete(id);
+        eventSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("event", id.toString())).build();
     }
 
@@ -163,8 +168,7 @@ public class EventResource {
     public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query, @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
-        //Page<Event> page = eventSearchRepository.search(queryStringQuery(query), pageable);
-        Page<Event> page = eventRepository.findAll(pageable);
+        Page<Event> page = eventSearchRepository.search(queryStringQuery(query), pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/events");
         return new ResponseEntity<>(eventMapper.eventsToEventDTOs(page.getContent()), headers, HttpStatus.OK);
     }

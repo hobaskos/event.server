@@ -25,9 +25,10 @@ public class EventDTO implements Serializable {
 
     private ZonedDateTime toDate;
 
-
     private Long ownerId;
-    
+
+    private Set<LocationDTO> locations;
+
     public Long getId() {
         return id;
     }
@@ -77,6 +78,14 @@ public class EventDTO implements Serializable {
 
     public void setOwnerId(Long userId) {
         this.ownerId = userId;
+    }
+
+    public Set<LocationDTO> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(Set<LocationDTO> locations) {
+        this.locations = locations;
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Mapper for the entity Event and its DTO EventDTO.
  */
-@Mapper(componentModel = "spring", uses = {UserMapper.class, })
+@Mapper(componentModel = "spring", uses = {UserMapper.class, LocationMapper.class})
 public interface EventMapper {
 
     @Mapping(source = "owner.id", target = "ownerId")
@@ -17,7 +17,7 @@ public interface EventMapper {
 
     List<EventDTO> eventsToEventDTOs(List<Event> events);
 
-    @Mapping(source = "ownerId", target = "owner")
+    @Mapping(target = "owner", ignore = true)
     @Mapping(target = "locations", ignore = true)
     Event eventDTOToEvent(EventDTO eventDTO);
 
