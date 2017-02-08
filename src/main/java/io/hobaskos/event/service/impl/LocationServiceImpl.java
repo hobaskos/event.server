@@ -1,5 +1,8 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.domain.Event;
+import io.hobaskos.event.repository.EventRepository;
+import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.LocationService;
 import io.hobaskos.event.domain.Location;
 import io.hobaskos.event.repository.LocationRepository;
@@ -29,7 +32,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class LocationServiceImpl implements LocationService{
 
     private final Logger log = LoggerFactory.getLogger(LocationServiceImpl.class);
-    
+
     @Inject
     private LocationRepository locationRepository;
 
@@ -38,6 +41,12 @@ public class LocationServiceImpl implements LocationService{
 
     @Inject
     private LocationSearchRepository locationSearchRepository;
+
+    @Inject
+    private EventSearchRepository eventSearchRepository;
+
+    @Inject
+    private EventRepository eventRepository;
 
     /**
      * Save a location.
@@ -49,6 +58,11 @@ public class LocationServiceImpl implements LocationService{
         log.debug("Request to save Location : {}", locationDTO);
         Location location = locationMapper.locationDTOToLocation(locationDTO);
         location = locationRepository.save(location);
+
+        Event event = eventRepository.findOne(location.getEvent().getId());
+        event.addLocations(location);
+        eventSearchRepository.save(event);
+
         LocationDTO result = locationMapper.locationToLocationDTO(location);
         locationSearchRepository.save(location);
         return result;
@@ -56,11 +70,11 @@ public class LocationServiceImpl implements LocationService{
 
     /**
      *  Get all the locations.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public Page<LocationDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Locations");
         Page<Location> result = locationRepository.findAll(pageable);
@@ -73,7 +87,7 @@ public class LocationServiceImpl implements LocationService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public LocationDTO findOne(Long id) {
         log.debug("Request to get Location : {}", id);
         Location location = locationRepository.findOne(id);
@@ -88,6 +102,12 @@ public class LocationServiceImpl implements LocationService{
      */
     public void delete(Long id) {
         log.debug("Request to delete Location : {}", id);
+
+        Location location = locationRepository.findOne(id);
+        Event event = eventRepository.findOne(location.getEvent().getId());
+        event.removeLocations(location);
+        eventSearchRepository.save(event);
+
         locationRepository.delete(id);
         locationSearchRepository.delete(id);
     }

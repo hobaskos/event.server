@@ -1,11 +1,11 @@
 package io.hobaskos.event.web.rest;
 
-import cucumber.api.java.ca.I;
 import io.hobaskos.event.BackendApp;
 
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventRepository;
+import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
@@ -70,6 +70,9 @@ public class EventResourceIntTest {
     private EventMapper eventMapper;
 
     @Inject
+    private EventService eventService;
+
+    @Inject
     private EventSearchRepository eventSearchRepository;
 
     @Inject
@@ -89,9 +92,7 @@ public class EventResourceIntTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         EventResource eventResource = new EventResource();
-        ReflectionTestUtils.setField(eventResource, "eventSearchRepository", eventSearchRepository);
-        ReflectionTestUtils.setField(eventResource, "eventRepository", eventRepository);
-        ReflectionTestUtils.setField(eventResource, "eventMapper", eventMapper);
+        ReflectionTestUtils.setField(eventResource, "eventService", eventService);
         this.restEventMockMvc = MockMvcBuilders.standaloneSetup(eventResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -307,7 +308,7 @@ public class EventResourceIntTest {
         eventSearchRepository.save(event);
 
         // Search the event
-        restEventMockMvc.perform(get("/api/_search/events?query=id:" + event.getId()))
+        restEventMockMvc.perform(get("/api/_search/events?lat=10&lon=10&distance=10km&query=id:" + event.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(event.getId().intValue())))
