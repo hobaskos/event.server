@@ -3,6 +3,7 @@ package io.hobaskos.event.domain;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -31,17 +32,12 @@ public class Location implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @NotNull
-    @DecimalMin(value = "-90")
-    @DecimalMax(value = "90")
-    @Column(name = "lat", nullable = false)
-    private Double lat;
-
-    @NotNull
-    @DecimalMin(value = "-180")
-    @DecimalMax(value = "180")
-    @Column(name = "lon", nullable = false)
-    private Double lon;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "lat", column = @Column(name = "lat")),
+        @AttributeOverride(name = "lon", column = @Column(name = "lon"))
+    })
+    private GeoPoint geoPoint;
 
     @NotNull
     @Column(name = "vector", nullable = false)
@@ -91,30 +87,17 @@ public class Location implements Serializable {
         this.description = description;
     }
 
-    public Double getLat() {
-        return lat;
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
-    public Location lat(Double lat) {
-        this.lat = lat;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
+    }
+
+    public Location geoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
         return this;
-    }
-
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-
-    public Double getLon() {
-        return lon;
-    }
-
-    public Location lon(Double lon) {
-        this.lon = lon;
-        return this;
-    }
-
-    public void setLon(Double lon) {
-        this.lon = lon;
     }
 
     public Integer getVector() {
@@ -195,8 +178,6 @@ public class Location implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +
-            ", lat='" + lat + "'" +
-            ", lon='" + lon + "'" +
             ", vector='" + vector + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
