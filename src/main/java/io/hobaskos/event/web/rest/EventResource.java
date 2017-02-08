@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +22,9 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
@@ -147,10 +145,14 @@ public class EventResource {
                                                        @RequestParam(required = false, defaultValue = "10") Double lat,
                                                        @RequestParam(required = false, defaultValue = "10") Double lon,
                                                        @RequestParam(required = false, defaultValue = "10km") String distance,
+                                                       @RequestParam(required = false, defaultValue = "2013-01-01")
+                                                           @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) Date fromDate,
+                                                       @RequestParam(required = false, defaultValue = "2020-12-31")
+                                                           @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) Date toDate,
                                                        @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
-        Page<EventDTO> page = eventService.search(query, new GeoPoint(lat, lon), distance, pageable);
+        Page<EventDTO> page = eventService.search(query, new GeoPoint(lat, lon), distance, fromDate, toDate, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/events");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

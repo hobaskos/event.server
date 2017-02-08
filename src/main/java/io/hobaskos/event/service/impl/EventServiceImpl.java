@@ -8,7 +8,6 @@ import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -18,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+
+import java.util.Date;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -103,13 +104,15 @@ public class EventServiceImpl implements EventService{
      *  @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page<EventDTO> search(String query, GeoPoint geoPoint, String distance, Pageable pageable) {
+    public Page<EventDTO> search(String query, GeoPoint geoPoint, String distance,
+                                 Date fromDate, Date toDate, Pageable pageable) {
         log.debug("Request to search for a page of Events for query {}", query);
 
         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
             .withPageable(pageable)
             .withQuery(boolQuery()
                 .must(queryStringQuery(query))
+                .should(rangeQuery("locations.fromDate").gte(fromDate).queryName("locations.toDate").lte(toDate))
                 .should(geoDistanceQuery("locations.geoPoint")
                     .lat(geoPoint.lat())
                     .lon(geoPoint.lon())

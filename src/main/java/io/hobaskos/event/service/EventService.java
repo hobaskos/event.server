@@ -5,6 +5,8 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
+
 /**
  * Service Interface for managing Event.
  */
@@ -49,5 +51,6 @@ public interface EventService {
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    Page<EventDTO> search(String query, GeoPoint geoPoint, String distance, Pageable pageable);
+    Page<EventDTO> search(String query, GeoPoint geoPoint, String distance,
+                          Date fromDate, Date toDate, Pageable pageable);
 }
