@@ -3,23 +3,22 @@ package io.hobaskos.event.domain;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 /**
- * A Event.
+ * A Location.
  */
 @Entity
-@Table(name = "event")
+@Table(name = "location")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Document(indexName = "event")
-public class Event implements Serializable {
+@Document(indexName = "location")
+public class Location implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -27,14 +26,22 @@ public class Event implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "title")
-    private String title;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "lat", column = @Column(name = "lat")),
+        @AttributeOverride(name = "lon", column = @Column(name = "lon"))
+    })
+    private GeoPoint geoPoint;
+
+    @NotNull
+    @Column(name = "vector", nullable = false)
+    private Integer vector;
 
     @Column(name = "from_date")
     private ZonedDateTime fromDate;
@@ -44,11 +51,7 @@ public class Event implements Serializable {
 
     @ManyToOne
     @NotNull
-    private User owner;
-
-    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
-    @Cache(usage = CacheConcurrencyStrategy.NONE)
-    private Set<Location> locations = new HashSet<>();
+    private Event event;
 
     public Long getId() {
         return id;
@@ -58,24 +61,24 @@ public class Event implements Serializable {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public Event title(String title) {
-        this.title = title;
+    public Location name(String name) {
+        this.name = name;
         return this;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public Event description(String description) {
+    public Location description(String description) {
         this.description = description;
         return this;
     }
@@ -84,24 +87,37 @@ public class Event implements Serializable {
         this.description = description;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
-    public Event imageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
+    }
+
+    public Location geoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
         return this;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public Integer getVector() {
+        return vector;
+    }
+
+    public Location vector(Integer vector) {
+        this.vector = vector;
+        return this;
+    }
+
+    public void setVector(Integer vector) {
+        this.vector = vector;
     }
 
     public ZonedDateTime getFromDate() {
         return fromDate;
     }
 
-    public Event fromDate(ZonedDateTime fromDate) {
+    public Location fromDate(ZonedDateTime fromDate) {
         this.fromDate = fromDate;
         return this;
     }
@@ -114,7 +130,7 @@ public class Event implements Serializable {
         return toDate;
     }
 
-    public Event toDate(ZonedDateTime toDate) {
+    public Location toDate(ZonedDateTime toDate) {
         this.toDate = toDate;
         return this;
     }
@@ -123,42 +139,17 @@ public class Event implements Serializable {
         this.toDate = toDate;
     }
 
-    public User getOwner() {
-        return owner;
+    public Event getEvent() {
+        return event;
     }
 
-    public Event owner(User user) {
-        this.owner = user;
+    public Location event(Event event) {
+        this.event = event;
         return this;
     }
 
-    public void setOwner(User user) {
-        this.owner = user;
-    }
-
-    public Set<Location> getLocations() {
-        return locations;
-    }
-
-    public Event locations(Set<Location> locations) {
-        this.locations = locations;
-        return this;
-    }
-
-    public Event addLocations(Location location) {
-        locations.add(location);
-        location.setEvent(this);
-        return this;
-    }
-
-    public Event removeLocations(Location location) {
-        locations.remove(location);
-        location.setEvent(null);
-        return this;
-    }
-
-    public void setLocations(Set<Location> locations) {
-        this.locations = locations;
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
     @Override
@@ -169,11 +160,11 @@ public class Event implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Event event = (Event) o;
-        if (event.id == null || id == null) {
+        Location location = (Location) o;
+        if (location.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, event.id);
+        return Objects.equals(id, location.id);
     }
 
     @Override
@@ -183,11 +174,11 @@ public class Event implements Serializable {
 
     @Override
     public String toString() {
-        return "Event{" +
+        return "Location{" +
             "id=" + id +
-            ", title='" + title + "'" +
+            ", name='" + name + "'" +
             ", description='" + description + "'" +
-            ", imageUrl='" + imageUrl + "'" +
+            ", vector='" + vector + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
             '}';

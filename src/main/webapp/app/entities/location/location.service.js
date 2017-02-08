@@ -2,12 +2,12 @@
     'use strict';
     angular
         .module('backendApp')
-        .factory('Event', Event);
+        .factory('Location', Location);
 
-    Event.$inject = ['$resource', 'DateUtils'];
+    Location.$inject = ['$resource', 'DateUtils'];
 
-    function Event ($resource, DateUtils) {
-        var resourceUrl =  'api/events/:id';
+    function Location ($resource, DateUtils) {
+        var resourceUrl =  'api/locations/:id';
 
         return $resource(resourceUrl, {}, {
             'query': { method: 'GET', isArray: true},

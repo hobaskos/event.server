@@ -1,33 +1,36 @@
 package io.hobaskos.event.service.dto;
 
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
 import java.time.ZonedDateTime;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 
 /**
- * A DTO for the Event entity.
+ * A DTO for the Location entity.
  */
-public class EventDTO implements Serializable {
+public class LocationDTO implements Serializable {
 
     private Long id;
 
-    private String title;
+    private String name;
 
     private String description;
 
-    private String imageUrl;
+    @NotNull
+    private GeoPoint geoPoint;
+
+    @NotNull
+    private Integer vector;
 
     private ZonedDateTime fromDate;
 
     private ZonedDateTime toDate;
 
-    private Long ownerId;
 
-    private Set<LocationDTO> locations;
+    private Long eventId;
 
     public Long getId() {
         return id;
@@ -36,12 +39,12 @@ public class EventDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
     public String getDescription() {
         return description;
@@ -50,12 +53,21 @@ public class EventDTO implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-    public String getImageUrl() {
-        return imageUrl;
+
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
+    }
+
+    public Integer getVector() {
+        return vector;
+    }
+
+    public void setVector(Integer vector) {
+        this.vector = vector;
     }
     public ZonedDateTime getFromDate() {
         return fromDate;
@@ -72,20 +84,12 @@ public class EventDTO implements Serializable {
         this.toDate = toDate;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getEventId() {
+        return eventId;
     }
 
-    public void setOwnerId(Long userId) {
-        this.ownerId = userId;
-    }
-
-    public Set<LocationDTO> getLocations() {
-        return locations;
-    }
-
-    public void setLocations(Set<LocationDTO> locations) {
-        this.locations = locations;
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
     }
 
     @Override
@@ -97,9 +101,9 @@ public class EventDTO implements Serializable {
             return false;
         }
 
-        EventDTO eventDTO = (EventDTO) o;
+        LocationDTO locationDTO = (LocationDTO) o;
 
-        if ( ! Objects.equals(id, eventDTO.id)) return false;
+        if ( ! Objects.equals(id, locationDTO.id)) return false;
 
         return true;
     }
@@ -111,11 +115,11 @@ public class EventDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "EventDTO{" +
+        return "LocationDTO{" +
             "id=" + id +
-            ", title='" + title + "'" +
+            ", name='" + name + "'" +
             ", description='" + description + "'" +
-            ", imageUrl='" + imageUrl + "'" +
+            ", vector='" + vector + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
             '}';

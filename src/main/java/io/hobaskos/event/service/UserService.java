@@ -51,7 +51,7 @@ public class UserService {
                 // activate given user for the registration key.
                 user.setActivated(true);
                 user.setActivationKey(null);
-                //userSearchRepository.save(user);
+                userSearchRepository.save(user);
                 log.debug("Activated user: {}", user);
                 return user;
             });
@@ -104,7 +104,7 @@ public class UserService {
         authorities.add(authority);
         newUser.setAuthorities(authorities);
         userRepository.save(newUser);
-        //userSearchRepository.save(newUser);
+        userSearchRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
@@ -133,7 +133,7 @@ public class UserService {
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(true);
         userRepository.save(user);
-        //userSearchRepository.save(user);
+        userSearchRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
     }
@@ -144,7 +144,7 @@ public class UserService {
             user.setLastName(lastName);
             user.setEmail(email);
             user.setLangKey(langKey);
-            //userSearchRepository.save(user);
+            userSearchRepository.save(user);
             log.debug("Changed Information for User: {}", user);
         });
     }
@@ -174,7 +174,7 @@ public class UserService {
         userRepository.findOneByLogin(login).ifPresent(user -> {
             socialService.deleteUserSocialConnection(user.getLogin());
             userRepository.delete(user);
-            //userSearchRepository.delete(user);
+            userSearchRepository.delete(user);
             log.debug("Deleted User: {}", user);
         });
     }
@@ -227,7 +227,7 @@ public class UserService {
         for (User user : users) {
             log.debug("Deleting not activated user {}", user.getLogin());
             userRepository.delete(user);
-            //userSearchRepository.delete(user);
+            userSearchRepository.delete(user);
         }
     }
 }

@@ -9,17 +9,17 @@
 
     function stateConfig($stateProvider) {
         $stateProvider
-        .state('event', {
+        .state('location', {
             parent: 'entity',
-            url: '/event?page&sort&search',
+            url: '/location?page&sort&search',
             data: {
                 authorities: ['ROLE_USER'],
-                pageTitle: 'backendApp.event.home.title'
+                pageTitle: 'backendApp.location.home.title'
             },
             views: {
                 'content@': {
-                    templateUrl: 'app/entities/event/events.html',
-                    controller: 'EventController',
+                    templateUrl: 'app/entities/location/locations.html',
+                    controller: 'LocationController',
                     controllerAs: 'vm'
                 }
             },
@@ -45,37 +45,37 @@
                     };
                 }],
                 translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
-                    $translatePartialLoader.addPart('event');
+                    $translatePartialLoader.addPart('location');
                     $translatePartialLoader.addPart('global');
                     return $translate.refresh();
                 }]
             }
         })
-        .state('event-detail', {
+        .state('location-detail', {
             parent: 'entity',
-            url: '/event/{id}',
+            url: '/location/{id}',
             data: {
                 authorities: ['ROLE_USER'],
-                pageTitle: 'backendApp.event.detail.title'
+                pageTitle: 'backendApp.location.detail.title'
             },
             views: {
                 'content@': {
-                    templateUrl: 'app/entities/event/event-detail.html',
-                    controller: 'EventDetailController',
+                    templateUrl: 'app/entities/location/location-detail.html',
+                    controller: 'LocationDetailController',
                     controllerAs: 'vm'
                 }
             },
             resolve: {
                 translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
-                    $translatePartialLoader.addPart('event');
+                    $translatePartialLoader.addPart('location');
                     return $translate.refresh();
                 }],
-                entity: ['$stateParams', 'Event', function($stateParams, Event) {
-                    return Event.get({id : $stateParams.id}).$promise;
+                entity: ['$stateParams', 'Location', function($stateParams, Location) {
+                    return Location.get({id : $stateParams.id}).$promise;
                 }],
                 previousState: ["$state", function ($state) {
                     var currentStateData = {
-                        name: $state.current.name || 'event',
+                        name: $state.current.name || 'location',
                         params: $state.params,
                         url: $state.href($state.current.name, $state.params)
                     };
@@ -83,22 +83,22 @@
                 }]
             }
         })
-        .state('event-detail.edit', {
-            parent: 'event-detail',
+        .state('location-detail.edit', {
+            parent: 'location-detail',
             url: '/detail/edit',
             data: {
                 authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'app/entities/event/event-dialog.html',
-                    controller: 'EventDialogController',
+                    templateUrl: 'app/entities/location/location-dialog.html',
+                    controller: 'LocationDialogController',
                     controllerAs: 'vm',
                     backdrop: 'static',
                     size: 'lg',
                     resolve: {
-                        entity: ['Event', function(Event) {
-                            return Event.get({id : $stateParams.id}).$promise;
+                        entity: ['Location', function(Location) {
+                            return Location.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
@@ -108,25 +108,27 @@
                 });
             }]
         })
-        .state('event.new', {
-            parent: 'event',
+        .state('location.new', {
+            parent: 'location',
             url: '/new',
             data: {
                 authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'app/entities/event/event-dialog.html',
-                    controller: 'EventDialogController',
+                    templateUrl: 'app/entities/location/location-dialog.html',
+                    controller: 'LocationDialogController',
                     controllerAs: 'vm',
                     backdrop: 'static',
                     size: 'lg',
                     resolve: {
                         entity: function () {
                             return {
-                                title: null,
+                                name: null,
                                 description: null,
-                                imageUrl: null,
+                                lat: null,
+                                lon: null,
+                                vector: null,
                                 fromDate: null,
                                 toDate: null,
                                 id: null
@@ -134,56 +136,56 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('event', null, { reload: 'event' });
+                    $state.go('location', null, { reload: 'location' });
                 }, function() {
-                    $state.go('event');
+                    $state.go('location');
                 });
             }]
         })
-        .state('event.edit', {
-            parent: 'event',
+        .state('location.edit', {
+            parent: 'location',
             url: '/{id}/edit',
             data: {
                 authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'app/entities/event/event-dialog.html',
-                    controller: 'EventDialogController',
+                    templateUrl: 'app/entities/location/location-dialog.html',
+                    controller: 'LocationDialogController',
                     controllerAs: 'vm',
                     backdrop: 'static',
                     size: 'lg',
                     resolve: {
-                        entity: ['Event', function(Event) {
-                            return Event.get({id : $stateParams.id}).$promise;
+                        entity: ['Location', function(Location) {
+                            return Location.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('event', null, { reload: 'event' });
+                    $state.go('location', null, { reload: 'location' });
                 }, function() {
                     $state.go('^');
                 });
             }]
         })
-        .state('event.delete', {
-            parent: 'event',
+        .state('location.delete', {
+            parent: 'location',
             url: '/{id}/delete',
             data: {
                 authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'app/entities/event/event-delete-dialog.html',
-                    controller: 'EventDeleteController',
+                    templateUrl: 'app/entities/location/location-delete-dialog.html',
+                    controller: 'LocationDeleteController',
                     controllerAs: 'vm',
                     size: 'md',
                     resolve: {
-                        entity: ['Event', function(Event) {
-                            return Event.get({id : $stateParams.id}).$promise;
+                        entity: ['Location', function(Location) {
+                            return Location.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('event', null, { reload: 'event' });
+                    $state.go('location', null, { reload: 'location' });
                 }, function() {
                     $state.go('^');
                 });

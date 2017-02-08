@@ -2,9 +2,9 @@
 
 describe('Controller Tests', function() {
 
-    describe('Event Management Detail Controller', function() {
+    describe('Location Management Detail Controller', function() {
         var $scope, $rootScope;
-        var MockEntity, MockPreviousState, MockEvent, MockUser, MockLocation;
+        var MockEntity, MockPreviousState, MockLocation, MockEvent;
         var createController;
 
         beforeEach(inject(function($injector) {
@@ -12,9 +12,8 @@ describe('Controller Tests', function() {
             $scope = $rootScope.$new();
             MockEntity = jasmine.createSpy('MockEntity');
             MockPreviousState = jasmine.createSpy('MockPreviousState');
-            MockEvent = jasmine.createSpy('MockEvent');
-            MockUser = jasmine.createSpy('MockUser');
             MockLocation = jasmine.createSpy('MockLocation');
+            MockEvent = jasmine.createSpy('MockEvent');
             
 
             var locals = {
@@ -22,19 +21,18 @@ describe('Controller Tests', function() {
                 '$rootScope': $rootScope,
                 'entity': MockEntity,
                 'previousState': MockPreviousState,
-                'Event': MockEvent,
-                'User': MockUser,
-                'Location': MockLocation
+                'Location': MockLocation,
+                'Event': MockEvent
             };
             createController = function() {
-                $injector.get('$controller')("EventDetailController", locals);
+                $injector.get('$controller')("LocationDetailController", locals);
             };
         }));
 
 
         describe('Root Scope Listening', function() {
             it('Unregisters root scope listener upon scope destruction', function() {
-                var eventType = 'backendApp:eventUpdate';
+                var eventType = 'backendApp:locationUpdate';
 
                 createController();
                 expect($rootScope.$$listenerCount[eventType]).toEqual(1);

@@ -24,5 +24,9 @@
 
     <cache alias="io.hobaskos.event.domain.Event" uses-template="simple"/>
 
+    <cache alias="io.hobaskos.event.domain.Location" uses-template="simple"/>
+
+    <cache alias="io.hobaskos.event.domain.Event.locations" uses-template="simple"/>
+
     <!-- jhipster-needle-ehcache-add-entry -->
 </config>

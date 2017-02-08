@@ -1,0 +1,29 @@
+{
+    "backendApp": {
+        "location" : {
+            "home": {
+                "title": "Locations",
+                "createLabel": "Create a new Location",
+                "createOrEditLabel": "Create or edit a Location",
+                "search": "Search for Location"
+            },
+            "created": "A new Location is created with identifier {{ param }}",
+            "updated": "A Location is updated with identifier {{ param }}",
+            "deleted": "A Location is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Location {{ id }}?"
+            },
+            "detail": {
+                "title": "Location"
+            },
+            "name": "Name",
+            "description": "Description",
+            "lat": "Lat",
+            "lon": "Lon",
+            "vector": "Vector",
+            "fromDate": "From Date",
+            "toDate": "To Date",
+            "event": "Event"
+        }
+    }
+}
