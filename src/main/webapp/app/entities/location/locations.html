@@ -52,8 +52,8 @@
                     <td><a ui-sref="location-detail({id:location.id})">{{location.id}}</a></td>
                     <td>{{location.name}}</td>
                     <td>{{location.description}}</td>
-                    <td>{{location.lat}}</td>
-                    <td>{{location.lon}}</td>
+                    <td>{{location.geoPoint.lat}}</td>
+                    <td>{{location.geoPoint.lon}}</td>
                     <td>{{location.vector}}</td>
                     <td>{{location.fromDate | date:'medium'}}</td>
                     <td>{{location.toDate | date:'medium'}}</td>

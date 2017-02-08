@@ -1,10 +1,10 @@
 package io.hobaskos.event.service.dto;
 
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
 import java.time.ZonedDateTime;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 
@@ -20,14 +20,7 @@ public class LocationDTO implements Serializable {
     private String description;
 
     @NotNull
-    @DecimalMin(value = "-90")
-    @DecimalMax(value = "90")
-    private Double lat;
-
-    @NotNull
-    @DecimalMin(value = "-180")
-    @DecimalMax(value = "180")
-    private Double lon;
+    private GeoPoint geoPoint;
 
     @NotNull
     private Integer vector;
@@ -38,7 +31,7 @@ public class LocationDTO implements Serializable {
 
 
     private Long eventId;
-    
+
     public Long getId() {
         return id;
     }
@@ -60,20 +53,15 @@ public class LocationDTO implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-    public Double getLat() {
-        return lat;
+
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-    public Double getLon() {
-        return lon;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
     }
 
-    public void setLon(Double lon) {
-        this.lon = lon;
-    }
     public Integer getVector() {
         return vector;
     }
@@ -131,8 +119,6 @@ public class LocationDTO implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +
-            ", lat='" + lat + "'" +
-            ", lon='" + lon + "'" +
             ", vector='" + vector + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +

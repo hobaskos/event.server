@@ -11,6 +11,7 @@ import io.hobaskos.event.service.dto.LocationDTO;
 import io.hobaskos.event.service.mapper.LocationMapper;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -23,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -113,8 +115,7 @@ public class LocationResourceIntTest {
         Location location = new Location()
                 .name(DEFAULT_NAME)
                 .description(DEFAULT_DESCRIPTION)
-                .lat(DEFAULT_LAT)
-                .lon(DEFAULT_LON)
+                .geoPoint(new GeoPoint(DEFAULT_LAT, DEFAULT_LON))
                 .vector(DEFAULT_VECTOR)
                 .fromDate(DEFAULT_FROM_DATE)
                 .toDate(DEFAULT_TO_DATE);
@@ -151,15 +152,22 @@ public class LocationResourceIntTest {
         Location testLocation = locationList.get(locationList.size() - 1);
         assertThat(testLocation.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testLocation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testLocation.getLat()).isEqualTo(DEFAULT_LAT);
-        assertThat(testLocation.getLon()).isEqualTo(DEFAULT_LON);
+        assertThat(testLocation.getGeoPoint().getLat()).isEqualTo(DEFAULT_LAT);
+        assertThat(testLocation.getGeoPoint().getLon()).isEqualTo(DEFAULT_LON);
         assertThat(testLocation.getVector()).isEqualTo(DEFAULT_VECTOR);
         assertThat(testLocation.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
         assertThat(testLocation.getToDate()).isEqualTo(DEFAULT_TO_DATE);
 
         // Validate the Location in ElasticSearch
         Location locationEs = locationSearchRepository.findOne(testLocation.getId());
-        assertThat(locationEs).isEqualToComparingFieldByField(testLocation);
+        assertThat(locationEs.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(locationEs.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(locationEs.getGeoPoint().getLat()).isEqualTo(DEFAULT_LAT);
+        assertThat(locationEs.getGeoPoint().getLon()).isEqualTo(DEFAULT_LON);
+        assertThat(locationEs.getVector()).isEqualTo(DEFAULT_VECTOR);
+        assertThat(locationEs.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
+        assertThat(locationEs.getToDate()).isEqualTo(DEFAULT_TO_DATE);
+
     }
 
     @Test
@@ -185,29 +193,10 @@ public class LocationResourceIntTest {
 
     @Test
     @Transactional
-    public void checkLatIsRequired() throws Exception {
+    public void checkGeoPointIsRequired() throws Exception {
         int databaseSizeBeforeTest = locationRepository.findAll().size();
         // set the field null
-        location.setLat(null);
-
-        // Create the Location, which fails.
-        LocationDTO locationDTO = locationMapper.locationToLocationDTO(location);
-
-        restLocationMockMvc.perform(post("/api/locations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(locationDTO)))
-            .andExpect(status().isBadRequest());
-
-        List<Location> locationList = locationRepository.findAll();
-        assertThat(locationList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkLonIsRequired() throws Exception {
-        int databaseSizeBeforeTest = locationRepository.findAll().size();
-        // set the field null
-        location.setLon(null);
+        location.geoPoint(null);
 
         // Create the Location, which fails.
         LocationDTO locationDTO = locationMapper.locationToLocationDTO(location);
@@ -253,8 +242,8 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(location.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.doubleValue())))
-            .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.doubleValue())))
+            .andExpect(jsonPath("$.[*].geoPoint.lat").value(hasItem(DEFAULT_LAT.doubleValue())))
+            .andExpect(jsonPath("$.[*].geoPoint.lon").value(hasItem(DEFAULT_LON.doubleValue())))
             .andExpect(jsonPath("$.[*].vector").value(hasItem(DEFAULT_VECTOR)))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
             .andExpect(jsonPath("$.[*].toDate").value(hasItem(sameInstant(DEFAULT_TO_DATE))));
@@ -273,8 +262,8 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.id").value(location.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-            .andExpect(jsonPath("$.lat").value(DEFAULT_LAT.doubleValue()))
-            .andExpect(jsonPath("$.lon").value(DEFAULT_LON.doubleValue()))
+            .andExpect(jsonPath("$.geoPoint.lat").value(DEFAULT_LAT.doubleValue()))
+            .andExpect(jsonPath("$.geoPoint.lon").value(DEFAULT_LON.doubleValue()))
             .andExpect(jsonPath("$.vector").value(DEFAULT_VECTOR))
             .andExpect(jsonPath("$.fromDate").value(sameInstant(DEFAULT_FROM_DATE)))
             .andExpect(jsonPath("$.toDate").value(sameInstant(DEFAULT_TO_DATE)));
@@ -301,8 +290,7 @@ public class LocationResourceIntTest {
         updatedLocation
                 .name(UPDATED_NAME)
                 .description(UPDATED_DESCRIPTION)
-                .lat(UPDATED_LAT)
-                .lon(UPDATED_LON)
+                .geoPoint(new GeoPoint(UPDATED_LAT, UPDATED_LON))
                 .vector(UPDATED_VECTOR)
                 .fromDate(UPDATED_FROM_DATE)
                 .toDate(UPDATED_TO_DATE);
@@ -319,15 +307,22 @@ public class LocationResourceIntTest {
         Location testLocation = locationList.get(locationList.size() - 1);
         assertThat(testLocation.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testLocation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testLocation.getLat()).isEqualTo(UPDATED_LAT);
-        assertThat(testLocation.getLon()).isEqualTo(UPDATED_LON);
+        assertThat(testLocation.getGeoPoint().getLat()).isEqualTo(UPDATED_LAT);
+        assertThat(testLocation.getGeoPoint().getLon()).isEqualTo(UPDATED_LON);
         assertThat(testLocation.getVector()).isEqualTo(UPDATED_VECTOR);
         assertThat(testLocation.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
         assertThat(testLocation.getToDate()).isEqualTo(UPDATED_TO_DATE);
 
         // Validate the Location in ElasticSearch
         Location locationEs = locationSearchRepository.findOne(testLocation.getId());
-        assertThat(locationEs).isEqualToComparingFieldByField(testLocation);
+        assertThat(locationEs.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(locationEs.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(locationEs.getGeoPoint().getLat()).isEqualTo(UPDATED_LAT);
+        assertThat(locationEs.getGeoPoint().getLon()).isEqualTo(UPDATED_LON);
+        assertThat(locationEs.getVector()).isEqualTo(UPDATED_VECTOR);
+        assertThat(locationEs.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
+        assertThat(locationEs.getToDate()).isEqualTo(UPDATED_TO_DATE);
+
     }
 
     @Test
@@ -385,8 +380,8 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(location.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.doubleValue())))
-            .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.doubleValue())))
+            .andExpect(jsonPath("$.[*].geoPoint.lat").value(hasItem(DEFAULT_LAT.doubleValue())))
+            .andExpect(jsonPath("$.[*].geoPoint.lon").value(hasItem(DEFAULT_LON.doubleValue())))
             .andExpect(jsonPath("$.[*].vector").value(hasItem(DEFAULT_VECTOR)))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
             .andExpect(jsonPath("$.[*].toDate").value(hasItem(sameInstant(DEFAULT_TO_DATE))));
