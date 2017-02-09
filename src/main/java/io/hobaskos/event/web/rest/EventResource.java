@@ -7,11 +7,11 @@ import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
 
 import io.swagger.annotations.ApiParam;
-import org.elasticsearch.common.geo.GeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +22,8 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -152,8 +154,32 @@ public class EventResource {
                                                        @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
-        Page<EventDTO> page = eventService.search(query, new GeoPoint(lat, lon), distance, fromDate, toDate, pageable);
+        LocalDateTime fromDateLocal = fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime toDateLocal = toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        Page<EventDTO> page = eventService.search(query, new GeoPoint(lat, lon), distance, fromDateLocal, toDateLocal, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/events");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * Search /_search/events-nearby : search for events nearby corresponding to the lat,lon and distance params
+     * @param lat
+     * @param lon
+     * @param distance
+     * @param pageable
+     * @return the result of the search
+     * @throws URISyntaxException
+     */
+    @GetMapping("/_search/events-nearby")
+    @Timed
+    public ResponseEntity<List<EventDTO>> searchEventsNearby(@RequestParam Double lat,
+                                                             @RequestParam Double lon,
+                                                             @RequestParam String distance,
+                                                             @ApiParam Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to search for a page of Events for nearby query {}");
+        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, pageable);
+        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/events-nearby");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

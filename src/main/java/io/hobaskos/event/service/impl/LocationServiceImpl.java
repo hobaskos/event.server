@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -122,6 +123,29 @@ public class LocationServiceImpl implements LocationService{
     public Page<LocationDTO> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Locations for query {}", query);
         Page<Location> result = locationSearchRepository.search(queryStringQuery(query), pageable);
+        return result.map(location -> locationMapper.locationToLocationDTO(location));
+    }
+
+    /**
+     * Search for locations nearby given geoPoint
+     * @param lat
+     * @param lon
+     * @param distance
+     * @param pageable
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<LocationDTO> searchNearby(Double lat, Double lon, String distance, Pageable pageable) {
+        log.debug("Request to search for a page nearby Location  lat:{},lon:{},distance:{}", lat, lon, distance);
+
+        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
+            .withPageable(pageable)
+            .withQuery(geoDistanceQuery("geoPoint")
+                        .lat(lat)
+                        .lon(lon)
+                        .distance(distance));
+
+        Page<Location> result = locationSearchRepository.search(searchQueryBuilder.build());
         return result.map(location -> locationMapper.locationToLocationDTO(location));
     }
 }

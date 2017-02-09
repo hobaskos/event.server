@@ -6,18 +6,23 @@ import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.UserRepository;
+import io.hobaskos.event.repository.search.LocationSearchRepository;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.repository.search.EventSearchRepository;
+import io.hobaskos.event.service.LocationService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
+import io.hobaskos.event.service.dto.LocationDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -60,6 +65,11 @@ public class EventResourceIntTest {
     private static final String DEFAULT_IMAGE_URL = "AAAAAAAAAA";
     private static final String UPDATED_IMAGE_URL = "BBBBBBBBBB";
 
+    private static final String DEFAULT_LOCATION_NAME = "CCCCCCCC";
+    private static final String DEFAULT_LOCATION_DESCRIPTION = "DDDDDDDDD";
+    private static final Double DEFAULT_LOCATION_LAT = 12.0000000D;
+    private static final Double DEFAULT_LOCATION_LON = 13.0000000D;
+
     private static final ZonedDateTime DEFAULT_FROM_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_FROM_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
 
@@ -79,7 +89,13 @@ public class EventResourceIntTest {
     private EventService eventService;
 
     @Inject
+    private LocationService locationService;
+
+    @Inject
     private EventSearchRepository eventSearchRepository;
+
+    @Inject
+    private LocationSearchRepository locationSearchRepository;
 
     @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -138,6 +154,7 @@ public class EventResourceIntTest {
     @Before
     public void initTest() {
         eventSearchRepository.deleteAll();
+        locationSearchRepository.deleteAll();
         event = createEntity(em);
     }
 
@@ -323,7 +340,7 @@ public class EventResourceIntTest {
         eventSearchRepository.save(event);
 
         // Search the event
-        restEventMockMvc.perform(get("/api/_search/events?lat=10&lon=10&distance=10km&query=id:" + event.getId()))
+        restEventMockMvc.perform(get("/api/_search/events?query=id:" + event.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(event.getId().intValue())))
@@ -332,5 +349,79 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL.toString())))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
             .andExpect(jsonPath("$.[*].toDate").value(hasItem(sameInstant(DEFAULT_TO_DATE))));
+    }
+
+    @Test
+    @Transactional
+    public void searchEventFullText() throws Exception {
+        // Initialize the database
+        eventRepository.saveAndFlush(event);
+        eventSearchRepository.save(event);
+
+        // Search for events using the title
+        restEventMockMvc.perform(get("/api/_search/events?query=" + event.getTitle()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)));
+
+        // Search the event using the description
+        restEventMockMvc.perform(get("/api/_search/events?query=" + event.getDescription()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
+
+        // Search the event using the image url
+        restEventMockMvc.perform(get("/api/_search/events?query=" + event.getImageUrl()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL)));
+
+        // Search for event using and expect no data
+        restEventMockMvc.perform(get("/api/_search/events?query=" + UPDATED_DESCRIPTION))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
+    }
+
+    @Test
+    @Transactional
+    public void attachLocationAndSearch() throws Exception {
+        // Initialize the database
+        eventRepository.saveAndFlush(event);
+        eventSearchRepository.save(event);
+
+        LocationDTO locationDTO = new LocationDTO();
+        locationDTO.setName(DEFAULT_LOCATION_NAME);
+        locationDTO.setDescription(DEFAULT_LOCATION_DESCRIPTION);
+        locationDTO.setVector(1);
+        locationDTO.setGeoPoint(new GeoPoint(DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON));
+        locationDTO.setEventId(event.getId());
+
+        locationService.save(locationDTO);
+
+        // verify that the location is attached to the event
+        restEventMockMvc.perform(get("/api/_search/events?query=" + event.getTitle()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
+            .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lat").value(hasItem(DEFAULT_LOCATION_LAT)))
+            .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lon").value(hasItem(DEFAULT_LOCATION_LON)));
+
+        /*
+        // Search the event using a nearby search on the location
+        restEventMockMvc.perform(get("/api/_search/events-nearby?lat=12.0&lon=13.0&distance=1000km"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
+            .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
+        */
+
+        // Search the event using a nearby search on a wrong location - expect no data.
+        restEventMockMvc.perform(get("/api/_search/events-nearby?lat=12&lon=13&distance=100m"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
     }
 }

@@ -20,7 +20,7 @@ public interface LocationService {
 
     /**
      *  Get all the locations.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
@@ -45,9 +45,19 @@ public interface LocationService {
      * Search for the location corresponding to the query.
      *
      *  @param query the query of the search
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
     Page<LocationDTO> search(String query, Pageable pageable);
+
+    /**
+     * Search for locations nearby geoPoint
+     * @param lat
+     * @param lon
+     * @param description
+     * @param pageable
+     * @return the list of entities
+     */
+    Page<LocationDTO> searchNearby(Double lat, Double lon, String description, Pageable pageable);
 }

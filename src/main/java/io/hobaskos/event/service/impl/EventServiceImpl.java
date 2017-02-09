@@ -1,5 +1,7 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.domain.Location;
+import io.hobaskos.event.repository.search.LocationSearchRepository;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.repository.EventRepository;
@@ -7,17 +9,18 @@ import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
-import org.elasticsearch.common.geo.GeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -39,6 +42,9 @@ public class EventServiceImpl implements EventService{
 
     @Inject
     private EventSearchRepository eventSearchRepository;
+
+    @Inject
+    private LocationSearchRepository locationSearchRepository;
 
     @Inject
     private UserService userService;
@@ -105,7 +111,7 @@ public class EventServiceImpl implements EventService{
      */
     @Transactional(readOnly = true)
     public Page<EventDTO> search(String query, GeoPoint geoPoint, String distance,
-                                 Date fromDate, Date toDate, Pageable pageable) {
+                                 LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
         log.debug("Request to search for a page of Events for query {}", query);
 
         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
@@ -114,9 +120,29 @@ public class EventServiceImpl implements EventService{
                 .must(queryStringQuery(query))
                 .should(rangeQuery("locations.fromDate").gte(fromDate).queryName("locations.toDate").lte(toDate))
                 .should(geoDistanceQuery("locations.geoPoint")
-                    .lat(geoPoint.lat())
-                    .lon(geoPoint.lon())
+                    .lat(geoPoint.getLat())
+                    .lon(geoPoint.getLon())
                     .distance(distance)));
+
+        Page<Event> result = eventSearchRepository.search(searchQueryBuilder.build());
+        return result.map(event -> eventMapper.eventToEventDTO(event));
+    }
+
+    /**
+     * Search for nearby events
+     * @param lat
+     * @param lon
+     * @param distance
+     * @param pageable
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<EventDTO> searchNearby(Double lat, Double lon, String distance, Pageable pageable) {
+        log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{}", lat, lon, distance);
+
+        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
+            .withPageable(pageable)
+            .withQuery(geoDistanceQuery("locations.geoPoint").lat(lat).lon(lon).distance(distance));
 
         Page<Event> result = eventSearchRepository.search(searchQueryBuilder.build());
         return result.map(event -> eventMapper.eventToEventDTO(event));
