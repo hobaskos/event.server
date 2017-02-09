@@ -5,15 +5,17 @@ import io.hobaskos.event.BackendApp;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventRepository;
+import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.repository.search.EventSearchRepository;
+import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -38,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class for the EventResource REST controller.
@@ -64,6 +67,9 @@ public class EventResourceIntTest {
     private static final ZonedDateTime UPDATED_TO_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
 
     @Inject
+    private UserRepository userRepository;
+
+    @Inject
     private EventRepository eventRepository;
 
     @Inject
@@ -81,6 +87,9 @@ public class EventResourceIntTest {
     @Inject
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
+    @Mock
+    private UserService mockUserService;
+
     @Inject
     private EntityManager em;
 
@@ -88,14 +97,21 @@ public class EventResourceIntTest {
 
     private Event event;
 
+    private User owner;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         EventResource eventResource = new EventResource();
         ReflectionTestUtils.setField(eventResource, "eventService", eventService);
+        ReflectionTestUtils.setField(eventService, "userService", mockUserService);
+
         this.restEventMockMvc = MockMvcBuilders.standaloneSetup(eventResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
+
+        owner = UserResourceIntTest.createOwnerEntity(em);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(owner);
     }
 
     /**
@@ -127,7 +143,6 @@ public class EventResourceIntTest {
 
     @Test
     @Transactional
-    @Ignore //TODO fix this test
     public void createEvent() throws Exception {
         int databaseSizeBeforeCreate = eventRepository.findAll().size();
 
@@ -148,6 +163,7 @@ public class EventResourceIntTest {
         assertThat(testEvent.getImageUrl()).isEqualTo(DEFAULT_IMAGE_URL);
         assertThat(testEvent.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
         assertThat(testEvent.getToDate()).isEqualTo(DEFAULT_TO_DATE);
+        assertThat(testEvent.getOwner()).isEqualToComparingFieldByField(owner);
 
         // Validate the Event in ElasticSearch
         Event eventEs = eventSearchRepository.findOne(testEvent.getId());
@@ -221,7 +237,6 @@ public class EventResourceIntTest {
 
     @Test
     @Transactional
-    @Ignore //TODO fix this test
     public void updateEvent() throws Exception {
         // Initialize the database
         eventRepository.saveAndFlush(event);
@@ -252,6 +267,7 @@ public class EventResourceIntTest {
         assertThat(testEvent.getImageUrl()).isEqualTo(UPDATED_IMAGE_URL);
         assertThat(testEvent.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
         assertThat(testEvent.getToDate()).isEqualTo(UPDATED_TO_DATE);
+        assertThat(testEvent.getOwner()).isEqualToComparingFieldByField(owner);
 
         // Validate the Event in ElasticSearch
         Event eventEs = eventSearchRepository.findOne(testEvent.getId());
@@ -260,7 +276,6 @@ public class EventResourceIntTest {
 
     @Test
     @Transactional
-    @Ignore //TODO fix this test
     public void updateNonExistingEvent() throws Exception {
         int databaseSizeBeforeUpdate = eventRepository.findAll().size();
 
