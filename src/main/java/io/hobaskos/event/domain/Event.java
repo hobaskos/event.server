@@ -8,7 +8,6 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
@@ -39,12 +38,6 @@ public class Event implements Serializable {
     @Size(max = 512)
     @Column(name = "image_url", length = 512)
     private String imageUrl;
-
-    @Column(name = "from_date")
-    private ZonedDateTime fromDate;
-
-    @Column(name = "to_date")
-    private ZonedDateTime toDate;
 
     @ManyToOne
     @NotNull
@@ -99,32 +92,6 @@ public class Event implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public ZonedDateTime getFromDate() {
-        return fromDate;
-    }
-
-    public Event fromDate(ZonedDateTime fromDate) {
-        this.fromDate = fromDate;
-        return this;
-    }
-
-    public void setFromDate(ZonedDateTime fromDate) {
-        this.fromDate = fromDate;
-    }
-
-    public ZonedDateTime getToDate() {
-        return toDate;
-    }
-
-    public Event toDate(ZonedDateTime toDate) {
-        this.toDate = toDate;
-        return this;
-    }
-
-    public void setToDate(ZonedDateTime toDate) {
-        this.toDate = toDate;
     }
 
     public User getOwner() {
@@ -192,8 +159,6 @@ public class Event implements Serializable {
             ", title='" + title + "'" +
             ", description='" + description + "'" +
             ", imageUrl='" + imageUrl + "'" +
-            ", fromDate='" + fromDate + "'" +
-            ", toDate='" + toDate + "'" +
             '}';
     }
 }
