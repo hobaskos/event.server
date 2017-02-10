@@ -127,8 +127,6 @@
                                 title: null,
                                 description: null,
                                 imageUrl: null,
-                                fromDate: null,
-                                toDate: null,
                                 id: null
                             };
                         }

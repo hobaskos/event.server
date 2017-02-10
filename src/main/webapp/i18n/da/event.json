@@ -19,8 +19,6 @@
             "title": "Title",
             "description": "Description",
             "imageUrl": "Image Url",
-            "fromDate": "From Date",
-            "toDate": "To Date",
             "owner": "Owner",
             "locations": "Locations"
         }

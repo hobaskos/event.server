@@ -31,14 +31,6 @@
             "fieldName": "imageUrl",
             "fieldType": "String",
             "fieldValidateRules": []
-        },
-        {
-            "fieldName": "fromDate",
-            "fieldType": "ZonedDateTime"
-        },
-        {
-            "fieldName": "toDate",
-            "fieldType": "ZonedDateTime"
         }
     ],
     "changelogDate": "20170123132303",
