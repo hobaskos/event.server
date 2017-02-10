@@ -17,19 +17,40 @@
             <label class="control-label" data-translate="backendApp.event.title" for="field_title">Title</label>
             <input type="text" class="form-control" name="title" id="field_title"
                     ng-model="vm.event.title"
-                     />
+                    ng-maxlength="256" />
+            <div ng-show="editForm.title.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.title.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
+                    This field cannot be longer than 256 characters.
+                </p>
+            </div>
+
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.event.description" for="field_description">Description</label>
             <input type="text" class="form-control" name="description" id="field_description"
                     ng-model="vm.event.description"
-                     />
+                    ng-maxlength="8129" />
+            <div ng-show="editForm.description.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.description.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="8129">
+                    This field cannot be longer than 8129 characters.
+                </p>
+            </div>
+
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.event.imageUrl" for="field_imageUrl">Image Url</label>
             <input type="text" class="form-control" name="imageUrl" id="field_imageUrl"
                     ng-model="vm.event.imageUrl"
-                     />
+                    ng-maxlength="512" />
+            <div ng-show="editForm.imageUrl.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.imageUrl.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="512">
+                    This field cannot be longer than 512 characters.
+                </p>
+            </div>
+
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.event.fromDate" for="field_fromDate">From Date</label>

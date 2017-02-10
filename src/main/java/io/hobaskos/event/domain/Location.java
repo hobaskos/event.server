@@ -26,10 +26,12 @@ public class Location implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "name")
+    @Size(max = 256)
+    @Column(name = "name", length = 256)
     private String name;
 
-    @Column(name = "description")
+    @Size(max = 8129)
+    @Column(name = "description", length = 8129)
     private String description;
 
     @Embedded
