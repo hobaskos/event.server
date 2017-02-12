@@ -11,7 +11,6 @@ import io.hobaskos.event.service.dto.LocationDTO;
 import io.hobaskos.event.service.mapper.LocationMapper;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -385,5 +384,25 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].vector").value(hasItem(DEFAULT_VECTOR)))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
             .andExpect(jsonPath("$.[*].toDate").value(hasItem(sameInstant(DEFAULT_TO_DATE))));
+    }
+
+    @Test
+    @Transactional
+    public void searchLocationNearby() throws Exception {
+         // Initialize the database
+        locationRepository.saveAndFlush(location);
+        locationSearchRepository.save(location);
+
+        String locationString = "/api/_search/locations-nearby?lat=-90&lon=-180&distance=1km";
+        restLocationMockMvc.perform(get(locationString))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(location.getId().intValue())));
+
+        String locationStringOutside = "/api/_search/locations-nearby?lat=-80&lon=-170&distance=1km";
+        restLocationMockMvc.perform(get(locationStringOutside))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
     }
 }

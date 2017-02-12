@@ -36,7 +36,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class LocationResource {
 
     private final Logger log = LoggerFactory.getLogger(LocationResource.class);
-        
+
     @Inject
     private LocationService locationService;
 
@@ -135,7 +135,7 @@ public class LocationResource {
      * SEARCH  /_search/locations?query=:query : search for the location corresponding
      * to the query.
      *
-     * @param query the query of the location search 
+     * @param query the query of the location search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
@@ -150,5 +150,16 @@ public class LocationResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-
+    @GetMapping("/_search/locations-nearby")
+    @Timed
+    public ResponseEntity<List<LocationDTO>> searchLocationNearby(@RequestParam Double lat,
+                                                                  @RequestParam Double lon,
+                                                                  @RequestParam String distance,
+                                                                  @ApiParam Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to search for a page of nearby Locations lat:{},lon:{},distance{}", lat,lon,distance);
+        Page<LocationDTO> page = locationService.searchNearby(lat, lon, distance, pageable);
+        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/locations-nearby");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
 }
