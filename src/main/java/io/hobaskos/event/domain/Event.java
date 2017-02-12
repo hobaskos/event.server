@@ -27,13 +27,16 @@ public class Event implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "title")
+    @Size(max = 256)
+    @Column(name = "title", length = 256)
     private String title;
 
-    @Column(name = "description")
+    @Size(max = 8129)
+    @Column(name = "description", length = 8129)
     private String description;
 
-    @Column(name = "image_url")
+    @Size(max = 512)
+    @Column(name = "image_url", length = 512)
     private String imageUrl;
 
     @ManyToOne

@@ -15,8 +15,10 @@ public class LocationDTO implements Serializable {
 
     private Long id;
 
+    @Size(max = 256)
     private String name;
 
+    @Size(max = 8129)
     private String description;
 
     @NotNull

@@ -14,10 +14,13 @@ public class EventDTO implements Serializable {
 
     private Long id;
 
+    @Size(max = 256)
     private String title;
 
+    @Size(max = 8192)
     private String description;
 
+    @Size(max = 512)
     private String imageUrl;
 
     private Long ownerId;
