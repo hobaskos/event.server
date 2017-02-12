@@ -146,11 +146,7 @@ public class EventResource {
      */
     @GetMapping("/_search/events")
     @Timed
-    public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query,
-                                                       @RequestParam(required = false, defaultValue = "10") Double lat,
-                                                       @RequestParam(required = false, defaultValue = "10") Double lon,
-                                                       @RequestParam(required = false, defaultValue = "10km") String distance,
-                                                       @ApiParam Pageable pageable)
+    public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query, @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
         Page<EventDTO> page = eventService.search(query, pageable);
