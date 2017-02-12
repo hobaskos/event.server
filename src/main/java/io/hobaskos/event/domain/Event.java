@@ -1,6 +1,9 @@
 package io.hobaskos.event.domain;
 
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -10,7 +13,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
@@ -30,20 +32,17 @@ public class Event implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "title")
+    @Size(max = 256)
+    @Column(name = "title", length = 256)
     private String title;
 
-    @Column(name = "description")
+    @Size(max = 8129)
+    @Column(name = "description", length = 8129)
     private String description;
 
-    @Column(name = "image_url")
+    @Size(max = 512)
+    @Column(name = "image_url", length = 512)
     private String imageUrl;
-
-    @Column(name = "from_date")
-    private ZonedDateTime fromDate;
-
-    @Column(name = "to_date")
-    private ZonedDateTime toDate;
 
     @ManyToOne
     @NotNull
@@ -100,32 +99,6 @@ public class Event implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public ZonedDateTime getFromDate() {
-        return fromDate;
-    }
-
-    public Event fromDate(ZonedDateTime fromDate) {
-        this.fromDate = fromDate;
-        return this;
-    }
-
-    public void setFromDate(ZonedDateTime fromDate) {
-        this.fromDate = fromDate;
-    }
-
-    public ZonedDateTime getToDate() {
-        return toDate;
-    }
-
-    public Event toDate(ZonedDateTime toDate) {
-        this.toDate = toDate;
-        return this;
-    }
-
-    public void setToDate(ZonedDateTime toDate) {
-        this.toDate = toDate;
     }
 
     public User getOwner() {
@@ -193,8 +166,6 @@ public class Event implements Serializable {
             ", title='" + title + "'" +
             ", description='" + description + "'" +
             ", imageUrl='" + imageUrl + "'" +
-            ", fromDate='" + fromDate + "'" +
-            ", toDate='" + toDate + "'" +
             '}';
     }
 }

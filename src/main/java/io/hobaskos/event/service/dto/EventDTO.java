@@ -1,6 +1,5 @@
 package io.hobaskos.event.service.dto;
 
-import java.time.ZonedDateTime;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -15,15 +14,14 @@ public class EventDTO implements Serializable {
 
     private Long id;
 
+    @Size(max = 256)
     private String title;
 
+    @Size(max = 8192)
     private String description;
 
+    @Size(max = 512)
     private String imageUrl;
-
-    private ZonedDateTime fromDate;
-
-    private ZonedDateTime toDate;
 
     private Long ownerId;
 
@@ -56,20 +54,6 @@ public class EventDTO implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-    public ZonedDateTime getFromDate() {
-        return fromDate;
-    }
-
-    public void setFromDate(ZonedDateTime fromDate) {
-        this.fromDate = fromDate;
-    }
-    public ZonedDateTime getToDate() {
-        return toDate;
-    }
-
-    public void setToDate(ZonedDateTime toDate) {
-        this.toDate = toDate;
     }
 
     public Long getOwnerId() {
@@ -116,8 +100,6 @@ public class EventDTO implements Serializable {
             ", title='" + title + "'" +
             ", description='" + description + "'" +
             ", imageUrl='" + imageUrl + "'" +
-            ", fromDate='" + fromDate + "'" +
-            ", toDate='" + toDate + "'" +
             '}';
     }
 }

@@ -24,23 +24,15 @@
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="title" type="varchar(255)">
+            <column name="title" type="varchar(256)">
                 <constraints nullable="true" />
             </column>
             
-            <column name="description" type="varchar(255)">
+            <column name="description" type="varchar(8129)">
                 <constraints nullable="true" />
             </column>
             
-            <column name="image_url" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            
-            <column name="from_date" type="timestamp">
-                <constraints nullable="true" />
-            </column>
-            
-            <column name="to_date" type="timestamp">
+            <column name="image_url" type="varchar(512)">
                 <constraints nullable="true" />
             </column>
             
@@ -50,8 +42,6 @@
 
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-        <dropDefaultValue tableName="event" columnName="from_date" columnDataType="datetime"/>
-        <dropDefaultValue tableName="event" columnName="to_date" columnDataType="datetime"/>
         
     </changeSet>
 </databaseChangeLog>

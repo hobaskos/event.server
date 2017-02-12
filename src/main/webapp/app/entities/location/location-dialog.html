@@ -17,13 +17,27 @@
             <label class="control-label" data-translate="backendApp.location.name" for="field_name">Name</label>
             <input type="text" class="form-control" name="name" id="field_name"
                     ng-model="vm.location.name"
-                     />
+                    ng-maxlength="256" />
+            <div ng-show="editForm.name.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.name.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
+                    This field cannot be longer than 256 characters.
+                </p>
+            </div>
+
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.location.description" for="field_description">Description</label>
             <input type="text" class="form-control" name="description" id="field_description"
                     ng-model="vm.location.description"
-                     />
+                    ng-maxlength="8129" />
+            <div ng-show="editForm.description.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.description.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="8129">
+                    This field cannot be longer than 8129 characters.
+                </p>
+            </div>
+
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.location.lat" for="field_lat">Lat</label>
