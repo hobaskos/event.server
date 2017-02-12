@@ -1,5 +1,6 @@
 package io.hobaskos.event.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -53,6 +54,7 @@ public class Location implements Serializable {
 
     @ManyToOne
     @NotNull
+    @JsonBackReference
     private Event event;
 
     public Long getId() {

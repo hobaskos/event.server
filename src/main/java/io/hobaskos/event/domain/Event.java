@@ -1,9 +1,14 @@
 package io.hobaskos.event.domain;
 
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -45,6 +50,8 @@ public class Event implements Serializable {
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONE)
+    @JsonManagedReference
+    @Field(type = FieldType.Nested)
     private Set<Location> locations = new HashSet<>();
 
     public Long getId() {

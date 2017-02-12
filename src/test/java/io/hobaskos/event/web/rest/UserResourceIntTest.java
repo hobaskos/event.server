@@ -61,6 +61,26 @@ public class UserResourceIntTest {
         return user;
     }
 
+    /**
+     * Create an Owner user
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which has a required relationship to the User entity.
+     */
+    public static User createOwnerEntity(EntityManager em) {
+        User user = new User();
+        user.setLogin("owner");
+        user.setPassword(RandomStringUtils.random(60));
+        user.setActivated(true);
+        user.setEmail("owner@test.com");
+        user.setFirstName("owner");
+        user.setLastName("owner");
+        user.setLangKey("en");
+        em.persist(user);
+        em.flush();
+        return user;
+    }
+
     @Before
     public void setup() {
         UserResource userResource = new UserResource();

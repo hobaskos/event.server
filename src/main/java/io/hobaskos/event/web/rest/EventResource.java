@@ -1,21 +1,18 @@
 package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.hobaskos.event.domain.Event;
-
-import io.hobaskos.event.repository.EventRepository;
-import io.hobaskos.event.repository.search.EventSearchRepository;
-import io.hobaskos.event.service.UserService;
+import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
-import io.hobaskos.event.service.mapper.EventMapper;
 
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +22,11 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
@@ -43,16 +39,7 @@ public class EventResource {
     private final Logger log = LoggerFactory.getLogger(EventResource.class);
 
     @Inject
-    private EventRepository eventRepository;
-
-    @Inject
-    private EventMapper eventMapper;
-
-    @Inject
-    private EventSearchRepository eventSearchRepository;
-
-    @Inject
-    private UserService userService;
+    private EventService eventService;
 
     /**
      * POST  /events : Create a new event.
@@ -68,11 +55,7 @@ public class EventResource {
         if (eventDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("event", "idexists", "A new event cannot already have an ID")).body(null);
         }
-        Event event = eventMapper.eventDTOToEvent(eventDTO);
-        event.setOwner(userService.getUserWithAuthorities());
-        event = eventRepository.save(event);
-        EventDTO result = eventMapper.eventToEventDTO(event);
-        eventSearchRepository.save(event);
+        EventDTO result = eventService.save(eventDTO);
         return ResponseEntity.created(new URI("/api/events/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("event", result.getId().toString()))
             .body(result);
@@ -94,10 +77,7 @@ public class EventResource {
         if (eventDTO.getId() == null) {
             return createEvent(eventDTO);
         }
-        Event event = eventMapper.eventDTOToEvent(eventDTO);
-        event = eventRepository.save(event);
-        EventDTO result = eventMapper.eventToEventDTO(event);
-        eventSearchRepository.save(event);
+        EventDTO result = eventService.save(eventDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert("event", eventDTO.getId().toString()))
             .body(result);
@@ -115,9 +95,9 @@ public class EventResource {
     public ResponseEntity<List<EventDTO>> getAllEvents(@ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of Events");
-        Page<Event> page = eventRepository.findAll(pageable);
+        Page<EventDTO> page = eventService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/events");
-        return new ResponseEntity<>(eventMapper.eventsToEventDTOs(page.getContent()), headers, HttpStatus.OK);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
@@ -130,8 +110,7 @@ public class EventResource {
     @Timed
     public ResponseEntity<EventDTO> getEvent(@PathVariable Long id) {
         log.debug("REST request to get Event : {}", id);
-        Event event = eventRepository.findOne(id);
-        EventDTO eventDTO = eventMapper.eventToEventDTO(event);
+        EventDTO eventDTO = eventService.findOne(id);
         return Optional.ofNullable(eventDTO)
             .map(result -> new ResponseEntity<>(
                 result,
@@ -149,8 +128,7 @@ public class EventResource {
     @Timed
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         log.debug("REST request to delete Event : {}", id);
-        eventRepository.delete(id);
-        eventSearchRepository.delete(id);
+        eventService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("event", id.toString())).build();
     }
 
@@ -165,13 +143,43 @@ public class EventResource {
      */
     @GetMapping("/_search/events")
     @Timed
-    public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query, @ApiParam Pageable pageable)
+    public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query,
+                                                       @RequestParam(required = false, defaultValue = "10") Double lat,
+                                                       @RequestParam(required = false, defaultValue = "10") Double lon,
+                                                       @RequestParam(required = false, defaultValue = "10km") String distance,
+                                                       @RequestParam(required = false, defaultValue = "2013-01-01")
+                                                           @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) Date fromDate,
+                                                       @RequestParam(required = false, defaultValue = "2020-12-31")
+                                                           @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) Date toDate,
+                                                       @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
-        Page<Event> page = eventSearchRepository.search(queryStringQuery(query), pageable);
+        LocalDateTime fromDateLocal = fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime toDateLocal = toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        Page<EventDTO> page = eventService.search(query, new GeoPoint(lat, lon), distance, fromDateLocal, toDateLocal, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/events");
-        return new ResponseEntity<>(eventMapper.eventsToEventDTOs(page.getContent()), headers, HttpStatus.OK);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-
+    /**
+     * Search /_search/events-nearby : search for events nearby corresponding to the lat,lon and distance params
+     * @param lat
+     * @param lon
+     * @param distance
+     * @param pageable
+     * @return the result of the search
+     * @throws URISyntaxException
+     */
+    @GetMapping("/_search/events-nearby")
+    @Timed
+    public ResponseEntity<List<EventDTO>> searchEventsNearby(@RequestParam Double lat,
+                                                             @RequestParam Double lon,
+                                                             @RequestParam String distance,
+                                                             @ApiParam Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to search for a page of Events for nearby query {}");
+        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, pageable);
+        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/events-nearby");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
 }
