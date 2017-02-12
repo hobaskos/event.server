@@ -24,6 +24,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -34,6 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +70,10 @@ public class EventResourceIntTest {
     private static final Double DEFAULT_LOCATION_LON = 13.0000000D;
     private static final Double UPDATED_LOCATION_LAT = 13.0000000D;
     private static final Double UPDATED_LOCATION_LON = 14.0000000D;
+    private static final int DEFAULT_LOCATION_FROM_DATE_DAYS = 1;
+    private static final int DEFAULT_LOCATION_TO_DATE_DAYS = 2;
+    private static final int UPDATED_LOCATION_FROM_DATE_DAYS = 30;
+    private static final int UPDATED_LOCATION_TO_DATE_DAYS = 31;
 
     @Inject
     private UserRepository userRepository;
@@ -371,6 +379,8 @@ public class EventResourceIntTest {
         locationDTO.setVector(1);
         locationDTO.setGeoPoint(new GeoPoint(DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON));
         locationDTO.setEventId(event.getId());
+        locationDTO.setFromDate(ZonedDateTime.now().plusDays(DEFAULT_LOCATION_FROM_DATE_DAYS));
+        locationDTO.setToDate(ZonedDateTime.now().plusDays(DEFAULT_LOCATION_TO_DATE_DAYS));
         locationDTO = locationService.save(locationDTO);
 
         // verify that the location is attached to the event
@@ -400,7 +410,7 @@ public class EventResourceIntTest {
 
         // Move the location and check again
         locationDTO.setGeoPoint(new GeoPoint(UPDATED_LOCATION_LAT, UPDATED_LOCATION_LON));
-        locationService.save(locationDTO);
+        locationDTO = locationService.save(locationDTO);
 
          // Search the event with updated location data.
         restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
@@ -418,5 +428,28 @@ public class EventResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*]").isEmpty());
 
-    }
+        // Set date outside the default range
+        locationDTO.setFromDate(ZonedDateTime.now().plusDays(UPDATED_LOCATION_FROM_DATE_DAYS));
+        locationDTO.setToDate(ZonedDateTime.now().plusDays(UPDATED_LOCATION_TO_DATE_DAYS));
+        locationService.save(locationDTO);
+
+        // Search the event with updated date data - expect nothing
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                UPDATED_LOCATION_LAT, UPDATED_LOCATION_LON)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
+
+        // Search for the event with date params
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m&fromDate=%s&toDate=%s",
+                UPDATED_LOCATION_LAT,
+                UPDATED_LOCATION_LON,
+                LocalDateTime.now().plusDays(UPDATED_LOCATION_FROM_DATE_DAYS - 1).toString() + "Z",
+                LocalDateTime.now().plusDays(UPDATED_LOCATION_TO_DATE_DAYS + 1).toString() + "Z")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
+            .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
+   }
 }

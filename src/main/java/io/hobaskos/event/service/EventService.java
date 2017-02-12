@@ -52,8 +52,7 @@ public interface EventService {
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    Page<EventDTO> search(String query, GeoPoint geoPoint, String distance,
-                          LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+    Page<EventDTO> search(String query, Pageable pageable);
 
 
     /**
@@ -63,5 +62,6 @@ public interface EventService {
      * @param distance
      * @return the list of entities
      */
-    Page<EventDTO> searchNearby(Double lat, Double lon, String distance, Pageable pageable);
+    Page<EventDTO> searchNearby(Double lat, Double lon, String distance, LocalDateTime fromDate,
+                                LocalDateTime toDate, Pageable pageable);
 }

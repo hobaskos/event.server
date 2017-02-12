@@ -117,21 +117,9 @@ public class EventServiceImpl implements EventService{
      *  @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page<EventDTO> search(String query, GeoPoint geoPoint, String distance,
-                                 LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
+    public Page<EventDTO> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Events for query {}", query);
-
-        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
-            .withPageable(pageable)
-            .withQuery(boolQuery()
-                .must(queryStringQuery(query))
-                .should(rangeQuery("locations.fromDate").gte(fromDate).queryName("locations.toDate").lte(toDate))
-                .should(geoDistanceQuery("locations.geoPoint")
-                    .lat(geoPoint.getLat())
-                    .lon(geoPoint.getLon())
-                    .distance(distance)));
-
-        Page<Event> result = eventSearchRepository.search(searchQueryBuilder.build());
+        Page<Event> result = eventSearchRepository.search(queryStringQuery(query), pageable);
         return result.map(event -> eventMapper.eventToEventDTO(event));
     }
 
@@ -151,12 +139,19 @@ public class EventServiceImpl implements EventService{
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page<EventDTO> searchNearby(Double lat, Double lon, String distance, Pageable pageable) {
+    public Page<EventDTO> searchNearby(Double lat, Double lon, String distance,
+                                       LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
         log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{}", lat, lon, distance);
 
+        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
+            .withPageable(pageable)
+            .withQuery(boolQuery()
+                .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
+                .filter(geoDistanceQuery("geoPoint").lat(lat).lon(lon).distance(distance))
+            );
+
         //First find the location using elastic
-        Iterable<Location> locations = locationSearchRepository.search(
-                geoDistanceQuery("geoPoint").lat(lat).lon(lon).distance(distance));
+        Iterable<Location> locations = locationSearchRepository.search(searchQueryBuilder.build());
 
         //Then find the events connected to these locations using the ordinary JpaRepositories.
         Page<Event> result = eventRepository.findByLocationsIn(StreamSupport.stream(locations.spliterator(), false)
