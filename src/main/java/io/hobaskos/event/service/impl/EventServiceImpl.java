@@ -12,9 +12,11 @@ import io.hobaskos.event.service.mapper.EventMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,11 @@ import javax.inject.Inject;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -129,7 +136,14 @@ public class EventServiceImpl implements EventService{
     }
 
     /**
-     * Search for nearby events
+     * Search for nearby events - quite expensive due to missing ability to search directly for "locations.geoPoint"
+     * The current implementation is a bit dirty since its dependant on both Elastic and the JpaRepositories (SQL).
+     *
+     * The original implementation of this was:
+     *         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
+     *            .withPageable(pageable)
+     *            .withQuery(geoDistanceQuery("locations.geoPoint").lat(lat).lon(lon).distance(distance));
+     *
      * @param lat
      * @param lon
      * @param distance
@@ -140,11 +154,13 @@ public class EventServiceImpl implements EventService{
     public Page<EventDTO> searchNearby(Double lat, Double lon, String distance, Pageable pageable) {
         log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{}", lat, lon, distance);
 
-        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
-            .withPageable(pageable)
-            .withQuery(geoDistanceQuery("locations.geoPoint").lat(lat).lon(lon).distance(distance));
+        //First find the location using elastic
+        Iterable<Location> locations = locationSearchRepository.search(
+                geoDistanceQuery("geoPoint").lat(lat).lon(lon).distance(distance));
 
-        Page<Event> result = eventSearchRepository.search(searchQueryBuilder.build());
+        //Then find the events connected to these locations using the ordinary JpaRepositories.
+        Page<Event> result = eventRepository.findByLocationsIn(StreamSupport.stream(locations.spliterator(), false)
+                .collect(Collectors.toSet()), pageable);
         return result.map(event -> eventMapper.eventToEventDTO(event));
     }
 }

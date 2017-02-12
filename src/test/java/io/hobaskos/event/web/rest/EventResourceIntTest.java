@@ -69,6 +69,8 @@ public class EventResourceIntTest {
     private static final String DEFAULT_LOCATION_DESCRIPTION = "DDDDDDDDD";
     private static final Double DEFAULT_LOCATION_LAT = 12.0000000D;
     private static final Double DEFAULT_LOCATION_LON = 13.0000000D;
+    private static final Double UPDATED_LOCATION_LAT = 13.0000000D;
+    private static final Double UPDATED_LOCATION_LON = 14.0000000D;
 
     private static final ZonedDateTime DEFAULT_FROM_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_FROM_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
@@ -396,8 +398,7 @@ public class EventResourceIntTest {
         locationDTO.setVector(1);
         locationDTO.setGeoPoint(new GeoPoint(DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON));
         locationDTO.setEventId(event.getId());
-
-        locationService.save(locationDTO);
+        locationDTO = locationService.save(locationDTO);
 
         // verify that the location is attached to the event
         restEventMockMvc.perform(get("/api/_search/events?query=" + event.getTitle()))
@@ -408,20 +409,41 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lat").value(hasItem(DEFAULT_LOCATION_LAT)))
             .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lon").value(hasItem(DEFAULT_LOCATION_LON)));
 
-        /*
         // Search the event using a nearby search on the location
-        restEventMockMvc.perform(get("/api/_search/events-nearby?lat=12.0&lon=13.0&distance=1000km"))
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON)))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
             .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
-        */
 
         // Search the event using a nearby search on a wrong location - expect no data.
-        restEventMockMvc.perform(get("/api/_search/events-nearby?lat=12&lon=13&distance=100m"))
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                DEFAULT_LOCATION_LAT - 1, DEFAULT_LOCATION_LON - 1)))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*]").isEmpty());
+
+        // Move the location and check again
+        locationDTO.setGeoPoint(new GeoPoint(UPDATED_LOCATION_LAT, UPDATED_LOCATION_LON));
+        locationService.save(locationDTO);
+
+         // Search the event with updated location data.
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                UPDATED_LOCATION_LAT, UPDATED_LOCATION_LON)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
+            .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
+
+        // Search the event using the old location data - expect no data.
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                DEFAULT_LOCATION_LAT , DEFAULT_LOCATION_LON)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
+
     }
 }
