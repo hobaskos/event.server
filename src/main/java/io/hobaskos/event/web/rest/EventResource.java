@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,8 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventResource {
 
     private final Logger log = LoggerFactory.getLogger(EventResource.class);
+    private final static int DEFAULT_DAYS_FORWARD = 14;
+    private final static int DEFAULT_DAYS_BACKWARD = 1;
 
     @Inject
     private EventService eventService;
@@ -143,20 +146,10 @@ public class EventResource {
      */
     @GetMapping("/_search/events")
     @Timed
-    public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query,
-                                                       @RequestParam(required = false, defaultValue = "10") Double lat,
-                                                       @RequestParam(required = false, defaultValue = "10") Double lon,
-                                                       @RequestParam(required = false, defaultValue = "10km") String distance,
-                                                       @RequestParam(required = false, defaultValue = "2013-01-01")
-                                                           @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) Date fromDate,
-                                                       @RequestParam(required = false, defaultValue = "2020-12-31")
-                                                           @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) Date toDate,
-                                                       @ApiParam Pageable pageable)
+    public ResponseEntity<List<EventDTO>> searchEvents(@RequestParam String query, @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for query {}", query);
-        LocalDateTime fromDateLocal = fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        LocalDateTime toDateLocal = toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        Page<EventDTO> page = eventService.search(query, new GeoPoint(lat, lon), distance, fromDateLocal, toDateLocal, pageable);
+        Page<EventDTO> page = eventService.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/events");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -175,10 +168,18 @@ public class EventResource {
     public ResponseEntity<List<EventDTO>> searchEventsNearby(@RequestParam Double lat,
                                                              @RequestParam Double lon,
                                                              @RequestParam String distance,
+                                                             @RequestParam(required=false) @DateTimeFormat(iso= DateTimeFormat.ISO.DATE_TIME) Date fromDate,
+                                                             @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) Date toDate,
                                                              @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for nearby query {}");
-        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, pageable);
+        LocalDateTime fromDateLocal = fromDate != null ?
+                fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                : LocalDateTime.now().minusDays(DEFAULT_DAYS_BACKWARD);
+        LocalDateTime toDateLocal = toDate != null ?
+                toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                : LocalDateTime.now().plusDays(DEFAULT_DAYS_FORWARD);
+        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, fromDateLocal, toDateLocal, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/events-nearby");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
