@@ -46,10 +46,12 @@ public class Location implements Serializable {
     @Column(name = "vector", nullable = false)
     private Integer vector;
 
-    @Column(name = "from_date")
+    @NotNull
+    @Column(name = "from_date", nullable = false)
     private ZonedDateTime fromDate;
 
-    @Column(name = "to_date")
+    @NotNull
+    @Column(name = "to_date", nullable = false)
     private ZonedDateTime toDate;
 
     @ManyToOne

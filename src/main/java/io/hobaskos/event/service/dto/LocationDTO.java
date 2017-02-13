@@ -27,8 +27,10 @@ public class LocationDTO implements Serializable {
     @NotNull
     private Integer vector;
 
+    @NotNull
     private ZonedDateTime fromDate;
 
+    @NotNull
     private ZonedDateTime toDate;
 
 

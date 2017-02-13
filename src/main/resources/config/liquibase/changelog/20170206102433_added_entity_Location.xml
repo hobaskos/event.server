@@ -45,11 +45,11 @@
             </column>
             
             <column name="from_date" type="timestamp">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             
             <column name="to_date" type="timestamp">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             
             <column name="event_id" type="bigint">
