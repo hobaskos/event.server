@@ -16,6 +16,15 @@
             "otherEntityName": "location",
             "relationshipType": "one-to-many",
             "otherEntityRelationshipName": "event"
+        },
+        {
+            "relationshipName": "eventCategory",
+            "otherEntityName": "eventCategory",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "title"
         }
     ],
     "fields": [

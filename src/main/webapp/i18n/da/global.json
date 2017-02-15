@@ -9,6 +9,7 @@
                 "main": "Entities",
                 "event": "Event",
                 "location": "Location",
+                "eventCategory": "Event Category",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

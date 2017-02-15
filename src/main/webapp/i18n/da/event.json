@@ -20,7 +20,8 @@
             "description": "Description",
             "imageUrl": "Image Url",
             "owner": "Owner",
-            "locations": "Locations"
+            "locations": "Locations",
+            "eventCategory": "Event Category"
         }
     }
 }
