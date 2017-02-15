@@ -37,8 +37,8 @@
                 <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.transition()">
                     <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="title"><span data-translate="backendApp.eventCategory.title">Title</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="icon"><span data-translate="backendApp.eventCategory.icon">Icon</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="theme"><span data-translate="backendApp.eventCategory.theme">Theme</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th><span data-translate="backendApp.eventCategory.iconUrl">Icon Url</span></th>
+                    <th><span data-translate="backendApp.eventCategory.theme">Theme</span></span></th>
                     <th></th>
                 </tr>
             </thead>
@@ -46,12 +46,7 @@
                 <tr ng-repeat="eventCategory in vm.eventCategories track by eventCategory.id">
                     <td><a ui-sref="event-category-detail({id:eventCategory.id})">{{eventCategory.id}}</a></td>
                     <td>{{eventCategory.title}}</td>
-                    <td>
-                        <a ng-if="eventCategory.icon" ng-click="vm.openFile(eventCategory.iconContentType, eventCategory.icon)">
-                            <img data-ng-src="{{'data:' + eventCategory.iconContentType + ';base64,' + eventCategory.icon}}" style="max-height: 30px;" alt="eventCategory image"/>
-                        </a>
-                        <span ng-if="eventCategory.icon">{{eventCategory.iconContentType}}, {{vm.byteSize(eventCategory.icon)}}</span>
-                    </td>
+                    <td>{{eventCategory.iconUrl}}</td>
                     <td data-translate="{{'backendApp.EventCategoryTheme.' + eventCategory.theme}}">{{eventCategory.theme}}</td>
                     <td class="text-right">
                         <div class="btn-group flex-btn-group-container">

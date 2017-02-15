@@ -4,6 +4,7 @@ import io.hobaskos.event.BackendApp;
 
 import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.repository.EventCategoryRepository;
+import io.hobaskos.event.service.EventCategoryService;
 import io.hobaskos.event.repository.search.EventCategorySearchRepository;
 import io.hobaskos.event.service.dto.EventCategoryDTO;
 import io.hobaskos.event.service.mapper.EventCategoryMapper;
@@ -21,7 +22,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -42,13 +42,16 @@ import io.hobaskos.event.domain.enumeration.EventCategoryTheme;
 @SpringBootTest(classes = BackendApp.class)
 public class EventCategoryResourceIntTest {
 
-    private static final String DEFAULT_TITLE = "AAAAAAAAAA";
-    private static final String UPDATED_TITLE = "BBBBBBBBBB";
-
     private static final byte[] DEFAULT_ICON = TestUtil.createByteArray(1, "0");
     private static final byte[] UPDATED_ICON = TestUtil.createByteArray(5000000, "1");
     private static final String DEFAULT_ICON_CONTENT_TYPE = "image/jpg";
     private static final String UPDATED_ICON_CONTENT_TYPE = "image/png";
+
+    private static final String DEFAULT_TITLE = "AAAAAAAAAA";
+    private static final String UPDATED_TITLE = "BBBBBBBBBB";
+
+    private static final String DEFAULT_ICON_URL = "AAAAAAAAAA";
+    private static final String UPDATED_ICON_URL = "BBBBBBBBBB";
 
     private static final EventCategoryTheme DEFAULT_THEME = EventCategoryTheme.RED;
     private static final EventCategoryTheme UPDATED_THEME = EventCategoryTheme.ORANGE;
@@ -58,6 +61,9 @@ public class EventCategoryResourceIntTest {
 
     @Inject
     private EventCategoryMapper eventCategoryMapper;
+
+    @Inject
+    private EventCategoryService eventCategoryService;
 
     @Inject
     private EventCategorySearchRepository eventCategorySearchRepository;
@@ -79,9 +85,7 @@ public class EventCategoryResourceIntTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         EventCategoryResource eventCategoryResource = new EventCategoryResource();
-        ReflectionTestUtils.setField(eventCategoryResource, "eventCategorySearchRepository", eventCategorySearchRepository);
-        ReflectionTestUtils.setField(eventCategoryResource, "eventCategoryRepository", eventCategoryRepository);
-        ReflectionTestUtils.setField(eventCategoryResource, "eventCategoryMapper", eventCategoryMapper);
+        ReflectionTestUtils.setField(eventCategoryResource, "eventCategoryService", eventCategoryService);
         this.restEventCategoryMockMvc = MockMvcBuilders.standaloneSetup(eventCategoryResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -96,8 +100,7 @@ public class EventCategoryResourceIntTest {
     public static EventCategory createEntity(EntityManager em) {
         EventCategory eventCategory = new EventCategory()
                 .title(DEFAULT_TITLE)
-                .icon(DEFAULT_ICON)
-                .iconContentType(DEFAULT_ICON_CONTENT_TYPE)
+                .iconUrl(DEFAULT_ICON_URL)
                 .theme(DEFAULT_THEME);
         return eventCategory;
     }
@@ -115,6 +118,9 @@ public class EventCategoryResourceIntTest {
 
         // Create the EventCategory
         EventCategoryDTO eventCategoryDTO = eventCategoryMapper.eventCategoryToEventCategoryDTO(eventCategory);
+        eventCategoryDTO.setIconUrl(null);
+        eventCategoryDTO.setIcon(DEFAULT_ICON);
+        eventCategoryDTO.setIconContentType(DEFAULT_ICON_CONTENT_TYPE);
 
         restEventCategoryMockMvc.perform(post("/api/event-categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -126,8 +132,6 @@ public class EventCategoryResourceIntTest {
         assertThat(eventCategoryList).hasSize(databaseSizeBeforeCreate + 1);
         EventCategory testEventCategory = eventCategoryList.get(eventCategoryList.size() - 1);
         assertThat(testEventCategory.getTitle()).isEqualTo(DEFAULT_TITLE);
-        assertThat(testEventCategory.getIcon()).isEqualTo(DEFAULT_ICON);
-        assertThat(testEventCategory.getIconContentType()).isEqualTo(DEFAULT_ICON_CONTENT_TYPE);
         assertThat(testEventCategory.getTheme()).isEqualTo(DEFAULT_THEME);
 
         // Validate the EventCategory in ElasticSearch
@@ -177,10 +181,10 @@ public class EventCategoryResourceIntTest {
 
     @Test
     @Transactional
-    public void checkIconIsRequired() throws Exception {
+    public void checkIconUrlIsRequired() throws Exception {
         int databaseSizeBeforeTest = eventCategoryRepository.findAll().size();
         // set the field null
-        eventCategory.setIcon(null);
+        eventCategory.setIconUrl(null);
 
         // Create the EventCategory, which fails.
         EventCategoryDTO eventCategoryDTO = eventCategoryMapper.eventCategoryToEventCategoryDTO(eventCategory);
@@ -225,8 +229,7 @@ public class EventCategoryResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(eventCategory.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].iconContentType").value(hasItem(DEFAULT_ICON_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].icon").value(hasItem(Base64Utils.encodeToString(DEFAULT_ICON))))
+            .andExpect(jsonPath("$.[*].iconUrl").value(hasItem(DEFAULT_ICON_URL.toString())))
             .andExpect(jsonPath("$.[*].theme").value(hasItem(DEFAULT_THEME.toString())));
     }
 
@@ -242,8 +245,7 @@ public class EventCategoryResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(eventCategory.getId().intValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.iconContentType").value(DEFAULT_ICON_CONTENT_TYPE))
-            .andExpect(jsonPath("$.icon").value(Base64Utils.encodeToString(DEFAULT_ICON)))
+            .andExpect(jsonPath("$.iconUrl").value(DEFAULT_ICON_URL.toString()))
             .andExpect(jsonPath("$.theme").value(DEFAULT_THEME.toString()));
     }
 
@@ -267,8 +269,6 @@ public class EventCategoryResourceIntTest {
         EventCategory updatedEventCategory = eventCategoryRepository.findOne(eventCategory.getId());
         updatedEventCategory
                 .title(UPDATED_TITLE)
-                .icon(UPDATED_ICON)
-                .iconContentType(UPDATED_ICON_CONTENT_TYPE)
                 .theme(UPDATED_THEME);
         EventCategoryDTO eventCategoryDTO = eventCategoryMapper.eventCategoryToEventCategoryDTO(updatedEventCategory);
 
@@ -282,8 +282,6 @@ public class EventCategoryResourceIntTest {
         assertThat(eventCategoryList).hasSize(databaseSizeBeforeUpdate);
         EventCategory testEventCategory = eventCategoryList.get(eventCategoryList.size() - 1);
         assertThat(testEventCategory.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(testEventCategory.getIcon()).isEqualTo(UPDATED_ICON);
-        assertThat(testEventCategory.getIconContentType()).isEqualTo(UPDATED_ICON_CONTENT_TYPE);
         assertThat(testEventCategory.getTheme()).isEqualTo(UPDATED_THEME);
 
         // Validate the EventCategory in ElasticSearch
@@ -298,6 +296,9 @@ public class EventCategoryResourceIntTest {
 
         // Create the EventCategory
         EventCategoryDTO eventCategoryDTO = eventCategoryMapper.eventCategoryToEventCategoryDTO(eventCategory);
+        eventCategoryDTO.setIconUrl(null);
+        eventCategoryDTO.setIcon(DEFAULT_ICON);
+        eventCategoryDTO.setIconContentType(DEFAULT_ICON_CONTENT_TYPE);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restEventCategoryMockMvc.perform(put("/api/event-categories")
@@ -345,8 +346,7 @@ public class EventCategoryResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(eventCategory.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].iconContentType").value(hasItem(DEFAULT_ICON_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].icon").value(hasItem(Base64Utils.encodeToString(DEFAULT_ICON))))
+            .andExpect(jsonPath("$.[*].iconUrl").value(hasItem(DEFAULT_ICON_URL.toString())))
             .andExpect(jsonPath("$.[*].theme").value(hasItem(DEFAULT_THEME.toString())));
     }
 }

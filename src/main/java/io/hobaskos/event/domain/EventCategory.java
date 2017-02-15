@@ -35,13 +35,9 @@ public class EventCategory implements Serializable {
     private String title;
 
     @NotNull
-    @Size(max = 5000000)
-    @Lob
-    @Column(name = "icon", nullable = false)
-    private byte[] icon;
-
-    @Column(name = "icon_content_type", nullable = false)
-    private String iconContentType;
+    @Size(max = 256)
+    @Column(name = "icon_url", length = 256, nullable = false)
+    private String iconUrl;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -74,30 +70,17 @@ public class EventCategory implements Serializable {
         this.title = title;
     }
 
-    public byte[] getIcon() {
-        return icon;
+    public String getIconUrl() {
+        return iconUrl;
     }
 
-    public EventCategory icon(byte[] icon) {
-        this.icon = icon;
+    public EventCategory iconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
         return this;
     }
 
-    public void setIcon(byte[] icon) {
-        this.icon = icon;
-    }
-
-    public String getIconContentType() {
-        return iconContentType;
-    }
-
-    public EventCategory iconContentType(String iconContentType) {
-        this.iconContentType = iconContentType;
-        return this;
-    }
-
-    public void setIconContentType(String iconContentType) {
-        this.iconContentType = iconContentType;
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
     }
 
     public EventCategoryTheme getTheme() {
@@ -163,8 +146,7 @@ public class EventCategory implements Serializable {
         return "EventCategory{" +
             "id=" + id +
             ", title='" + title + "'" +
-            ", icon='" + icon + "'" +
-            ", iconContentType='" + iconContentType + "'" +
+            ", iconUrl='" + iconUrl + "'" +
             ", theme='" + theme + "'" +
             '}';
     }

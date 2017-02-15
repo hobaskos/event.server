@@ -8,14 +8,9 @@
         <dd>
             <span>{{vm.eventCategory.title}}</span>
         </dd>
-        <dt><span data-translate="backendApp.eventCategory.icon">Icon</span></dt>
+        <dt><span data-translate="backendApp.eventCategory.iconUrl">Icon Url</span></dt>
         <dd>
-            <div ng-if="vm.eventCategory.icon">
-                <a ng-click="vm.openFile(vm.eventCategory.iconContentType, vm.eventCategory.icon)">
-                    <img data-ng-src="{{'data:' + vm.eventCategory.iconContentType + ';base64,' + vm.eventCategory.icon}}" style="max-width: 100%;" alt="eventCategory image"/>
-                </a>
-                {{vm.eventCategory.iconContentType}}, {{vm.byteSize(vm.eventCategory.icon)}}
-            </div>
+            <span>{{vm.eventCategory.iconUrl}}</span>
         </dd>
         <dt><span data-translate="backendApp.eventCategory.theme">Theme</span></dt>
         <dd>

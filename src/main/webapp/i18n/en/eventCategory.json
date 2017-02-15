@@ -18,6 +18,7 @@
             },
             "title": "Title",
             "icon": "Icon",
+            "iconUrl": "Icon Url",
             "theme": "Theme",
             "events": "Events"
         }

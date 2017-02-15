@@ -1,14 +1,10 @@
 package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.hobaskos.event.domain.EventCategory;
-
-import io.hobaskos.event.repository.EventCategoryRepository;
-import io.hobaskos.event.repository.search.EventCategorySearchRepository;
+import io.hobaskos.event.service.EventCategoryService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventCategoryDTO;
-import io.hobaskos.event.service.mapper.EventCategoryMapper;
 
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
@@ -40,15 +36,9 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventCategoryResource {
 
     private final Logger log = LoggerFactory.getLogger(EventCategoryResource.class);
-        
-    @Inject
-    private EventCategoryRepository eventCategoryRepository;
 
     @Inject
-    private EventCategoryMapper eventCategoryMapper;
-
-    @Inject
-    private EventCategorySearchRepository eventCategorySearchRepository;
+    private EventCategoryService eventCategoryService;
 
     /**
      * POST  /event-categories : Create a new eventCategory.
@@ -64,10 +54,10 @@ public class EventCategoryResource {
         if (eventCategoryDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("eventCategory", "idexists", "A new eventCategory cannot already have an ID")).body(null);
         }
-        EventCategory eventCategory = eventCategoryMapper.eventCategoryDTOToEventCategory(eventCategoryDTO);
-        eventCategory = eventCategoryRepository.save(eventCategory);
-        EventCategoryDTO result = eventCategoryMapper.eventCategoryToEventCategoryDTO(eventCategory);
-        eventCategorySearchRepository.save(eventCategory);
+        if (eventCategoryDTO.getIcon() == null || eventCategoryDTO.getIconContentType() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("eventCategory", "iconerror", "Icon is required")).body(null);
+        }
+        EventCategoryDTO result = eventCategoryService.save(eventCategoryDTO);
         return ResponseEntity.created(new URI("/api/event-categories/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("eventCategory", result.getId().toString()))
             .body(result);
@@ -89,10 +79,7 @@ public class EventCategoryResource {
         if (eventCategoryDTO.getId() == null) {
             return createEventCategory(eventCategoryDTO);
         }
-        EventCategory eventCategory = eventCategoryMapper.eventCategoryDTOToEventCategory(eventCategoryDTO);
-        eventCategory = eventCategoryRepository.save(eventCategory);
-        EventCategoryDTO result = eventCategoryMapper.eventCategoryToEventCategoryDTO(eventCategory);
-        eventCategorySearchRepository.save(eventCategory);
+        EventCategoryDTO result = eventCategoryService.save(eventCategoryDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert("eventCategory", eventCategoryDTO.getId().toString()))
             .body(result);
@@ -110,9 +97,9 @@ public class EventCategoryResource {
     public ResponseEntity<List<EventCategoryDTO>> getAllEventCategories(@ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of EventCategories");
-        Page<EventCategory> page = eventCategoryRepository.findAll(pageable);
+        Page<EventCategoryDTO> page = eventCategoryService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/event-categories");
-        return new ResponseEntity<>(eventCategoryMapper.eventCategoriesToEventCategoryDTOs(page.getContent()), headers, HttpStatus.OK);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
@@ -125,8 +112,7 @@ public class EventCategoryResource {
     @Timed
     public ResponseEntity<EventCategoryDTO> getEventCategory(@PathVariable Long id) {
         log.debug("REST request to get EventCategory : {}", id);
-        EventCategory eventCategory = eventCategoryRepository.findOne(id);
-        EventCategoryDTO eventCategoryDTO = eventCategoryMapper.eventCategoryToEventCategoryDTO(eventCategory);
+        EventCategoryDTO eventCategoryDTO = eventCategoryService.findOne(id);
         return Optional.ofNullable(eventCategoryDTO)
             .map(result -> new ResponseEntity<>(
                 result,
@@ -144,8 +130,7 @@ public class EventCategoryResource {
     @Timed
     public ResponseEntity<Void> deleteEventCategory(@PathVariable Long id) {
         log.debug("REST request to delete EventCategory : {}", id);
-        eventCategoryRepository.delete(id);
-        eventCategorySearchRepository.delete(id);
+        eventCategoryService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("eventCategory", id.toString())).build();
     }
 
@@ -153,7 +138,7 @@ public class EventCategoryResource {
      * SEARCH  /_search/event-categories?query=:query : search for the eventCategory corresponding
      * to the query.
      *
-     * @param query the query of the eventCategory search 
+     * @param query the query of the eventCategory search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
@@ -163,9 +148,9 @@ public class EventCategoryResource {
     public ResponseEntity<List<EventCategoryDTO>> searchEventCategories(@RequestParam String query, @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of EventCategories for query {}", query);
-        Page<EventCategory> page = eventCategorySearchRepository.search(queryStringQuery(query), pageable);
+        Page<EventCategoryDTO> page = eventCategoryService.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/event-categories");
-        return new ResponseEntity<>(eventCategoryMapper.eventCategoriesToEventCategoryDTOs(page.getContent()), headers, HttpStatus.OK);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
 

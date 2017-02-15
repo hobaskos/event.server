@@ -19,14 +19,13 @@
             "fieldValidateRulesMaxlength": "32"
         },
         {
-            "fieldName": "icon",
-            "fieldType": "byte[]",
-            "fieldTypeBlobContent": "image",
+            "fieldName": "iconUrl",
+            "fieldType": "String",
             "fieldValidateRules": [
                 "required",
-                "maxbytes"
+                "maxlength"
             ],
-            "fieldValidateRulesMaxbytes": 5000000
+            "fieldValidateRulesMaxlength": "256"
         },
         {
             "fieldName": "theme",
@@ -39,7 +38,7 @@
     ],
     "changelogDate": "20170215104144",
     "dto": "mapstruct",
-    "service": "no",
+    "service": "serviceImpl",
     "entityTableName": "event_category",
     "pagination": "pagination"
 }

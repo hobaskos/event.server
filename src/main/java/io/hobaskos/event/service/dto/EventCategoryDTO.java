@@ -20,15 +20,17 @@ public class EventCategoryDTO implements Serializable {
     @Size(max = 32)
     private String title;
 
-    @NotNull
-    @Size(max = 5000000)
+    @Size(max = 256)
+    private String iconUrl;
+
     @Lob
+    @Size(max = 5000000)
     private byte[] icon;
 
     private String iconContentType;
+
     @NotNull
     private EventCategoryTheme theme;
-
 
     public Long getId() {
         return id;
@@ -44,6 +46,15 @@ public class EventCategoryDTO implements Serializable {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
+
     public byte[] getIcon() {
         return icon;
     }
@@ -93,7 +104,6 @@ public class EventCategoryDTO implements Serializable {
         return "EventCategoryDTO{" +
             "id=" + id +
             ", title='" + title + "'" +
-            ", icon='" + icon + "'" +
             ", theme='" + theme + "'" +
             '}';
     }

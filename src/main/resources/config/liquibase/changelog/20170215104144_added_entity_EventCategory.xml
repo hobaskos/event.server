@@ -28,10 +28,7 @@
                 <constraints nullable="false" />
             </column>
             
-            <column name="icon" type="longblob">
-                <constraints nullable="false" />
-            </column>
-            <column name="icon_content_type" type="varchar(255)">
+            <column name="icon_url" type="varchar(256)">
                 <constraints nullable="false" />
             </column>
             
