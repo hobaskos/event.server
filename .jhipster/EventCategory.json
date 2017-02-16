@@ -1,0 +1,44 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipName": "events",
+            "otherEntityName": "event",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "eventCategory"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "title",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "32"
+        },
+        {
+            "fieldName": "iconUrl",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "256"
+        },
+        {
+            "fieldName": "theme",
+            "fieldType": "EventCategoryTheme",
+            "fieldValues": "RED,ORANGE,YELLOW,GREEN,BLUE,INDIGO,VIOLET",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "changelogDate": "20170215104144",
+    "dto": "mapstruct",
+    "service": "serviceImpl",
+    "entityTableName": "event_category",
+    "pagination": "pagination"
+}

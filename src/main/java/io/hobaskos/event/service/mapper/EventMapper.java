@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Mapper for the entity Event and its DTO EventDTO.
  */
-@Mapper(componentModel = "spring", uses = {UserMapper.class, LocationMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, LocationMapper.class, EventCategoryMapper.class})
 public interface EventMapper {
 
     @Mapping(source = "owner.id", target = "ownerId")

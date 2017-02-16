@@ -54,6 +54,10 @@ public class Event implements Serializable {
     @Field(type = FieldType.Nested)
     private Set<Location> locations = new HashSet<>();
 
+    @ManyToOne
+    @NotNull
+    private EventCategory eventCategory;
+
     public Long getId() {
         return id;
     }
@@ -137,6 +141,19 @@ public class Event implements Serializable {
 
     public void setLocations(Set<Location> locations) {
         this.locations = locations;
+    }
+
+    public EventCategory getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(EventCategory eventCategory) {
+        this.eventCategory = eventCategory;
+    }
+
+    public Event eventCategory(EventCategory eventCategory) {
+        this.eventCategory = eventCategory;
+        return this;
     }
 
     @Override

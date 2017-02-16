@@ -3,6 +3,7 @@ package io.hobaskos.event.web.rest;
 import io.hobaskos.event.BackendApp;
 
 import io.hobaskos.event.domain.Event;
+import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.UserRepository;
@@ -145,6 +146,11 @@ public class EventResourceIntTest {
         em.persist(owner);
         em.flush();
         event.setOwner(owner);
+        // Add required entity
+        EventCategory eventCategory = EventCategoryResourceIntTest.createEntity(em);
+        em.persist(eventCategory);
+        em.flush();
+        event.setEventCategory(eventCategory);
         return event;
     }
 

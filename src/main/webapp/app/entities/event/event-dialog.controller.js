@@ -5,9 +5,9 @@
         .module('backendApp')
         .controller('EventDialogController', EventDialogController);
 
-    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event', 'User', 'Location'];
+    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event', 'User', 'Location', 'EventCategory'];
 
-    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event, User, Location) {
+    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event, User, Location, EventCategory) {
         var vm = this;
 
         vm.event = entity;
@@ -15,6 +15,7 @@
         vm.save = save;
         vm.users = User.query();
         vm.locations = Location.query();
+        vm.eventcategories = EventCategory.query();
 
         $timeout(function (){
             angular.element('.form-group:eq(1)>input').focus();

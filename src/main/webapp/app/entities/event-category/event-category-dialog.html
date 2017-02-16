@@ -1,0 +1,89 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myEventCategoryLabel" data-translate="backendApp.eventCategory.home.createOrEditLabel">Create or edit a Event Category</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.eventCategory.id">
+            <label for="id" data-translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.eventCategory.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventCategory.title" for="field_title">Title</label>
+            <input type="text" class="form-control" name="title" id="field_title"
+                    ng-model="vm.eventCategory.title"
+                    required ng-maxlength="32" />
+            <div ng-show="editForm.title.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.title.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.title.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="32">
+                    This field cannot be longer than 32 characters.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventCategory.theme" for="field_theme">Theme</label>
+            <select class="form-control" name="theme" ng-model="vm.eventCategory.theme" id="field_theme" required>
+                <option value="RED" data-translate="backendApp.EventCategoryTheme.RED">RED</option>
+                <option value="ORANGE" data-translate="backendApp.EventCategoryTheme.ORANGE">ORANGE</option>
+                <option value="YELLOW" data-translate="backendApp.EventCategoryTheme.YELLOW">YELLOW</option>
+                <option value="GREEN" data-translate="backendApp.EventCategoryTheme.GREEN">GREEN</option>
+                <option value="BLUE" data-translate="backendApp.EventCategoryTheme.BLUE">BLUE</option>
+                <option value="INDIGO" data-translate="backendApp.EventCategoryTheme.INDIGO">INDIGO</option>
+                <option value="VIOLET" data-translate="backendApp.EventCategoryTheme.VIOLET">VIOLET</option>
+            </select>
+            <div ng-show="editForm.theme.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.theme.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group" ngf-drop ngf-change="vm.setIcon($file, vm.eventCategory)" ngf-pattern="'image/*'">
+            <label class="control-label" data-translate="backendApp.eventCategory.icon" for="field_icon">Icon</label>
+            <div>
+                <div ng-if="vm.eventCategory.icon" class="help-block clearfix">
+                    <span class="pull-left">{{vm.eventCategory.iconContentType}}, {{vm.byteSize(vm.eventCategory.icon)}}</span>
+                    <button type="button" ng-click="vm.eventCategory.icon=null;vm.eventCategory.iconContentType=null;"
+                            class="btn btn-default btn-xs pull-right">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+                <button type="button" ngf-select class="btn btn-default btn-block"
+                        ngf-change="vm.setIcon($file, vm.eventCategory)" accept="image/*" data-translate="entity.action.addimage">
+                    Add image
+                </button>
+            </div>
+            <input type="hidden" class="form-control" name="icon" id="field_icon"
+                    ng-model="vm.eventCategory.icon"
+                    maxbytes="5000000" />
+            <input type="hidden" class="form-control" name="iconContentType" id="field_iconContentType"
+                    ng-model="vm.eventCategory.iconContentType" />
+            <div ng-show="editForm.icon.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.icon.$error.maxbytes" data-translate="entity.validation.maxbytes" translate-value-max="5000000">
+                    This field cannot be more than 5000000.
+                </p>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span data-translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span data-translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

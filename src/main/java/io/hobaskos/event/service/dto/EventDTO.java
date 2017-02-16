@@ -27,6 +27,8 @@ public class EventDTO implements Serializable {
 
     private Set<LocationDTO> locations;
 
+    private EventCategoryDTO eventCategory;
+
     public Long getId() {
         return id;
     }
@@ -70,6 +72,14 @@ public class EventDTO implements Serializable {
 
     public void setLocations(Set<LocationDTO> locations) {
         this.locations = locations;
+    }
+
+    public EventCategoryDTO getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(EventCategoryDTO eventCategory) {
+        this.eventCategory = eventCategory;
     }
 
     @Override

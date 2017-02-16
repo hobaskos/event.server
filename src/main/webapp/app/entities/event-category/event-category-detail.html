@@ -1,0 +1,31 @@
+
+<div>
+    <h2><span data-translate="backendApp.eventCategory.detail.title">Event Category</span> {{vm.eventCategory.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
+        <dt><span data-translate="backendApp.eventCategory.title">Title</span></dt>
+        <dd>
+            <span>{{vm.eventCategory.title}}</span>
+        </dd>
+        <dt><span data-translate="backendApp.eventCategory.iconUrl">Icon Url</span></dt>
+        <dd>
+            <span>{{vm.eventCategory.iconUrl}}</span>
+        </dd>
+        <dt><span data-translate="backendApp.eventCategory.theme">Theme</span></dt>
+        <dd>
+            <span data-translate="{{'backendApp.EventCategoryTheme.' + vm.eventCategory.theme}}">{{vm.eventCategory.theme}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            ui-sref="{{ vm.previousState }}"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span data-translate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button" ui-sref="event-category-detail.edit({id:vm.eventCategory.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-xs hidden-sm" data-translate="entity.action.edit"> Edit</span>
+    </button>
+</div>
