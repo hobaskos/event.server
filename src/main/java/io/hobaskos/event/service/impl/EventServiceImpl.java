@@ -144,7 +144,6 @@ public class EventServiceImpl implements EventService{
         log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{}", lat, lon, distance);
 
         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
-            .withPageable(pageable)
             .withQuery(boolQuery()
                 .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
                 .filter(geoDistanceQuery("geoPoint").lat(lat).lon(lon).distance(distance))

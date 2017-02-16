@@ -51,6 +51,15 @@
                 "maxlength"
             ],
             "fieldValidateRulesMaxlength": "512"
+        },
+        {
+            "fieldName": "fromDate",
+            "fieldType": "ZonedDateTime",
+            "fieldValidateRules": []
+        },
+        {
+            "fieldName": "toDate",
+            "fieldType": "ZonedDateTime"
         }
     ],
     "changelogDate": "20170123132303",

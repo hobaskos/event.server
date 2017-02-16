@@ -17,7 +17,6 @@ import io.hobaskos.event.service.dto.LocationDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -25,7 +24,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -38,7 +36,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -393,6 +390,9 @@ public class EventResourceIntTest {
         restEventMockMvc.perform(get("/api/_search/events?query=" + event.getTitle()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            // TODO put back when the ElasticSearch dateformat is fixed
+            //.andExpect(jsonPath("$.[*].fromDate").value(hasItem(locationDTO.getFromDate().minusHours(1).toLocalDateTime())))
+            //.andExpect(jsonPath("$.[*].toDate").value(hasItem(locationDTO.getToDate().minusHours(1).toLocalDateTime())))
             .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
             .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lat").value(hasItem(DEFAULT_LOCATION_LAT)))
