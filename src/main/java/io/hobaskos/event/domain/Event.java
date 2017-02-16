@@ -13,9 +13,10 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A Event.
@@ -43,6 +44,12 @@ public class Event implements Serializable {
     @Size(max = 512)
     @Column(name = "image_url", length = 512)
     private String imageUrl;
+
+    @Column(name = "from_date")
+    private ZonedDateTime fromDate;
+
+    @Column(name = "to_date")
+    private ZonedDateTime toDate;
 
     @ManyToOne
     @NotNull
@@ -105,6 +112,32 @@ public class Event implements Serializable {
         this.imageUrl = imageUrl;
     }
 
+    public ZonedDateTime getFromDate() {
+        return fromDate;
+    }
+
+    public Event fromDate(ZonedDateTime fromDate) {
+        this.fromDate = fromDate;
+        return this;
+    }
+
+    public void setFromDate(ZonedDateTime fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public ZonedDateTime getToDate() {
+        return toDate;
+    }
+
+    public Event toDate(ZonedDateTime toDate) {
+        this.toDate = toDate;
+        return this;
+    }
+
+    public void setToDate(ZonedDateTime toDate) {
+        this.toDate = toDate;
+    }
+
     public User getOwner() {
         return owner;
     }
@@ -129,6 +162,13 @@ public class Event implements Serializable {
 
     public Event addLocations(Location location) {
         locations.add(location);
+
+        List<Location> locationList = locations.stream().collect(Collectors.toList());
+        locationList.sort(Comparator.comparing(Location::getFromDate));
+        setFromDate(locationList.get(0).getFromDate());
+        locationList.sort(Comparator.comparing(Location::getToDate).reversed());
+        setToDate(locationList.get(0).getToDate());
+
         location.setEvent(this);
         return this;
     }
@@ -183,6 +223,8 @@ public class Event implements Serializable {
             ", title='" + title + "'" +
             ", description='" + description + "'" +
             ", imageUrl='" + imageUrl + "'" +
+            ", fromDate='" + fromDate + "'" +
+            ", toDate='" + toDate + "'" +
             '}';
     }
 }
