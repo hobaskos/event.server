@@ -5,6 +5,7 @@ import io.hobaskos.event.BackendApp;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.domain.User;
+import io.hobaskos.event.repository.EventCategoryRepository;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.LocationSearchRepository;
@@ -43,6 +44,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Matchers.isNotNull;
+import static org.hamcrest.core.IsNot.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.Mockito.when;
@@ -89,6 +92,9 @@ public class EventResourceIntTest {
     private EventService eventService;
 
     @Inject
+    private EventCategoryRepository eventCategoryRepository;
+
+    @Inject
     private LocationService locationService;
 
     @Inject
@@ -113,6 +119,8 @@ public class EventResourceIntTest {
 
     private Event event;
 
+    private Event event2;
+
     private User owner;
 
     @Before
@@ -120,6 +128,7 @@ public class EventResourceIntTest {
         MockitoAnnotations.initMocks(this);
         EventResource eventResource = new EventResource();
         ReflectionTestUtils.setField(eventResource, "eventService", eventService);
+        ReflectionTestUtils.setField(eventResource, "eventCategoryRepository", eventCategoryRepository);
         ReflectionTestUtils.setField(eventService, "userService", mockUserService);
 
         this.restEventMockMvc = MockMvcBuilders.standaloneSetup(eventResource)
@@ -159,6 +168,17 @@ public class EventResourceIntTest {
         eventSearchRepository.deleteAll();
         locationSearchRepository.deleteAll();
         event = createEntity(em);
+        event2 = new Event();
+        event2.setTitle(DEFAULT_TITLE);
+        event2.setDescription(DEFAULT_DESCRIPTION);
+        event2.setImageUrl(DEFAULT_IMAGE_URL);
+        event2.setOwner(event.getOwner());
+        EventCategory eventCategory = EventCategoryResourceIntTest.createEntity(em);
+        em.persist(eventCategory);
+        em.flush();
+        event2.setEventCategory(eventCategory);
+        em.persist(event2);
+        em.flush();
     }
 
     @Test
@@ -237,7 +257,35 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.id").value(event.getId().intValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-            .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGE_URL.toString()));
+            .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGE_URL.toString()))
+            .andExpect(jsonPath("$.eventCategory.id").value(event.getEventCategory().getId()));
+    }
+
+    @Test
+    @Transactional
+    public void getEventsByCategory() throws Exception {
+        // Initialize the database
+        eventRepository.saveAndFlush(event);
+
+        // Get the events
+        restEventMockMvc.perform(get("/api/event-categories/{id}/events", event.getEventCategory().getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(event.getId().intValue())));
+
+        // Get the events by another category - expect no match
+        restEventMockMvc.perform(get("/api/event-categories/{id}/events", event.getEventCategory().getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(not(hasItem(event2.getId().intValue()))));
+    }
+
+    @Test
+    @Transactional
+    public void getEventsByNonExistingEventCategory() throws Exception {
+        // Get the events
+        restEventMockMvc.perform(get("/api/event-categories/{id}/events", Long.MAX_VALUE))
+            .andExpect(status().isNotFound());
     }
 
     @Test

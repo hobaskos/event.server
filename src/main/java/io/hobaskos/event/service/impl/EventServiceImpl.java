@@ -1,5 +1,6 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.domain.Location;
 import io.hobaskos.event.repository.search.LocationSearchRepository;
 import io.hobaskos.event.service.EventService;
@@ -82,6 +83,18 @@ public class EventServiceImpl implements EventService{
     public Page<EventDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Events");
         Page<Event> result = eventRepository.findAll(pageable);
+        return result.map(event -> eventMapper.eventToEventDTO(event));
+    }
+
+    /**
+     * Get all events with the current event category
+     * @param eventCategory
+     * @param pageable
+     * @return the list of entities
+     */
+    public Page<EventDTO> findAllWithEventCategory(EventCategory eventCategory, Pageable pageable) {
+        log.debug("Request to get events with category {}", eventCategory.getTitle());
+        Page<Event> result = eventRepository.findByEventCategory(eventCategory, pageable);
         return result.map(event -> eventMapper.eventToEventDTO(event));
     }
 
