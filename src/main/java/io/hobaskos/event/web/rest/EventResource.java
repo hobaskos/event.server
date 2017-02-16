@@ -1,11 +1,14 @@
 package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.hobaskos.event.domain.EventCategory;
+import io.hobaskos.event.repository.EventCategoryRepository;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
 
+import io.reactivex.exceptions.Exceptions;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +27,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing Event.
@@ -43,6 +44,9 @@ public class EventResource {
 
     @Inject
     private EventService eventService;
+
+    @Inject
+    private EventCategoryRepository eventCategoryRepository;
 
     /**
      * POST  /events : Create a new event.
@@ -101,6 +105,27 @@ public class EventResource {
         Page<EventDTO> page = eventService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/events");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET /event-categories/{id}/events : get all events with event id
+     * @param id
+     * @param pageable
+     * @return the list of events.
+     */
+    @GetMapping("/event-categories/{id}/events")
+    @Timed
+    public ResponseEntity<List<EventDTO>> getAllEventsWithCategory(@PathVariable Long id, @ApiParam Pageable pageable) {
+        EventCategory eventCategory = eventCategoryRepository.findOne(id);
+        return Optional.ofNullable(eventCategory)
+            .map(result -> {
+                try {
+                    Page<EventDTO> page = eventService.findAllWithEventCategory(eventCategory, pageable);
+                    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/event-categories/" + id + "/events");
+                    return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+                } catch (URISyntaxException e) { throw Exceptions.propagate(e); }
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**

@@ -172,7 +172,7 @@ dependencies {
     compile ("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}") {
         exclude(module: 'metrics-core')
         exclude(module: 'metrics-healthchecks')
-    } 
+    }
     compile "javax.cache:cache-api:${jcache_version}"
     compile "org.hibernate:hibernate-core:${hibernate_version}"
     compile("com.zaxxer:HikariCP") {
@@ -183,10 +183,10 @@ dependencies {
     compile "javax.inject:javax.inject:${javax_inject_version}"
     compile "javax.transaction:javax.transaction-api"
     compile "org.apache.geronimo.javamail:geronimo-javamail_1.4_mail:${geronimo_javamail_1_4_mail_version}"
-    
+
     compile ("org.ehcache:ehcache")
     compile ("org.hibernate:hibernate-jcache:${hibernate_version}")
-    
+
     compile "org.hibernate:hibernate-envers"
     compile "org.hibernate:hibernate-validator"
     compile ("org.liquibase:liquibase-core:${liquibase_core_version}") {
@@ -217,7 +217,7 @@ dependencies {
     compile "org.springframework.security:spring-security-config:${spring_security_version}"
     compile "org.springframework.security:spring-security-data:${spring_security_version}"
     compile "org.springframework.security:spring-security-web:${spring_security_version}"
-    compile "org.springframework.security:spring-security-messaging:${spring_security_version}" 
+    compile "org.springframework.security:spring-security-messaging:${spring_security_version}"
     compile "io.jsonwebtoken:jjwt:${jjwt_version}"
     compile("io.springfox:springfox-swagger2:${springfox_version}"){
         exclude module: 'mapstruct'
@@ -244,9 +244,11 @@ dependencies {
     testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testCompile "org.hamcrest:hamcrest-library"
     testCompile "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
-    
+
     optional "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
+
+    compile "io.reactivex.rxjava2:rxjava:${rxjava_version}"
 }
 
 clean {

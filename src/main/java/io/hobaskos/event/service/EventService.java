@@ -1,5 +1,6 @@
 package io.hobaskos.event.service;
 
+import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.service.dto.EventDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,14 @@ public interface EventService {
      *  @return the list of entities
      */
     Page<EventDTO> findAll(Pageable pageable);
+
+    /**
+     * Get all events with event category
+     * @param eventCategory
+     * @param pageable
+     * @return the list of entities
+     */
+    Page<EventDTO> findAllWithEventCategory(EventCategory eventCategory, Pageable pageable);
 
     /**
      *  Get the "id" event.
