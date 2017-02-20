@@ -34,6 +34,7 @@ describe('Controller Tests', function() {
 
                 activated: true,
                 email: "john.doe@mail.com",
+                profileImageUrl: "http://localhost:8080/files/someFile.png",
                 langKey: "en",
                 login: "john"
             };
