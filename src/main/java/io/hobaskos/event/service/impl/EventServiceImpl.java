@@ -153,21 +153,22 @@ public class EventServiceImpl implements EventService{
      */
     @Transactional(readOnly = true)
     public Page<EventDTO> searchNearby(Double lat, Double lon, String distance,
-                                       LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
-        log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{}", lat, lon, distance);
+                                       LocalDateTime fromDate, LocalDateTime toDate,
+                                       Set<EventCategory> categories,
+                                       Pageable pageable) {
+        log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{},categories:{}", lat, lon, distance, categories);
 
-        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder()
+        //First find the location using elastic
+        Iterable<Location> locations = locationSearchRepository.search(new NativeSearchQueryBuilder()
             .withQuery(boolQuery()
                 .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
                 .filter(geoDistanceQuery("geoPoint").lat(lat).lon(lon).distance(distance))
-            );
-
-        //First find the location using elastic
-        Iterable<Location> locations = locationSearchRepository.search(searchQueryBuilder.build());
+            ).build());
 
         //Then find the events connected to these locations using the ordinary JpaRepositories.
-        Page<Event> result = eventRepository.findByLocationsIn(StreamSupport.stream(locations.spliterator(), false)
-                .collect(Collectors.toSet()), pageable);
+        Page<Event> result = eventRepository.findByLocationsInAndEventCategoryIn(
+            StreamSupport.stream(locations.spliterator(), false).collect(Collectors.toSet()),
+            categories, pageable);
         return result.map(event -> eventMapper.eventToEventDTO(event));
     }
 }
