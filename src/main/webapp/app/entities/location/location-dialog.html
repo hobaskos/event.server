@@ -20,11 +20,10 @@
                     ng-maxlength="256" />
             <div ng-show="editForm.name.$invalid">
                 <p class="help-block"
-                   ng-show="editForm.name.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
+                    ng-show="editForm.name.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
                     This field cannot be longer than 256 characters.
                 </p>
             </div>
-
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.location.description" for="field_description">Description</label>
@@ -33,11 +32,10 @@
                     ng-maxlength="8129" />
             <div ng-show="editForm.description.$invalid">
                 <p class="help-block"
-                   ng-show="editForm.description.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="8129">
+                    ng-show="editForm.description.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="8129">
                     This field cannot be longer than 8129 characters.
                 </p>
             </div>
-
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.location.lat" for="field_lat">Lat</label>
@@ -107,21 +105,41 @@
             <label class="control-label" data-translate="backendApp.location.fromDate" for="field_fromDate">From Date</label>
                 <div class="input-group">
                     <input id="field_fromDate" type="text" class="form-control" name="fromDate" datetime-picker="{{dateformat}}" ng-model="vm.location.fromDate" is-open="vm.datePickerOpenStatus.fromDate"
-                      />
+                    required  />
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default" ng-click="vm.openCalendar('fromDate')"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
                 </div>
+            <div ng-show="editForm.fromDate.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.fromDate.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.fromDate.$error.ZonedDateTimelocal" data-translate="entity.validation.ZonedDateTimelocal">
+                    This field should be a date and time.
+                </p>
+            </div>
         </div>
         <div class="form-group">
             <label class="control-label" data-translate="backendApp.location.toDate" for="field_toDate">To Date</label>
                 <div class="input-group">
                     <input id="field_toDate" type="text" class="form-control" name="toDate" datetime-picker="{{dateformat}}" ng-model="vm.location.toDate" is-open="vm.datePickerOpenStatus.toDate"
-                      />
+                    required  />
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default" ng-click="vm.openCalendar('toDate')"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
                 </div>
+            <div ng-show="editForm.toDate.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.toDate.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.toDate.$error.ZonedDateTimelocal" data-translate="entity.validation.ZonedDateTimelocal">
+                    This field should be a date and time.
+                </p>
+            </div>
         </div>
 
         <div class="form-group">
