@@ -53,6 +53,7 @@ public class UserResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setEmail("test@test.com");
+        user.setProfileImageUrl("http://localhost:8080/files/someFile.png");
         user.setFirstName("test");
         user.setLastName("test");
         user.setLangKey("en");
@@ -73,6 +74,7 @@ public class UserResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setEmail("owner@test.com");
+        user.setProfileImageUrl("http://localhost:8080/files/someOtherFile.png");
         user.setFirstName("owner");
         user.setLastName("owner");
         user.setLangKey("en");

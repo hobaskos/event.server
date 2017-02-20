@@ -30,6 +30,9 @@ public class UserDTO {
     @Size(min = 5, max = 100)
     private String email;
 
+    @Size(max = 255)
+    private String profileImageUrl;
+
     private boolean activated = false;
 
     @Size(min = 2, max = 5)
@@ -73,6 +76,10 @@ public class UserDTO {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public boolean isActivated() {
