@@ -5,6 +5,7 @@ import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.service.UserService;
 
+import io.hobaskos.event.service.mapper.UserMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ public class UserResourceIntTest {
     @Inject
     private UserService userService;
 
+    private MockMvc restManagedUserMockMvc;
     private MockMvc restUserMockMvc;
 
     /**
@@ -53,6 +55,7 @@ public class UserResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setEmail("test@test.com");
+        user.setProfileImageUrl("http://localhost:8080/files/someFile.png");
         user.setFirstName("test");
         user.setLastName("test");
         user.setLangKey("en");
@@ -73,6 +76,7 @@ public class UserResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setEmail("owner@test.com");
+        user.setProfileImageUrl("http://localhost:8080/files/someOtherFile.png");
         user.setFirstName("owner");
         user.setLastName("owner");
         user.setLangKey("en");
@@ -83,6 +87,11 @@ public class UserResourceIntTest {
 
     @Before
     public void setup() {
+        ManagedUserResource managedUserResource = new ManagedUserResource();
+        ReflectionTestUtils.setField(managedUserResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(managedUserResource, "userService", userService);
+        this.restManagedUserMockMvc = MockMvcBuilders.standaloneSetup(managedUserResource).build();
+
         UserResource userResource = new UserResource();
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(userResource, "userService", userService);
@@ -91,25 +100,41 @@ public class UserResourceIntTest {
 
     @Test
     public void testGetExistingUser() throws Exception {
-        restUserMockMvc.perform(get("/api/users/admin")
+        restManagedUserMockMvc.perform(get("/api/managed-users/admin")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.lastName").value("Administrator"));
+
+        restUserMockMvc.perform(get("/api/users/admin")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.login").value("admin"));
     }
 
     @Test
     public void testGetUnknownUser() throws Exception {
-        restUserMockMvc.perform(get("/api/users/unknown")
+        restManagedUserMockMvc.perform(get("/api/managed-users/unknown")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+
+        restUserMockMvc.perform(get("/api/users/unknown")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 
     @Test
     public void testGetExistingUserWithAnEmailLogin() throws Exception {
-        User user = userService.createUser("john.doe@localhost.com", "johndoe", "John", "Doe", "john.doe@localhost.com", "en-US");
+        User user = userService.createUser("john.doe@localhost.com",
+                                            "johndoe",
+                                            "John",
+                                            "Doe",
+                                            "john.doe@localhost.com",
+                                            "http://localhost:8080/files/someFile.png",
+                                            "en-US");
 
-        restUserMockMvc.perform(get("/api/users/john.doe@localhost.com")
+        restManagedUserMockMvc.perform(get("/api/managed-users/john.doe@localhost.com")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -120,9 +145,14 @@ public class UserResourceIntTest {
 
     @Test
     public void testDeleteExistingUserWithAnEmailLogin() throws Exception {
-        User user = userService.createUser("john.doe@localhost.com", "johndoe", "John", "Doe", "john.doe@localhost.com", "en-US");
+        User user = userService.createUser("john.doe@localhost.com",
+                                            "johndoe", "John",
+                                            "Doe",
+                                            "john.doe@localhost.com",
+                                            "http://localhost:8080/files/someFile.png",
+                                            "en-US");
 
-        restUserMockMvc.perform(delete("/api/users/john.doe@localhost.com")
+        restManagedUserMockMvc.perform(delete("/api/managed-users/john.doe@localhost.com")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 

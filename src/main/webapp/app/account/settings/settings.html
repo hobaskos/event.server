@@ -73,6 +73,17 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label" for="profileImageUrl" data-translate="global.form.profileImageUrl">Profile ImageUrl</label>
+                    <input type="text" class="form-control" id="profileImageUrl" name="profileImageUrl" placeholder="{{'global.form.profileImageUrl.placeholder' | translate}}"
+                           ng-model="vm.settingsAccount.profileImageUrl" ng-minlength=5 ng-maxlength=255 maxlength="255">
+                    <div ng-show="form.profileImageUrl.$dirty && form.profileImageUrl.$invalid">
+                        <p class="help-block"
+                               ng-show="form.profileImageUrl.$error.maxlength" data-translate="global.messages.validate.profileImageUrl.maxlength">
+                            Your profileImageUrl cannot be longer than 255 characters.
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="langKey" data-translate="settings.form.language">Language</label>
                     <select id="langKey" name="langKey" class="form-control" ng-model="vm.settingsAccount.langKey" ng-controller="JhiLanguageController as languageVm" ng-options="code as (code | findLanguageFromKey) for code in languageVm.languages"></select>
                 </div>

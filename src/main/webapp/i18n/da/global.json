@@ -44,7 +44,9 @@
             "confirmpassword": "Bekræft det nye kodeordet",
             "confirmpassword.placeholder": "Bekræft det nye kodeord",
             "email": "E-mail",
-            "email.placeholder": "Din e-mail adresse"
+            "email.placeholder": "Din e-mail adresse",
+            "profileImageUrl": "Profile image URL",
+            "profileImageUrl.placeholder": "Profile image URL"
         },
         "messages": {
             "info": {

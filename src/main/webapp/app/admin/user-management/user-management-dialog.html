@@ -81,6 +81,18 @@
             </div>
         </div>
         <div class="form-group">
+            <label data-translate="userManagement.profileImageUrl">Profile ImageURL</label>
+            <input type="text" class="form-control" name="profileImageUrl"
+                   ng-model="vm.user.profileImageUrl" ng-minlength="5" ng-maxlength="255">
+            <div ng-show="editForm.profileImageUrl.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.profileImageUrl.$error.maxlength" data-translate="entity.validation.maxlength"
+                   translate-value-max="50">
+                    This field cannot be longer than 255 characters.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
             <label for="activated">
                 <input ng-disabled="vm.user.id === null" type="checkbox" id="activated" name="activated" ng-model="vm.user.activated">
                 <span data-translate="userManagement.activated">Activated</span>
