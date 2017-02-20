@@ -30,6 +30,8 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Event.
@@ -195,6 +197,7 @@ public class EventResource {
                                                              @RequestParam String distance,
                                                              @RequestParam(required=false) @DateTimeFormat(iso= DateTimeFormat.ISO.DATE_TIME) Date fromDate,
                                                              @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) Date toDate,
+                                                             @RequestParam(required=false) Set<Long> categories,
                                                              @ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to search for a page of Events for nearby query {}");
@@ -204,8 +207,22 @@ public class EventResource {
         LocalDateTime toDateLocal = toDate != null ?
                 toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
                 : LocalDateTime.now().plusDays(DEFAULT_DAYS_FORWARD);
-        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, fromDateLocal, toDateLocal, pageable);
+        Set<EventCategory> eventCategories = getEventCategoriesFromIntegerSet(categories);
+        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, fromDateLocal, toDateLocal, eventCategories, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/events-nearby");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    private Set<EventCategory> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
+        if (eventCategories == null || eventCategories.size() == 0) {
+            return eventCategoryRepository.findAll().stream().collect(Collectors.toSet());
+        }
+
+        Set<EventCategory> matchedEventsCategories = eventCategoryRepository.findById(eventCategories);
+        if (matchedEventsCategories.size() != 0) {
+            return matchedEventsCategories;
+        } else {
+            return eventCategoryRepository.findAll().stream().collect(Collectors.toSet());
+        }
     }
 }

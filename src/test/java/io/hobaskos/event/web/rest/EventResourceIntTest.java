@@ -505,5 +505,29 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
             .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
+
+        // Search for the event with date params and category
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m&fromDate=%s&toDate=%s&categories=%s",
+                UPDATED_LOCATION_LAT,
+                UPDATED_LOCATION_LON,
+                LocalDateTime.now().plusDays(UPDATED_LOCATION_FROM_DATE_DAYS - 1).toString() + "Z",
+                LocalDateTime.now().plusDays(UPDATED_LOCATION_TO_DATE_DAYS + 1).toString() + "Z",
+                event.getEventCategory().getId().toString())))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
+            .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
+
+        // Search for the event with date params and wrong category
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m&fromDate=%s&toDate=%s&categories=%s",
+                UPDATED_LOCATION_LAT,
+                UPDATED_LOCATION_LON,
+                LocalDateTime.now().plusDays(UPDATED_LOCATION_FROM_DATE_DAYS - 1).toString() + "Z",
+                LocalDateTime.now().plusDays(UPDATED_LOCATION_TO_DATE_DAYS + 1).toString() + "Z",
+                event2.getEventCategory().getId().toString())))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(not(hasItem(event.getId().intValue()))));
    }
 }

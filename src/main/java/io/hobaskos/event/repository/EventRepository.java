@@ -20,7 +20,7 @@ public interface EventRepository extends JpaRepository<Event,Long> {
     @Query("select event from Event event where event.owner.login = ?#{principal.username}")
     List<Event> findByOwnerIsCurrentUser();
 
-    Page<Event> findByLocationsIn(Set<Location> locations, Pageable pageable);
+    Page<Event> findByLocationsInAndEventCategoryIn(Set<Location> locations, Set<EventCategory> eventCategories, Pageable pageable);
 
     Page<Event> findByEventCategory(EventCategory eventCategory, Pageable pageable);
 }

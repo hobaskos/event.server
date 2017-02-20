@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Service Interface for managing Event.
@@ -72,5 +73,5 @@ public interface EventService {
      * @return the list of entities
      */
     Page<EventDTO> searchNearby(Double lat, Double lon, String distance, LocalDateTime fromDate,
-                                LocalDateTime toDate, Pageable pageable);
+                                LocalDateTime toDate, Set<EventCategory> categories, Pageable pageable);
 }
