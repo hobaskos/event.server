@@ -36,9 +36,6 @@ public class UserResource {
     private UserService userService;
 
     @Inject
-    private UserMapper userMapper;
-
-    @Inject
     private UserSearchRepository userSearchRepository;
 
     /**
@@ -52,7 +49,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
         log.debug("REST request to get User : {}", login);
         return userService.getUserWithAuthoritiesByLogin(login)
-                .map(userMapper::userToUserDTO)
+                .map(UserDTO::new)
                 .map(userDTO -> new ResponseEntity<>(userDTO, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -69,7 +66,7 @@ public class UserResource {
     public List<UserDTO> search(@PathVariable String query) {
         return StreamSupport
             .stream(userSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .map(userMapper::userToUserDTO)
+            .map(UserDTO::new)
             .collect(Collectors.toList());
     }
 }

@@ -40,9 +40,6 @@ public class UserResourceIntTest {
     @Inject
     private UserService userService;
 
-    @Inject
-    private UserMapper userMapper;
-
     private MockMvc restManagedUserMockMvc;
     private MockMvc restUserMockMvc;
 
@@ -98,7 +95,6 @@ public class UserResourceIntTest {
         UserResource userResource = new UserResource();
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(userResource, "userService", userService);
-        ReflectionTestUtils.setField(userResource, "userMapper", userMapper);
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource).build();
     }
 
@@ -110,13 +106,11 @@ public class UserResourceIntTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.lastName").value("Administrator"));
 
-        /* // TODO Pending UserDTO conversion fix
         restUserMockMvc.perform(get("/api/users/admin")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.login").value("admin"));
-         */
     }
 
     @Test
