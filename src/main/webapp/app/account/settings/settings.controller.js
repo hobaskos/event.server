@@ -22,6 +22,7 @@
             return {
                 activated: account.activated,
                 email: account.email,
+                profileImageUrl: account.profileImageUrl,
                 firstName: account.firstName,
                 langKey: account.langKey,
                 lastName: account.lastName,

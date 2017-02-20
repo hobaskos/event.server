@@ -84,7 +84,7 @@ public class UserService {
     }
 
     public User createUser(String login, String password, String firstName, String lastName, String email,
-        String langKey) {
+                           String profileImageUrl, String langKey) {
 
         User newUser = new User();
         Authority authority = authorityRepository.findOne(AuthoritiesConstants.USER);
@@ -96,6 +96,7 @@ public class UserService {
         newUser.setFirstName(firstName);
         newUser.setLastName(lastName);
         newUser.setEmail(email);
+        newUser.setProfileImageUrl(profileImageUrl);
         newUser.setLangKey(langKey);
         // new user is not active
         newUser.setActivated(false);
@@ -115,6 +116,7 @@ public class UserService {
         user.setFirstName(managedUserVM.getFirstName());
         user.setLastName(managedUserVM.getLastName());
         user.setEmail(managedUserVM.getEmail());
+        user.setProfileImageUrl(managedUserVM.getProfileImageUrl());
         if (managedUserVM.getLangKey() == null) {
             user.setLangKey("en"); // default language
         } else {
@@ -138,18 +140,19 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(String firstName, String lastName, String email, String langKey) {
+    public void updateUser(String firstName, String lastName, String email, String profileImageUrl, String langKey) {
         userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setEmail(email);
+            user.setProfileImageUrl(profileImageUrl);
             user.setLangKey(langKey);
             userSearchRepository.save(user);
             log.debug("Changed Information for User: {}", user);
         });
     }
 
-    public void updateUser(Long id, String login, String firstName, String lastName, String email,
+    public void updateUser(Long id, String login, String firstName, String lastName, String email, String profileImageUrl,
         boolean activated, String langKey, Set<String> authorities) {
 
         Optional.of(userRepository
@@ -159,6 +162,7 @@ public class UserService {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 user.setEmail(email);
+                user.setProfileImageUrl(profileImageUrl);
                 user.setActivated(activated);
                 user.setLangKey(langKey);
                 Set<Authority> managedAuthorities = user.getAuthorities();

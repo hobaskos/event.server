@@ -18,6 +18,7 @@
         "firstName": "First name",
         "lastName": "Last name",
         "email": "Email",
+        "profileImageUrl": "Profile Image URL",
         "activated": "Activated",
         "deactivated": "Deactivated",
         "profiles": "Profiles",

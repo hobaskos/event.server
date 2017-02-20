@@ -45,18 +45,19 @@ public class UserDTO {
 
     public UserDTO(User user) {
         this(user.getLogin(), user.getFirstName(), user.getLastName(),
-            user.getEmail(), user.getActivated(), user.getLangKey(),
+            user.getEmail(), user.getProfileImageUrl(), user.getActivated(), user.getLangKey(),
             user.getAuthorities().stream().map(Authority::getName)
                 .collect(Collectors.toSet()));
     }
 
     public UserDTO(String login, String firstName, String lastName,
-        String email, boolean activated, String langKey, Set<String> authorities) {
+        String email, String profileImageUrl, boolean activated, String langKey, Set<String> authorities) {
 
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.profileImageUrl = profileImageUrl;
         this.activated = activated;
         this.langKey = langKey;
         this.authorities = authorities;
