@@ -1,5 +1,7 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.domain.User;
+import io.hobaskos.event.domain.enumeration.UserConnectionType;
 import io.hobaskos.event.service.UserConnectionService;
 import io.hobaskos.event.domain.UserConnection;
 import io.hobaskos.event.repository.UserConnectionRepository;
@@ -29,7 +31,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class UserConnectionServiceImpl implements UserConnectionService{
 
     private final Logger log = LoggerFactory.getLogger(UserConnectionServiceImpl.class);
-    
+
     @Inject
     private UserConnectionRepository userConnectionRepository;
 
@@ -55,12 +57,51 @@ public class UserConnectionServiceImpl implements UserConnectionService{
     }
 
     /**
+     * Make a friend connection between users.
+     * @param requester
+     * @param requestee
+     * @return
+     */
+    public UserConnectionDTO makeConnection(User requester, User requestee) {
+        return userConnectionRepository.findOneByRequesterAndRequesteeAndType(requestee, requester, UserConnectionType.PENDING)
+            .map(userConnection -> {
+                userConnection.setType(UserConnectionType.CONFIRMED);
+                return save(userConnectionMapper.userConnectionToUserConnectionDTO(userConnection));
+            })
+            .orElseGet(() -> {
+                UserConnectionDTO userConnectionDTO = new UserConnectionDTO();
+                userConnectionDTO.setRequesterId(requester.getId());
+                userConnectionDTO.setRequesteeId(requestee.getId());
+                userConnectionDTO.setType(UserConnectionType.PENDING);
+                return save(userConnectionDTO);
+            });
+    }
+
+    /**
+     * Make a follower connection
+     * @param requester
+     * @param requestee
+     * @return
+     */
+    public UserConnectionDTO makeFollowingConnection(User requester, User requestee) {
+        return userConnectionRepository.findOneByRequesterAndRequesteeAndType(requester, requestee, UserConnectionType.FOLLOWER)
+            .map(userConnection -> userConnectionMapper.userConnectionToUserConnectionDTO(userConnection))
+            .orElseGet(() -> {
+                UserConnectionDTO userConnectionDTO = new UserConnectionDTO();
+                userConnectionDTO.setRequesterId(requester.getId());
+                userConnectionDTO.setRequesteeId(requestee.getId());
+                userConnectionDTO.setType(UserConnectionType.FOLLOWER);
+                return save(userConnectionDTO);
+            });
+    }
+
+    /**
      *  Get all the userConnections.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public Page<UserConnectionDTO> findAll(Pageable pageable) {
         log.debug("Request to get all UserConnections");
         Page<UserConnection> result = userConnectionRepository.findAll(pageable);
@@ -73,7 +114,7 @@ public class UserConnectionServiceImpl implements UserConnectionService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public UserConnectionDTO findOne(Long id) {
         log.debug("Request to get UserConnection : {}", id);
         UserConnection userConnection = userConnectionRepository.findOne(id);

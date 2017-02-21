@@ -20,9 +20,9 @@ public class UserConnectionDTO implements Serializable {
 
 
     private Long requesterId;
-    
+
     private Long requesteeId;
-    
+
     public Long getId() {
         return id;
     }

@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -70,15 +72,15 @@ public class UserResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.
      */
-    public static User createOwnerEntity(EntityManager em) {
+    public static User createRandomEntity(EntityManager em) {
         User user = new User();
-        user.setLogin("owner");
+        user.setLogin(UUID.randomUUID().toString());
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
-        user.setEmail("owner@test.com");
+        user.setEmail(UUID.randomUUID().toString() + "@localhost");
         user.setProfileImageUrl("http://localhost:8080/files/someOtherFile.png");
-        user.setFirstName("owner");
-        user.setLastName("owner");
+        user.setFirstName(UUID.randomUUID().toString());
+        user.setLastName(UUID.randomUUID().toString());
         user.setLangKey("en");
         em.persist(user);
         em.flush();

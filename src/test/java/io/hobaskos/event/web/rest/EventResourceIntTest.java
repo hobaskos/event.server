@@ -132,7 +132,7 @@ public class EventResourceIntTest {
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
 
-        owner = UserResourceIntTest.createOwnerEntity(em);
+        owner = UserResourceIntTest.createRandomEntity(em);
         when(mockUserService.getUserWithAuthorities()).thenReturn(owner);
     }
 

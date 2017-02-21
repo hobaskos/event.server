@@ -2,19 +2,30 @@ package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 
+import io.hobaskos.event.config.Constants;
 import io.hobaskos.event.domain.User;
+import io.hobaskos.event.domain.UserConnection;
+import io.hobaskos.event.domain.enumeration.UserConnectionType;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.SecurityUtils;
 import io.hobaskos.event.service.MailService;
+import io.hobaskos.event.service.UserConnectionService;
 import io.hobaskos.event.service.UserService;
+import io.hobaskos.event.service.dto.UserConnectionDTO;
 import io.hobaskos.event.service.dto.UserDTO;
+import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.web.rest.vm.KeyAndPasswordVM;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 
+import io.reactivex.exceptions.Exceptions;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +35,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing the current user's account.
@@ -43,6 +56,9 @@ public class AccountResource {
 
     @Inject
     private MailService mailService;
+
+    @Inject
+    private UserConnectionService userConnectionService;
 
     /**
      * POST  /register : register the user.
@@ -195,5 +211,105 @@ public class AccountResource {
         return (!StringUtils.isEmpty(password) &&
             password.length() >= ManagedUserVM.PASSWORD_MIN_LENGTH &&
             password.length() <= ManagedUserVM.PASSWORD_MAX_LENGTH);
+    }
+
+    /**
+     * GET /account/followers
+     * @return
+     */
+    @GetMapping(path = "/account/followers", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @Timed
+    public ResponseEntity<List<UserDTO>> getFollowers(@ApiParam Pageable pageable) {
+        log.debug("REST request to get Followers for account {}");
+        return userService.getFollowers()
+            .map(users ->  users.stream().map(UserDTO::new).collect(Collectors.toList()))
+            .map(result -> {
+                try {
+                    Page<UserDTO> page = new PageImpl<>(result, pageable, result.size());
+                    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/followers");
+                    return new ResponseEntity<>(result, headers, HttpStatus.OK);
+                } catch (URISyntaxException e) { throw Exceptions.propagate(e); }
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    /**
+     * GET /account/following
+     * @return
+     */
+    @GetMapping(path = "/account/following", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<List<UserDTO>> getFollowing(@ApiParam Pageable pageable) {
+        log.debug("REST request to get Followers for account {}");
+        return userService.getFollowing()
+            .map(users ->  users.stream().map(UserDTO::new).collect(Collectors.toList()))
+            .map(result -> {
+                try {
+                    Page<UserDTO> page = new PageImpl<>(result, pageable, result.size());
+                    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/following");
+                    return new ResponseEntity<>(result, headers, HttpStatus.OK);
+                } catch (URISyntaxException e) { throw Exceptions.propagate(e); }
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    /**
+     * POST /account/following/{login}
+     * @param login
+     * @return
+     */
+    @PostMapping(path = "/account/following/{login:" + Constants.LOGIN_REGEX + "}",
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<UserConnectionDTO> follow(@PathVariable String login) {
+        return Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
+            .map(user -> {
+                UserConnectionDTO userConnectionDTO = userConnectionService
+                    .makeFollowingConnection(userService.getUserWithAuthorities(), user.get());
+                return new ResponseEntity<>(userConnectionDTO, HttpStatus.OK);
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET /account/user-connections
+     * @param type
+     * @param pageable
+     * @return
+     */
+    @GetMapping(path = "/account/user-connections", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<List<UserDTO>> getUserConnections(@RequestParam UserConnectionType type, @ApiParam Pageable pageable) {
+        log.debug("REST request to get Friends for account {}");
+        return userService.getUserConnections(type)
+            .map(users ->  users.stream().map(UserDTO::new).collect(Collectors.toList()))
+            .map(result -> {
+                try {
+                    Page<UserDTO> page = new PageImpl<>(result, pageable, result.size());
+                    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/friends");
+                    return new ResponseEntity<>(result, headers, HttpStatus.OK);
+                } catch (URISyntaxException e) { throw Exceptions.propagate(e); }
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    /**
+     * POST /account/user-connections/{login} : make friends with user login
+     * @param login
+     * @return
+     */
+    @PostMapping(path = "/account/user-connections/{login:" + Constants.LOGIN_REGEX + "}",
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<UserConnectionDTO> makeUserConnection(@PathVariable String login) {
+        log.debug("REST request to make friends with {}", login);
+
+        return Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
+            .map(user -> {
+                UserConnectionDTO userConnectionDTO = userConnectionService
+                    .makeConnection(userService.getUserWithAuthorities(), user.get());
+                return new ResponseEntity<>(userConnectionDTO, HttpStatus.OK);
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
