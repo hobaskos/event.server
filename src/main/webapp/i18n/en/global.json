@@ -10,6 +10,7 @@
                 "event": "Event",
                 "location": "Location",
                 "eventCategory": "Event Category",
+                "userConnection": "User Connection",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
