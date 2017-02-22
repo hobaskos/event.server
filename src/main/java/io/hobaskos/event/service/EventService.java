@@ -4,11 +4,9 @@ import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.service.dto.EventDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Service Interface for managing Event.
@@ -73,5 +71,5 @@ public interface EventService {
      * @return the list of entities
      */
     Page<EventDTO> searchNearby(String query, Double lat, Double lon, String distance, LocalDateTime fromDate,
-                                LocalDateTime toDate, Set<EventCategory> categories, Pageable pageable);
+                                LocalDateTime toDate, List<Long> eventCategoryIds, Pageable pageable);
 }

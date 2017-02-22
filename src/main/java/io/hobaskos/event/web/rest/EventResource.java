@@ -210,22 +210,25 @@ public class EventResource {
         LocalDateTime toDateLocal = toDate != null ?
                 toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
                 : LocalDateTime.now().plusDays(DEFAULT_DAYS_FORWARD);
-        Set<EventCategory> eventCategories = getEventCategoriesFromIntegerSet(categories);
+        List<Long> eventCategories = getEventCategoriesFromIntegerSet(categories);
         Page<EventDTO> page = eventService.searchNearby(query, lat, lon, distance, fromDateLocal, toDateLocal, eventCategories, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/events-nearby");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-    private Set<EventCategory> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
+    private List<Long> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
         if (eventCategories == null || eventCategories.size() == 0) {
-            return eventCategoryRepository.findAll().stream().collect(Collectors.toSet());
+            return eventCategoryRepository.findAll().stream()
+                .map(EventCategory::getId).collect(Collectors.toList());
         }
 
         Set<EventCategory> matchedEventsCategories = eventCategoryRepository.findById(eventCategories);
         if (matchedEventsCategories.size() != 0) {
-            return matchedEventsCategories;
+            return matchedEventsCategories.stream()
+                .map(EventCategory::getId).collect(Collectors.toList());
         } else {
-            return eventCategoryRepository.findAll().stream().collect(Collectors.toSet());
+            return eventCategoryRepository.findAll().stream()
+                .map(EventCategory::getId).collect(Collectors.toList());
         }
     }
 }

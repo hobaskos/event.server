@@ -1,7 +1,6 @@
 package io.hobaskos.event.service.impl;
 
 import io.hobaskos.event.domain.EventCategory;
-import io.hobaskos.event.repository.search.LocationSearchRepository;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.repository.EventRepository;
@@ -10,7 +9,6 @@ import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -23,8 +21,6 @@ import javax.inject.Inject;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -146,18 +142,16 @@ public class EventServiceImpl implements EventService{
     @Transactional(readOnly = true)
     public Page<EventDTO> searchNearby(String query, Double lat, Double lon, String distance,
                                        LocalDateTime fromDate, LocalDateTime toDate,
-                                       Set<EventCategory> categories,
+                                       List<Long> eventCategoryIds,
                                        Pageable pageable) {
         log.debug("Request to search for a page of nearby Events query:{},lat:{},lon:{},distance:{},categories:{}",
-            query, lat, lon, distance, categories);
-
-        List<Long> eventCategoryIds = categories.stream().map(EventCategory::getId).collect(Collectors.toList());
+            query, lat, lon, distance, eventCategoryIds);
 
         BoolQueryBuilder queryBuilder = boolQuery()
             .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
             .filter(termsQuery("eventCategory.id", eventCategoryIds))
-            .filter(new NestedQueryBuilder("locations",
-                geoDistanceQuery("locations.geoPoint").lat(lat).lon(lon).distance(distance)));
+            .filter(nestedQuery("locations", geoDistanceQuery("locations.geoPoint")
+                .lat(lat).lon(lon).distance(distance)));
 
         if (query != null) { queryBuilder.must(queryStringQuery(query)); }
 
