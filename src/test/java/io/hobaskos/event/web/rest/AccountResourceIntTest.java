@@ -468,33 +468,6 @@ public class AccountResourceIntTest {
 
     @Test
     @Transactional
-    public void testRequestForUserConnection() throws Exception {
-        User randomUser1 = UserResourceIntTest.createRandomEntity(em);
-        User randomUser2 = UserResourceIntTest.createRandomEntity(em);
-
-        when(mockUserService.getUserWithAuthorities()).thenReturn(randomUser1);
-        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser2));
-        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser2.getLogin())
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.requesterId").value(randomUser1.getId()))
-            .andExpect(jsonPath("$.requesteeId").value(randomUser2.getId()))
-            .andExpect(jsonPath("$.type").value("PENDING"));
-
-        when(mockUserService.getUserWithAuthorities()).thenReturn(randomUser2);
-        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser1));
-        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser1.getLogin())
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.requesterId").value(randomUser1.getId()))
-            .andExpect(jsonPath("$.requesteeId").value(randomUser2.getId()))
-            .andExpect(jsonPath("$.type").value("CONFIRMED"));
-    }
-
-    @Test
-    @Transactional
     public void testFollower() throws Exception {
         User randomUser1 = UserResourceIntTest.createRandomEntity(em);
         User randomUser2 = UserResourceIntTest.createRandomEntity(em);
@@ -505,8 +478,28 @@ public class AccountResourceIntTest {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.requesterId").value(randomUser1.getId()))
-            .andExpect(jsonPath("$.requesteeId").value(randomUser2.getId()))
-            .andExpect(jsonPath("$.type").value("FOLLOWER"));
+            .andExpect(jsonPath("$.login").value(randomUser2.getLogin()));
+    }
+
+    @Test
+    @Transactional
+    public void testRequestForUserConnection() throws Exception {
+        User randomUser1 = UserResourceIntTest.createRandomEntity(em);
+        User randomUser2 = UserResourceIntTest.createRandomEntity(em);
+
+        when(mockUserService.getUserWithAuthorities()).thenReturn(randomUser1);
+        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser2));
+        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser2.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser2.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser1));
+        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser1.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
     }
 }

@@ -5,6 +5,7 @@ import io.hobaskos.event.domain.UserConnection;
 
 import io.hobaskos.event.domain.enumeration.UserConnectionType;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,11 @@ public interface UserConnectionRepository extends JpaRepository<UserConnection,L
     @Query("select userConnection from UserConnection userConnection where userConnection.requestee.login = ?#{principal.username}")
     List<UserConnection> findByRequesteeIsCurrentUser();
 
-    List<UserConnection> findByRequesterOrRequesteeAndType(User requestor, User requestee, UserConnectionType type);
+    @Query("select uc from UserConnection uc left join uc.requester left join uc.requestee" +
+        " where (uc.requester=:requester or uc.requestee=:requestee) and uc.type = :connectionType")
+    List<UserConnection> findByRequesterOrRequesteeAndType(@Param("requester")User requester,
+                                                           @Param("requestee") User requestee,
+                                                           @Param("connectionType") UserConnectionType connectionType);
 
     Optional<UserConnection> findOneByRequesterAndRequesteeAndType(User requester, User requestee, UserConnectionType type);
 

@@ -269,8 +269,13 @@ public class UserService {
      */
     public Optional<List<User>> getFollowingForUser(User user) {
         return Optional.ofNullable(userConnectionRepository.findByRequesterAndType(user, UserConnectionType.FOLLOWER))
-            .map(userConnections ->
-                userConnections.stream().map(UserConnection::getRequestee).collect(Collectors.toList())
+            .map(userConnections -> {
+                    userConnections.forEach(userConnection -> {
+                        userConnection.getRequester().getAuthorities().size(); // eager load authorities
+                        userConnection.getRequestee().getAuthorities().size();
+                    });
+                    return userConnections.stream().map(UserConnection::getRequestee).collect(Collectors.toList());
+                }
             );
     }
 
@@ -289,7 +294,13 @@ public class UserService {
      */
     public Optional<List<User>> getUserConnectionsFor(User user, UserConnectionType type) {
         return Optional.ofNullable(userConnectionRepository.findByRequesterOrRequesteeAndType(user, user, type))
-            .map(userConnections -> getUsersFromUserConnections(userConnections, user));
+            .map(userConnections -> {
+                userConnections.forEach(userConnection -> {
+                    userConnection.getRequester().getAuthorities().size(); // eager load authorities
+                    userConnection.getRequestee().getAuthorities().size();
+                });
+                return getUsersFromUserConnections(userConnections, user);
+            });
     }
 
     /**

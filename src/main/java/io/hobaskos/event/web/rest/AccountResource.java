@@ -261,12 +261,11 @@ public class AccountResource {
     @PostMapping(path = "/account/following/{login:" + Constants.LOGIN_REGEX + "}",
                  produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<UserConnectionDTO> follow(@PathVariable String login) {
+    public ResponseEntity<UserDTO> follow(@PathVariable String login) {
         return Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
             .map(user -> {
-                UserConnectionDTO userConnectionDTO = userConnectionService
-                    .makeFollowingConnection(userService.getUserWithAuthorities(), user.get());
-                return new ResponseEntity<>(userConnectionDTO, HttpStatus.OK);
+                userConnectionService.makeFollowingConnection(userService.getUserWithAuthorities(), user.get());
+                return new ResponseEntity<>(new UserDTO(user.get()), HttpStatus.OK);
             })
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -301,14 +300,13 @@ public class AccountResource {
     @PostMapping(path = "/account/user-connections/{login:" + Constants.LOGIN_REGEX + "}",
                  produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<UserConnectionDTO> makeUserConnection(@PathVariable String login) {
+    public ResponseEntity<?> makeUserConnection(@PathVariable String login) {
         log.debug("REST request to make friends with {}", login);
 
         return Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
             .map(user -> {
-                UserConnectionDTO userConnectionDTO = userConnectionService
-                    .makeConnection(userService.getUserWithAuthorities(), user.get());
-                return new ResponseEntity<>(userConnectionDTO, HttpStatus.OK);
+                userConnectionService.makeConnection(userService.getUserWithAuthorities(), user.get());
+                return new ResponseEntity<>(HttpStatus.OK);
             })
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
