@@ -1,8 +1,6 @@
 package io.hobaskos.event.service.impl;
 
 import io.hobaskos.event.domain.EventCategory;
-import io.hobaskos.event.domain.Location;
-import io.hobaskos.event.repository.search.LocationSearchRepository;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.repository.EventRepository;
@@ -10,26 +8,19 @@ import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -50,9 +41,6 @@ public class EventServiceImpl implements EventService{
 
     @Inject
     private EventSearchRepository eventSearchRepository;
-
-    @Inject
-    private LocationSearchRepository locationSearchRepository;
 
     @Inject
     private UserService userService;
@@ -152,23 +140,25 @@ public class EventServiceImpl implements EventService{
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page<EventDTO> searchNearby(Double lat, Double lon, String distance,
+    public Page<EventDTO> searchNearby(String query, Double lat, Double lon, String distance,
                                        LocalDateTime fromDate, LocalDateTime toDate,
-                                       Set<EventCategory> categories,
+                                       List<Long> eventCategoryIds,
                                        Pageable pageable) {
-        log.debug("Request to search for a page of nearby Events lat:{},lon:{},distance:{},categories:{}", lat, lon, distance, categories);
+        log.debug("Request to search for a page of nearby Events query:{},lat:{},lon:{},distance:{},categories:{}",
+            query, lat, lon, distance, eventCategoryIds);
 
-        //First find the location using elastic
-        Iterable<Location> locations = locationSearchRepository.search(new NativeSearchQueryBuilder()
-            .withQuery(boolQuery()
-                .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
-                .filter(geoDistanceQuery("geoPoint").lat(lat).lon(lon).distance(distance))
-            ).build());
+        BoolQueryBuilder queryBuilder = boolQuery()
+            .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
+            .filter(termsQuery("eventCategory.id", eventCategoryIds))
+            .filter(nestedQuery("locations", geoDistanceQuery("locations.geoPoint")
+                .lat(lat).lon(lon).distance(distance)));
 
-        //Then find the events connected to these locations using the ordinary JpaRepositories.
-        Page<Event> result = eventRepository.findByLocationsInAndEventCategoryIn(
-            StreamSupport.stream(locations.spliterator(), false).collect(Collectors.toSet()),
-            categories, pageable);
-        return result.map(event -> eventMapper.eventToEventDTO(event));
+        if (query != null && query.length() > 2) { queryBuilder.must(queryStringQuery(query)); }
+
+        Page<Event> page = eventSearchRepository.search(new NativeSearchQueryBuilder()
+            .withPageable(pageable)
+            .withQuery(queryBuilder)
+            .build());
+        return page.map(event -> eventMapper.eventToEventDTO(event));
     }
 }

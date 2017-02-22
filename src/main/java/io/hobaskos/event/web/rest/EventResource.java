@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -192,10 +194,11 @@ public class EventResource {
      */
     @GetMapping("/_search/events-nearby")
     @Timed
-    public ResponseEntity<List<EventDTO>> searchEventsNearby(@RequestParam Double lat,
+    public ResponseEntity<List<EventDTO>> searchEventsNearby(@RequestParam(required = false) String query,
+                                                             @RequestParam Double lat,
                                                              @RequestParam Double lon,
                                                              @RequestParam String distance,
-                                                             @RequestParam(required=false) @DateTimeFormat(iso= DateTimeFormat.ISO.DATE_TIME) Date fromDate,
+                                                             @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) Date fromDate,
                                                              @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) Date toDate,
                                                              @RequestParam(required=false) Set<Long> categories,
                                                              @ApiParam Pageable pageable)
@@ -207,22 +210,25 @@ public class EventResource {
         LocalDateTime toDateLocal = toDate != null ?
                 toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
                 : LocalDateTime.now().plusDays(DEFAULT_DAYS_FORWARD);
-        Set<EventCategory> eventCategories = getEventCategoriesFromIntegerSet(categories);
-        Page<EventDTO> page = eventService.searchNearby(lat, lon, distance, fromDateLocal, toDateLocal, eventCategories, pageable);
+        List<Long> eventCategories = getEventCategoriesFromIntegerSet(categories);
+        Page<EventDTO> page = eventService.searchNearby(query, lat, lon, distance, fromDateLocal, toDateLocal, eventCategories, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/events-nearby");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-    private Set<EventCategory> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
+    private List<Long> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
         if (eventCategories == null || eventCategories.size() == 0) {
-            return eventCategoryRepository.findAll().stream().collect(Collectors.toSet());
+            return eventCategoryRepository.findAll().stream()
+                .map(EventCategory::getId).collect(Collectors.toList());
         }
 
         Set<EventCategory> matchedEventsCategories = eventCategoryRepository.findById(eventCategories);
         if (matchedEventsCategories.size() != 0) {
-            return matchedEventsCategories;
+            return matchedEventsCategories.stream()
+                .map(EventCategory::getId).collect(Collectors.toList());
         } else {
-            return eventCategoryRepository.findAll().stream().collect(Collectors.toSet());
+            return eventCategoryRepository.findAll().stream()
+                .map(EventCategory::getId).collect(Collectors.toList());
         }
     }
 }
