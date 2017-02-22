@@ -72,6 +72,6 @@ public interface EventService {
      * @param distance
      * @return the list of entities
      */
-    Page<EventDTO> searchNearby(Double lat, Double lon, String distance, LocalDateTime fromDate,
+    Page<EventDTO> searchNearby(String query, Double lat, Double lon, String distance, LocalDateTime fromDate,
                                 LocalDateTime toDate, Set<EventCategory> categories, Pageable pageable);
 }
