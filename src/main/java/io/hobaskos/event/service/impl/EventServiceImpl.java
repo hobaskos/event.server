@@ -153,7 +153,7 @@ public class EventServiceImpl implements EventService{
             .filter(nestedQuery("locations", geoDistanceQuery("locations.geoPoint")
                 .lat(lat).lon(lon).distance(distance)));
 
-        if (query != null) { queryBuilder.must(queryStringQuery(query)); }
+        if (query != null && query.length() > 2) { queryBuilder.must(queryStringQuery(query)); }
 
         Page<Event> page = eventSearchRepository.search(new NativeSearchQueryBuilder()
             .withPageable(pageable)
