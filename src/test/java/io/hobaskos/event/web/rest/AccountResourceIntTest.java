@@ -7,16 +7,20 @@ import io.hobaskos.event.repository.AuthorityRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.service.MailService;
+import io.hobaskos.event.service.UserConnectionService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.UserDTO;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,11 +28,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,15 +59,28 @@ public class AccountResourceIntTest {
     @Inject
     private UserService userService;
 
+    @Inject
+    private UserConnectionService userConnectionService;
+
     @Mock
     private UserService mockUserService;
 
     @Mock
     private MailService mockMailService;
 
+    @Inject
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+
+    @Inject
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Inject
+    private EntityManager em;
+
     private MockMvc restUserMockMvc;
 
     private MockMvc restMvc;
+
 
     @Before
     public void setup() {
@@ -75,10 +95,30 @@ public class AccountResourceIntTest {
         AccountResource accountUserMockResource = new AccountResource();
         ReflectionTestUtils.setField(accountUserMockResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
+        ReflectionTestUtils.setField(accountUserMockResource, "userConnectionService", userConnectionService);
         ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
 
-        this.restMvc = MockMvcBuilders.standaloneSetup(accountResource).build();
-        this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();
+        this.restMvc = MockMvcBuilders.standaloneSetup(accountResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setMessageConverters(jacksonMessageConverter).build();
+        this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setMessageConverters(jacksonMessageConverter).build();
+    }
+
+    public User generateJohnDoeUser() {
+        Set<Authority> authorities = new HashSet<>();
+        Authority authority = new Authority();
+        authority.setName(AuthoritiesConstants.ADMIN);
+        authorities.add(authority);
+
+        User user = new User();
+        user.setLogin("test");
+        user.setFirstName("john");
+        user.setLastName("doe");
+        user.setEmail("john.doe@jhipter.com");
+        user.setAuthorities(authorities);
+        return user;
     }
 
     @Test
@@ -98,22 +138,12 @@ public class AccountResourceIntTest {
                 })
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("test"));
+                .andExpect(content().string("\"test\""));
     }
 
     @Test
     public void testGetExistingAccount() throws Exception {
-        Set<Authority> authorities = new HashSet<>();
-        Authority authority = new Authority();
-        authority.setName(AuthoritiesConstants.ADMIN);
-        authorities.add(authority);
-
-        User user = new User();
-        user.setLogin("test");
-        user.setFirstName("john");
-        user.setLastName("doe");
-        user.setEmail("john.doe@jhipter.com");
-        user.setAuthorities(authorities);
+        User user = generateJohnDoeUser();
         when(mockUserService.getUserWithAuthorities()).thenReturn(user);
 
         restUserMockMvc.perform(get("/api/account")
@@ -396,5 +426,80 @@ public class AccountResourceIntTest {
 
         Optional<User> user = userRepository.findOneByEmail("funky@example.com");
         assertThat(user.isPresent()).isFalse();
+    }
+
+   @Test
+    public void testEmptyFollowersForUser() throws Exception {
+        User user = generateJohnDoeUser();
+        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+
+        restMvc.perform(get("/api/account/followers")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    @Test
+    public void testEmptyFollowingForUser() throws Exception {
+        User user = generateJohnDoeUser();
+        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+
+        restMvc.perform(get("/api/account/following")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    @Test
+    public void testEmptyUserConnectionsForUser() throws Exception {
+        User user = generateJohnDoeUser();
+        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+
+        restMvc.perform(get("/api/account/user-connections?type=PENDING")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+
+        restMvc.perform(get("/api/account/user-connections?type=CONFIRMED")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    @Test
+    @Transactional
+    public void testFollower() throws Exception {
+        User randomUser1 = UserResourceIntTest.createRandomEntity(em);
+        User randomUser2 = UserResourceIntTest.createRandomEntity(em);
+
+        when(mockUserService.getUserWithAuthorities()).thenReturn(randomUser1);
+        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser2));
+        restUserMockMvc.perform(post("/api/account/following/" + randomUser2.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.login").value(randomUser2.getLogin()));
+    }
+
+    @Test
+    @Transactional
+    public void testRequestForUserConnection() throws Exception {
+        User randomUser1 = UserResourceIntTest.createRandomEntity(em);
+        User randomUser2 = UserResourceIntTest.createRandomEntity(em);
+
+        when(mockUserService.getUserWithAuthorities()).thenReturn(randomUser1);
+        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser2));
+        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser2.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser2.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        when(mockUserService.getUserWithAuthoritiesByLogin(anyString())).thenReturn(Optional.of(randomUser1));
+        restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser1.getLogin())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
     }
 }

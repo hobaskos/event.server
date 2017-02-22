@@ -2,7 +2,10 @@ package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.Authority;
 import io.hobaskos.event.domain.User;
+import io.hobaskos.event.domain.UserConnection;
+import io.hobaskos.event.domain.enumeration.UserConnectionType;
 import io.hobaskos.event.repository.AuthorityRepository;
+import io.hobaskos.event.repository.UserConnectionRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.UserSearchRepository;
 import io.hobaskos.event.security.AuthoritiesConstants;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing users.
@@ -43,6 +47,9 @@ public class UserService {
 
     @Inject
     private AuthorityRepository authorityRepository;
+
+    @Inject
+    private UserConnectionRepository userConnectionRepository;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -233,5 +240,86 @@ public class UserService {
             userRepository.delete(user);
             userSearchRepository.delete(user);
         }
+    }
+
+    /**
+     * Get followers for user
+     * @param user
+     * @return the list of entities
+     */
+    public Optional<List<User>> getFollowersForUser(User user) {
+        return Optional.ofNullable(userConnectionRepository.findByRequesteeAndType(user, UserConnectionType.FOLLOWER))
+            .map(userConnections ->
+                userConnections.stream().map(UserConnection::getRequester).collect(Collectors.toList())
+            );
+    }
+
+    /**
+     * Get followers for the authenticated user
+     * @return the list of entities
+     */
+    public Optional<List<User>> getFollowers() {
+        return getFollowersForUser(getUserWithAuthorities());
+    }
+
+    /**
+     * Get the ones who follow the user
+     * @param user
+     * @return the list of entities
+     */
+    public Optional<List<User>> getFollowingForUser(User user) {
+        return Optional.ofNullable(userConnectionRepository.findByRequesterAndType(user, UserConnectionType.FOLLOWER))
+            .map(userConnections -> {
+                    userConnections.forEach(userConnection -> {
+                        userConnection.getRequester().getAuthorities().size(); // eager load authorities
+                        userConnection.getRequestee().getAuthorities().size();
+                    });
+                    return userConnections.stream().map(UserConnection::getRequestee).collect(Collectors.toList());
+                }
+            );
+    }
+
+    /**
+     * Get the ones who follow the authenticated user.
+     * @return the list of entities
+     */
+    public Optional<List<User>> getFollowing() {
+        return getFollowingForUser(getUserWithAuthorities());
+    }
+
+    /**
+     * Get user-connections for user with status
+     * @param user
+     * @return the list of entities
+     */
+    public Optional<List<User>> getUserConnectionsFor(User user, UserConnectionType type) {
+        return Optional.ofNullable(userConnectionRepository.findByRequesterOrRequesteeAndType(user, user, type))
+            .map(userConnections -> {
+                userConnections.forEach(userConnection -> {
+                    userConnection.getRequester().getAuthorities().size(); // eager load authorities
+                    userConnection.getRequestee().getAuthorities().size();
+                });
+                return getUsersFromUserConnections(userConnections, user);
+            });
+    }
+
+    /**
+     * Get user-connections for authenticated user
+     * @return
+     */
+    public Optional<List<User>> getUserConnections(UserConnectionType type) {
+        return getUserConnectionsFor(getUserWithAuthorities(), type);
+    }
+
+    private List<User> getUsersFromUserConnections(List<UserConnection> userConnections, User user) {
+        List<User> users = new ArrayList<>();
+        for (UserConnection userConnection : userConnections) {
+            if (userConnection.getRequestee().equals(user)) {
+                users.add(userConnection.getRequester());
+            } else {
+                users.add(userConnection.getRequestee());
+            }
+        }
+        return users;
     }
 }

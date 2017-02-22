@@ -1,0 +1,10 @@
+{
+    "backendApp": {
+        "UserConnectionType" : {
+            "null": "",
+            "FOLLOWER": "FOLLOWER",
+            "PENDING": "PENDING",
+            "CONFIRMED": "CONFIRMED"
+        }
+    }
+}

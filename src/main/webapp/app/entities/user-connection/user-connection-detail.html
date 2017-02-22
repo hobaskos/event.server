@@ -1,0 +1,31 @@
+
+<div>
+    <h2><span data-translate="backendApp.userConnection.detail.title">User Connection</span> {{vm.userConnection.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
+        <dt><span data-translate="backendApp.userConnection.type">Type</span></dt>
+        <dd>
+            <span data-translate="{{'backendApp.UserConnectionType.' + vm.userConnection.type}}">{{vm.userConnection.type}}</span>
+        </dd>
+        <dt><span data-translate="backendApp.userConnection.requester">Requester</span></dt>
+        <dd>
+            {{vm.userConnection.requesterId}}
+        </dd>
+        <dt><span data-translate="backendApp.userConnection.requestee">Requestee</span></dt>
+        <dd>
+            {{vm.userConnection.requesteeId}}
+        </dd>
+    </dl>
+
+    <button type="submit"
+            ui-sref="{{ vm.previousState }}"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span data-translate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button" ui-sref="user-connection-detail.edit({id:vm.userConnection.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-xs hidden-sm" data-translate="entity.action.edit"> Edit</span>
+    </button>
+</div>

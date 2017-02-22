@@ -32,5 +32,7 @@
 
     <cache alias="io.hobaskos.event.domain.EventCategory.events" uses-template="simple"/>
 
+    <cache alias="io.hobaskos.event.domain.UserConnection" uses-template="simple"/>
+
     <!-- jhipster-needle-ehcache-add-entry -->
 </config>

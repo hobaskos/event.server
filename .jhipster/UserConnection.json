@@ -1,0 +1,40 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipName": "requester",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
+            "relationshipName": "requestee",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id",
+            "ownerSide": true
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "type",
+            "fieldType": "UserConnectionType",
+            "fieldValues": "FOLLOWER,PENDING,CONFIRMED",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "changelogDate": "20170221092039",
+    "dto": "mapstruct",
+    "service": "serviceImpl",
+    "entityTableName": "user_connection",
+    "pagination": "pagination"
+}
