@@ -2,6 +2,8 @@ package io.hobaskos.event.service.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.UUID;
+
 /**
  * Utility class for generating random Strings.
  */
@@ -10,6 +12,13 @@ public final class RandomUtil {
     private static final int DEF_COUNT = 20;
 
     private RandomUtil() {
+    }
+
+    /**
+     *
+     */
+    public static String generateLogin() {
+        return UUID.randomUUID().toString();
     }
 
     /**

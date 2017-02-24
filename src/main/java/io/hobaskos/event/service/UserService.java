@@ -1,10 +1,12 @@
 package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.Authority;
+import io.hobaskos.event.domain.SocialUserConnection;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.UserConnection;
 import io.hobaskos.event.domain.enumeration.UserConnectionType;
 import io.hobaskos.event.repository.AuthorityRepository;
+import io.hobaskos.event.repository.SocialUserConnectionRepository;
 import io.hobaskos.event.repository.UserConnectionRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.UserSearchRepository;
@@ -12,6 +14,7 @@ import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.security.SecurityUtils;
 import io.hobaskos.event.service.util.RandomUtil;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
+import io.hobaskos.event.web.rest.vm.SocialUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -50,6 +53,9 @@ public class UserService {
 
     @Inject
     private UserConnectionRepository userConnectionRepository;
+
+    @Inject
+    private SocialUserConnectionRepository socialUserConnectionRepository;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -145,6 +151,38 @@ public class UserService {
         userSearchRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
+    }
+
+    public User createUser(SocialUserVM socialUserVM) {
+        log.debug("Creating new user from socialUserVM: {}", socialUserVM);
+        User user = new User();
+        user.setLogin(RandomUtil.generateLogin());
+        user.setFirstName(socialUserVM.getFirstName());
+        user.setLastName(socialUserVM.getLastName());
+        user.setEmail(socialUserVM.getEmail());
+        user.setProfileImageUrl(socialUserVM.getProfileImageUrl());
+        Set<Authority> authorities = new HashSet<>();
+        authorities.add(authorityRepository.findOne("ROLE_USER"));
+        user.setAuthorities(authorities);
+        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        user.setPassword(encryptedPassword);
+        user.setActivated(true);
+        userRepository.save(user);
+        userSearchRepository.save(user);
+
+        createSocialConnection(user, socialUserVM);
+        return user;
+    }
+
+    private void createSocialConnection(User user, SocialUserVM socialUserVM) {
+        SocialUserConnection socialUserConnection = new SocialUserConnection();
+        socialUserConnection.setUserId(user.getEmail());
+        socialUserConnection.setProviderId(socialUserVM.getType().toString());
+        socialUserConnection.setProviderUserId(socialUserVM.getUserId());
+        socialUserConnection.setRank(1L);
+        socialUserConnection.setDisplayName(user.getLogin());
+        socialUserConnection.setAccessToken(socialUserVM.getAccessToken());
+        socialUserConnectionRepository.save(socialUserConnection);
     }
 
     public void updateUser(String firstName, String lastName, String email, String profileImageUrl, String langKey) {

@@ -1,15 +1,15 @@
-package io.hobaskos.event.web.rest;
+package io.hobaskos.event.web.rest.vm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Object to return as body in JWT Authentication.
  */
-public class JWTToken {
+public class JWTTokenVM {
 
     private String idToken;
 
-    public JWTToken(String idToken) {
+    public JWTTokenVM(String idToken) {
         this.idToken = idToken;
     }
 
