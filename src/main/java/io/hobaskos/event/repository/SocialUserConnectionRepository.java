@@ -4,6 +4,7 @@ import io.hobaskos.event.domain.SocialUserConnection;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -12,6 +13,8 @@ import java.util.Set;
 public interface SocialUserConnectionRepository extends JpaRepository<SocialUserConnection, Long> {
 
     List<SocialUserConnection> findAllByProviderIdAndProviderUserId(String providerId, String providerUserId);
+
+    Optional<SocialUserConnection> findFirstByProviderIdAndProviderUserId(String providerId, String providerUserId);
 
     List<SocialUserConnection> findAllByProviderIdAndProviderUserIdIn(String providerId, Set<String> providerUserIds);
 

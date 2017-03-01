@@ -1,10 +1,13 @@
 package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.Authority;
+import io.hobaskos.event.domain.SocialUserConnection;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.UserConnection;
+import io.hobaskos.event.domain.enumeration.SocialType;
 import io.hobaskos.event.domain.enumeration.UserConnectionType;
 import io.hobaskos.event.repository.AuthorityRepository;
+import io.hobaskos.event.repository.SocialUserConnectionRepository;
 import io.hobaskos.event.repository.UserConnectionRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.UserSearchRepository;
@@ -12,6 +15,7 @@ import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.security.SecurityUtils;
 import io.hobaskos.event.service.util.RandomUtil;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
+import io.hobaskos.event.web.rest.vm.SocialAuthVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -50,6 +54,9 @@ public class UserService {
 
     @Inject
     private UserConnectionRepository userConnectionRepository;
+
+    @Inject
+    private SocialUserConnectionRepository socialUserConnectionRepository;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -145,6 +152,22 @@ public class UserService {
         userSearchRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
+    }
+
+    public void createSocialConnection(User user, String socialUserId, String accessToken, SocialType type) {
+        SocialUserConnection socialUserConnection = new SocialUserConnection();
+        socialUserConnection.setUserId(user.getEmail());
+        socialUserConnection.setProviderId(type.toString());
+        socialUserConnection.setProviderUserId(socialUserId);
+        socialUserConnection.setRank(1L);
+        socialUserConnection.setDisplayName(user.getLogin());
+        socialUserConnection.setAccessToken(accessToken);
+        socialUserConnectionRepository.save(socialUserConnection);
+    }
+
+    public Optional<SocialUserConnection> getSocialUserConnection(String providerId, String socialUserID) {
+        log.debug("socialProvider: {}, socialUserId: {}", providerId, socialUserID);
+        return socialUserConnectionRepository.findFirstByProviderIdAndProviderUserId(providerId, socialUserID);
     }
 
     public void updateUser(String firstName, String lastName, String email, String profileImageUrl, String langKey) {

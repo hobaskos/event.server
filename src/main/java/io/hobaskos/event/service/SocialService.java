@@ -1,11 +1,14 @@
 package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.Authority;
+import io.hobaskos.event.domain.SocialUserConnection;
 import io.hobaskos.event.domain.User;
+import io.hobaskos.event.domain.enumeration.SocialType;
 import io.hobaskos.event.repository.AuthorityRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.UserSearchRepository;
 
+import io.hobaskos.event.service.util.RandomUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -40,6 +44,9 @@ public class SocialService {
     private UserRepository userRepository;
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private UserSearchRepository userSearchRepository;
 
     @Inject
@@ -56,7 +63,7 @@ public class SocialService {
 
     public void createSocialUser(Connection<?> connection, String langKey) {
         if (connection == null) {
-            log.error("Cannot create social user because connection is null");
+            log.error("Cannot create facebook user because connection is null");
             throw new IllegalArgumentException("Connection cannot be null");
         }
         UserProfile userProfile = connection.fetchUserProfile();
@@ -64,6 +71,37 @@ public class SocialService {
         User user = createUserIfNotExist(userProfile, langKey, providerId);
         createSocialConnection(user.getLogin(), connection);
         mailService.sendSocialRegistrationValidationEmail(user, providerId);
+    }
+
+    public User createFacebookUser(String accessToken, String langKey) {
+        FacebookTemplate facebook = new FacebookTemplate(accessToken);
+        log.debug("creating facebook user {}", facebook);
+        if (!facebook.isAuthorized()) {
+            log.error("Cannot create social user because connection is null");
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+        String providerId = "facebook";
+        UserProfile userProfile = getUserProfile(facebook);
+        User user = createUserIfNotExist(userProfile, langKey, providerId);
+        userService.createSocialConnection(user, userProfile.getUsername(), accessToken, SocialType.FACEBOOK);
+        usersConnectionRepository.createConnectionRepository(user.getLogin());
+        mailService.sendSocialRegistrationValidationEmail(user, providerId);
+
+        return user;
+    }
+
+    public Optional<User> getUserFromFacebookAccessToken(String accessToken) {
+        log.debug("fetching facebook userId {}", accessToken);
+        FacebookTemplate facebook = new FacebookTemplate(accessToken);
+        if (!facebook.isAuthorized()) {
+            log.error("Cannot fetch facebook user because connection is null");
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        UserProfile userProfile = getUserProfile(facebook);
+        return userService.getSocialUserConnection(SocialType.FACEBOOK.toString(), userProfile.getUsername())
+            .map(socialUserConnection -> userRepository.findOneByLogin(socialUserConnection.getUserId()))
+            .orElse(Optional.empty());
     }
 
     private User createUserIfNotExist(UserProfile userProfile, String langKey, String providerId) {
@@ -103,8 +141,22 @@ public class SocialService {
         newUser.setAuthorities(authorities);
         newUser.setLangKey(langKey);
 
-        //userSearchRepository.save(newUser);
+        userSearchRepository.save(newUser);
         return userRepository.save(newUser);
+    }
+
+    private UserProfile getUserProfile(FacebookTemplate facebookTemplate) {
+        String[] fields = { "id", "name", "email", "first_name", "last_name" };
+        org.springframework.social.facebook.api.User facebookUserProfile =
+            facebookTemplate.fetchObject("me", org.springframework.social.facebook.api.User.class, fields);
+
+        String id = facebookUserProfile.getId();
+        String name = facebookUserProfile.getName();
+        String firstName = facebookUserProfile.getFirstName();
+        String lastName  = facebookUserProfile.getLastName();
+        String email = facebookUserProfile.getEmail() != null ? facebookUserProfile.getEmail() : RandomUtil.generateRandomEmail();
+        log.debug("UserProfile id:{}, name:{}, firstName:{}, lastName:{}, email:{}", id, name, firstName, lastName, email);
+        return new UserProfile("-1", name, firstName, lastName, email, id);
     }
 
     /**

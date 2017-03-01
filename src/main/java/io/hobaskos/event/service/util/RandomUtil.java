@@ -2,6 +2,8 @@ package io.hobaskos.event.service.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.UUID;
+
 /**
  * Utility class for generating random Strings.
  */
@@ -13,12 +15,23 @@ public final class RandomUtil {
     }
 
     /**
+     *
+     */
+    public static String generateLogin() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
      * Generates a password.
      *
      * @return the generated password
      */
     public static String generatePassword() {
         return RandomStringUtils.randomAlphanumeric(DEF_COUNT);
+    }
+
+    public static String generateRandomEmail() {
+        return generateLogin() + "@plod.io";
     }
 
     /**
