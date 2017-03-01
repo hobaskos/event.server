@@ -87,6 +87,10 @@ public class SocialService {
         usersConnectionRepository.createConnectionRepository(user.getLogin());
         mailService.sendSocialRegistrationValidationEmail(user, providerId);
 
+        user.setProfileImageUrl(getProfileImage(facebook));
+        userRepository.save(user);
+        userSearchRepository.save(user);
+
         return user;
     }
 
@@ -157,6 +161,13 @@ public class SocialService {
         String email = facebookUserProfile.getEmail() != null ? facebookUserProfile.getEmail() : RandomUtil.generateRandomEmail();
         log.debug("UserProfile id:{}, name:{}, firstName:{}, lastName:{}, email:{}", id, name, firstName, lastName, email);
         return new UserProfile("-1", name, firstName, lastName, email, id);
+    }
+
+    private String getProfileImage(FacebookTemplate facebookTemplate) {
+        String[] fields = { "id" };
+        org.springframework.social.facebook.api.User facebookUserProfile =
+            facebookTemplate.fetchObject("me", org.springframework.social.facebook.api.User.class, fields);
+        return String.format("https://graph.facebook.com/%s/picture?type=large", facebookUserProfile.getId());
     }
 
     /**
