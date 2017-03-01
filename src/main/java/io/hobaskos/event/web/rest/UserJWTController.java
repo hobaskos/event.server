@@ -71,7 +71,7 @@ public class UserJWTController {
     }
 
     /**
-     * POST /authenticate/social : Only applicable for facebook!
+     * POST /authenticate/social : Only applicable for facebook!  | Authenticates or creates an account
      * @param socialAuthVM
      * @param response
      * @return
@@ -82,37 +82,21 @@ public class UserJWTController {
                                                 HttpServletResponse response) {
 
         Optional<User> user = socialService.getUserFromFacebookAccessToken(socialAuthVM.getAccessToken());
+        UsernamePasswordAuthenticationToken authenticationToken;
 
         if (user.isPresent()) {
-            UsernamePasswordAuthenticationToken authenticationToken =
+            authenticationToken =
                 new UsernamePasswordAuthenticationToken(user.get().getLogin(), null, user.get().getAuthorities().stream()
                     .map(authority -> new SimpleGrantedAuthority(authority.getName()))
                     .collect(Collectors.toList()));
-            return authenticateSocial(authenticationToken, response);
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    /**
-     * POST /register/social : Only applicable for facebook!
-     * @param socialAuthVM
-     * @param response
-     * @return
-     */
-    @PostMapping("/register/social")
-    @Timed
-    public ResponseEntity<JWTTokenVM> registerSocial(@Valid @RequestBody SocialAuthVM socialAuthVM,
-                                                   HttpServletResponse response) {
-
-        User user = socialService.createFacebookUser(socialAuthVM.getAccessToken(),
+            User newUser = socialService.createFacebookUser(socialAuthVM.getAccessToken(),
             socialAuthVM.getLangKey());
-
-        UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(user.getLogin(), null, user.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-                .collect(Collectors.toList()));
-
+            authenticationToken =
+                new UsernamePasswordAuthenticationToken(newUser.getLogin(), null, newUser.getAuthorities().stream()
+                    .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                    .collect(Collectors.toList()));
+        }
         return authenticateSocial(authenticationToken, response);
     }
 
