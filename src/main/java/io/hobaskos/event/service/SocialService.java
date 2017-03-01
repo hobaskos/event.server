@@ -8,6 +8,7 @@ import io.hobaskos.event.repository.AuthorityRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.UserSearchRepository;
 
+import io.hobaskos.event.service.util.RandomUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -153,7 +154,7 @@ public class SocialService {
         String name = facebookUserProfile.getName();
         String firstName = facebookUserProfile.getFirstName();
         String lastName  = facebookUserProfile.getLastName();
-        String email = facebookUserProfile.getEmail();
+        String email = facebookUserProfile.getEmail() != null ? facebookUserProfile.getEmail() : RandomUtil.generateRandomEmail();
         log.debug("UserProfile id:{}, name:{}, firstName:{}, lastName:{}, email:{}", id, name, firstName, lastName, email);
         return new UserProfile("-1", name, firstName, lastName, email, id);
     }

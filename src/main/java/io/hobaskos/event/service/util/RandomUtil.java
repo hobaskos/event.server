@@ -30,6 +30,10 @@ public final class RandomUtil {
         return RandomStringUtils.randomAlphanumeric(DEF_COUNT);
     }
 
+    public static String generateRandomEmail() {
+        return generateLogin() + "@plod.io";
+    }
+
     /**
      * Generates an activation key.
      *
