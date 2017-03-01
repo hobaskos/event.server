@@ -1,21 +1,15 @@
 package io.hobaskos.event.web.rest;
 
-import io.hobaskos.event.domain.SocialUserConnection;
+import com.codahale.metrics.annotation.Timed;
 import io.hobaskos.event.domain.User;
-import io.hobaskos.event.repository.SocialUserConnectionRepository;
+import io.hobaskos.event.security.UserDetailsService;
 import io.hobaskos.event.security.jwt.JWTConfigurer;
 import io.hobaskos.event.security.jwt.TokenProvider;
+import io.hobaskos.event.service.SocialService;
 import io.hobaskos.event.service.UserService;
-import io.hobaskos.event.service.util.RandomUtil;
 import io.hobaskos.event.web.rest.vm.JWTTokenVM;
 import io.hobaskos.event.web.rest.vm.LoginVM;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import com.codahale.metrics.annotation.Timed;
-import io.hobaskos.event.web.rest.vm.SocialUserVM;
+import io.hobaskos.event.web.rest.vm.SocialAuthVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,12 +18,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -47,7 +48,8 @@ public class UserJWTController {
     private UserService userService;
 
     @Inject
-    private SocialUserConnectionRepository socialUserConnectionRepository;
+    private SocialService socialService;
+
 
     @PostMapping("/authenticate")
     @Timed
@@ -68,28 +70,59 @@ public class UserJWTController {
         }
     }
 
+    /**
+     * POST /authenticate/social : Only applicable for facebook!
+     * @param socialAuthVM
+     * @param response
+     * @return
+     */
     @PostMapping("/authenticate/social")
     @Timed
-    public ResponseEntity<JWTTokenVM> authorize(@Valid @RequestBody SocialUserVM socialUserVM, HttpServletResponse response) {
+    public ResponseEntity<JWTTokenVM> authorizeSocial(@Valid @RequestBody SocialAuthVM socialAuthVM,
+                                                HttpServletResponse response) {
 
-        boolean newUser = false;
-        Optional<SocialUserConnection> users=  socialUserConnectionRepository
-            .findFirstByProviderIdAndProviderUserId(socialUserVM.getType().toString(), socialUserVM.getUserId());
+        Optional<User> user = socialService.getUserFromFacebookAccessToken(socialAuthVM.getAccessToken());
 
-        if (!users.isPresent()) {
-            newUser = true;
-            userService.createUser(socialUserVM);
+        if (user.isPresent()) {
+            UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(user.get().getLogin(), null, user.get().getAuthorities().stream()
+                    .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                    .collect(Collectors.toList()));
+            return authenticateSocial(authenticationToken, response);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * POST /register/social : Only applicable for facebook!
+     * @param socialAuthVM
+     * @param response
+     * @return
+     */
+    @PostMapping("/register/social")
+    @Timed
+    public ResponseEntity<JWTTokenVM> registerSocial(@Valid @RequestBody SocialAuthVM socialAuthVM,
+                                                   HttpServletResponse response) {
+
+        User user = socialService.createFacebookUser(socialAuthVM.getAccessToken(),
+            socialAuthVM.getLangKey());
 
         UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(socialUserVM.getUserId(), socialUserVM.getType().toString());
+            new UsernamePasswordAuthenticationToken(user.getLogin(), null, user.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .collect(Collectors.toList()));
 
+        return authenticateSocial(authenticationToken, response);
+    }
+
+    private ResponseEntity<JWTTokenVM> authenticateSocial(UsernamePasswordAuthenticationToken upat, HttpServletResponse response) {
         try {
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = tokenProvider.createToken(authentication, true);
+            SecurityContextHolder.getContext().setAuthentication(upat);
+            SecurityContextHolder.getContext().setAuthentication(upat);
+            String jwt = tokenProvider.createToken(upat, true);
             response.addHeader(JWTConfigurer.AUTHORIZATION_HEADER, "Bearer " + jwt);
-            return new ResponseEntity<>(new JWTTokenVM(jwt), newUser ? HttpStatus.CREATED : HttpStatus.OK);
+            return new ResponseEntity<>(new JWTTokenVM(jwt), HttpStatus.OK);
         } catch (AuthenticationException exception) {
             log.error(exception.getMessage(), exception);
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
