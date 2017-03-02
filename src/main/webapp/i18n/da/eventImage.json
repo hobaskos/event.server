@@ -1,0 +1,25 @@
+{
+    "backendApp": {
+        "eventImage" : {
+            "home": {
+                "title": "Event Images",
+                "createLabel": "Create a new Event Image",
+                "createOrEditLabel": "Create or edit a Event Image",
+                "search": "Search for Event Image"
+            },
+            "created": "A new Event Image is created with identifier {{ param }}",
+            "updated": "A Event Image is updated with identifier {{ param }}",
+            "deleted": "A Event Image is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Event Image {{ id }}?"
+            },
+            "detail": {
+                "title": "Event Image"
+            },
+            "title": "Title",
+            "file": "File",
+            "imageUrl": "Image URL",
+            "poll": "Poll"
+        }
+    }
+}

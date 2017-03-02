@@ -38,5 +38,7 @@
 
     <cache alias="io.hobaskos.event.domain.Event.polls" uses-template="simple"/>
 
+    <cache alias="io.hobaskos.event.domain.EventImage" uses-template="simple"/>
+
     <!-- jhipster-needle-ehcache-add-entry -->
 </config>
