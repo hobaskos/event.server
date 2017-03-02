@@ -9,6 +9,12 @@
                 "required"
             ],
             "otherEntityField": "id"
+        },
+        {
+            "relationshipName": "images",
+            "otherEntityName": "eventImage",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "poll"
         }
     ],
     "fields": [

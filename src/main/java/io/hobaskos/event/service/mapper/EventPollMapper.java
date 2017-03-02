@@ -18,6 +18,7 @@ public interface EventPollMapper {
     List<EventPollDTO> eventPollsToEventPollDTOs(List<EventPoll> eventPolls);
 
     @Mapping(source = "eventId", target = "event")
+    @Mapping(target = "images", ignore = true)
     EventPoll eventPollDTOToEventPoll(EventPollDTO eventPollDTO);
 
     List<EventPoll> eventPollDTOsToEventPolls(List<EventPollDTO> eventPollDTOs);

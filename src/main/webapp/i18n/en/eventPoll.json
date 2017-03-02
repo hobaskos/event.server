@@ -19,7 +19,8 @@
             "title": "Title",
             "description": "Description",
             "status": "Status",
-            "event": "Event"
+            "event": "Event",
+            "images": "Images"
         }
     }
 }
