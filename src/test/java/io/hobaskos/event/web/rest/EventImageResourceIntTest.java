@@ -46,10 +46,9 @@ public class EventImageResourceIntTest {
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
     private static final String UPDATED_TITLE = "BBBBBBBBBB";
 
+    private static final String DEFAULT_IMAGE_URL = "http://localhost:8080/files/someFile.png";
     private static final byte[] DEFAULT_FILE = TestUtil.createByteArray(1, "0");
-    private static final byte[] UPDATED_FILE = TestUtil.createByteArray(2, "1");
     private static final String DEFAULT_FILE_CONTENT_TYPE = "image/jpg";
-    private static final String UPDATED_FILE_CONTENT_TYPE = "image/png";
 
     @Inject
     private EventImageRepository eventImageRepository;
@@ -95,8 +94,7 @@ public class EventImageResourceIntTest {
     public static EventImage createEntity(EntityManager em) {
         EventImage eventImage = new EventImage()
                 .title(DEFAULT_TITLE)
-                .file(DEFAULT_FILE)
-                .fileContentType(DEFAULT_FILE_CONTENT_TYPE);
+                .imageUrl(DEFAULT_IMAGE_URL);
         // Add required entity
         EventPoll poll = EventPollResourceIntTest.createEntity(em);
         em.persist(poll);
@@ -118,6 +116,8 @@ public class EventImageResourceIntTest {
 
         // Create the EventImage
         EventImageDTO eventImageDTO = eventImageMapper.eventImageToEventImageDTO(eventImage);
+        eventImageDTO.setFile(DEFAULT_FILE);
+        eventImageDTO.setFileContentType(DEFAULT_FILE_CONTENT_TYPE);
 
         restEventImageMockMvc.perform(post("/api/event-images")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -129,8 +129,6 @@ public class EventImageResourceIntTest {
         assertThat(eventImageList).hasSize(databaseSizeBeforeCreate + 1);
         EventImage testEventImage = eventImageList.get(eventImageList.size() - 1);
         assertThat(testEventImage.getTitle()).isEqualTo(DEFAULT_TITLE);
-        assertThat(testEventImage.getFile()).isEqualTo(DEFAULT_FILE);
-        assertThat(testEventImage.getFileContentType()).isEqualTo(DEFAULT_FILE_CONTENT_TYPE);
 
         // Validate the EventImage in ElasticSearch
         EventImage eventImageEs = eventImageSearchRepository.findOne(testEventImage.getId());
@@ -160,25 +158,6 @@ public class EventImageResourceIntTest {
 
     @Test
     @Transactional
-    public void checkFileIsRequired() throws Exception {
-        int databaseSizeBeforeTest = eventImageRepository.findAll().size();
-        // set the field null
-        eventImage.setFile(null);
-
-        // Create the EventImage, which fails.
-        EventImageDTO eventImageDTO = eventImageMapper.eventImageToEventImageDTO(eventImage);
-
-        restEventImageMockMvc.perform(post("/api/event-images")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(eventImageDTO)))
-            .andExpect(status().isBadRequest());
-
-        List<EventImage> eventImageList = eventImageRepository.findAll();
-        assertThat(eventImageList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void getAllEventImages() throws Exception {
         // Initialize the database
         eventImageRepository.saveAndFlush(eventImage);
@@ -188,9 +167,7 @@ public class EventImageResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(eventImage.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].fileContentType").value(hasItem(DEFAULT_FILE_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].file").value(hasItem(Base64Utils.encodeToString(DEFAULT_FILE))));
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())));
     }
 
     @Test
@@ -204,9 +181,7 @@ public class EventImageResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(eventImage.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.fileContentType").value(DEFAULT_FILE_CONTENT_TYPE))
-            .andExpect(jsonPath("$.file").value(Base64Utils.encodeToString(DEFAULT_FILE)));
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()));
     }
 
     @Test
@@ -227,11 +202,10 @@ public class EventImageResourceIntTest {
 
         // Update the eventImage
         EventImage updatedEventImage = eventImageRepository.findOne(eventImage.getId());
-        updatedEventImage
-                .title(UPDATED_TITLE)
-                .file(UPDATED_FILE)
-                .fileContentType(UPDATED_FILE_CONTENT_TYPE);
+        updatedEventImage.title(UPDATED_TITLE);
         EventImageDTO eventImageDTO = eventImageMapper.eventImageToEventImageDTO(updatedEventImage);
+        eventImageDTO.setFile(DEFAULT_FILE);
+        eventImageDTO.setFileContentType(DEFAULT_FILE_CONTENT_TYPE);
 
         restEventImageMockMvc.perform(put("/api/event-images")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -243,8 +217,6 @@ public class EventImageResourceIntTest {
         assertThat(eventImageList).hasSize(databaseSizeBeforeUpdate);
         EventImage testEventImage = eventImageList.get(eventImageList.size() - 1);
         assertThat(testEventImage.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(testEventImage.getFile()).isEqualTo(UPDATED_FILE);
-        assertThat(testEventImage.getFileContentType()).isEqualTo(UPDATED_FILE_CONTENT_TYPE);
 
         // Validate the EventImage in ElasticSearch
         EventImage eventImageEs = eventImageSearchRepository.findOne(testEventImage.getId());
@@ -258,6 +230,8 @@ public class EventImageResourceIntTest {
 
         // Create the EventImage
         EventImageDTO eventImageDTO = eventImageMapper.eventImageToEventImageDTO(eventImage);
+        eventImageDTO.setFile(DEFAULT_FILE);
+        eventImageDTO.setFileContentType(DEFAULT_FILE_CONTENT_TYPE);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restEventImageMockMvc.perform(put("/api/event-images")
@@ -304,8 +278,6 @@ public class EventImageResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(eventImage.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].fileContentType").value(hasItem(DEFAULT_FILE_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].file").value(hasItem(Base64Utils.encodeToString(DEFAULT_FILE))));
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())));
     }
 }
