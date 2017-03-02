@@ -10,7 +10,7 @@ This application was generated using JHipster 3.12.2, you can find documentation
 
 ## Diagrams
 ![nearby_search](docs/nearby.search.01.png)
-![db_model](docs/db.model.03.png)
+![db_model](docs/db.model.04.png)
 
 ## Development
 

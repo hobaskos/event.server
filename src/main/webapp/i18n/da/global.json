@@ -11,6 +11,7 @@
                 "location": "Location",
                 "eventCategory": "Event Category",
                 "userConnection": "User Connection",
+                "eventPoll": "Event Poll",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
