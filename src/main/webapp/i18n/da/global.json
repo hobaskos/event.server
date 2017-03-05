@@ -125,5 +125,5 @@
         "emailexists": "E-mail is already in use!",
         "idexists": "A new {{entityName}} cannot already have an ID"
     },
-    "footer": "Det her er sidefoden"
+    "footer": "(C) Hobaskos Enterprises"
 }
