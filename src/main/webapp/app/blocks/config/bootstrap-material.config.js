@@ -5,7 +5,7 @@
         .module('backendApp')
         .config(bootstrapMaterialDesignConfig);
 
-    compileServiceConfig.$inject = [];
+    //compileServiceConfig.$inject = [];
 
     function bootstrapMaterialDesignConfig() {
         $.material.init();
