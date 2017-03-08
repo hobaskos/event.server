@@ -7,12 +7,14 @@ import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.search.EventUserAttendingSearchRepository;
+import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventUserAttendingDTO;
 import io.hobaskos.event.service.mapper.EventUserAttendingMapper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -37,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
 import io.hobaskos.event.domain.enumeration.EventAttendingType;
 /**
@@ -72,9 +75,14 @@ public class EventUserAttendingResourceIntTest {
     @Inject
     private EntityManager em;
 
+    @Mock
+    private UserService userService;
+
     private MockMvc restEventUserAttendingMockMvc;
 
     private EventUserAttending eventUserAttending;
+
+    private User user;
 
     @Before
     public void setup() {
@@ -83,9 +91,17 @@ public class EventUserAttendingResourceIntTest {
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventUserAttendingSearchRepository", eventUserAttendingSearchRepository);
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventUserAttendingRepository", eventUserAttendingRepository);
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventUserAttendingMapper", eventUserAttendingMapper);
+        ReflectionTestUtils.setField(eventUserAttendingResource, "userService", userService);
         this.restEventUserAttendingMockMvc = MockMvcBuilders.standaloneSetup(eventUserAttendingResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
+    }
+
+    @Before
+    public void setupUser() {
+        user = UserResourceIntTest.createEntity(em);
+        em.persist(user);
+        em.flush();
     }
 
     /**
@@ -123,8 +139,10 @@ public class EventUserAttendingResourceIntTest {
         int databaseSizeBeforeCreate = eventUserAttendingRepository.findAll().size();
 
         // Create the EventUserAttending
+        eventUserAttending.setUser(null);
         EventUserAttendingDTO eventUserAttendingDTO = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
 
+        when(userService.getUserWithAuthorities()).thenReturn(user);
         restEventUserAttendingMockMvc.perform(post("/api/event-user-attendings")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventUserAttendingDTO)))
@@ -134,12 +152,8 @@ public class EventUserAttendingResourceIntTest {
         List<EventUserAttending> eventUserAttendingList = eventUserAttendingRepository.findAll();
         assertThat(eventUserAttendingList).hasSize(databaseSizeBeforeCreate + 1);
         EventUserAttending testEventUserAttending = eventUserAttendingList.get(eventUserAttendingList.size() - 1);
-        assertThat(testEventUserAttending.getCreatedDate()).isEqualTo(DEFAULT_CREATED_DATE);
         assertThat(testEventUserAttending.getType()).isEqualTo(DEFAULT_TYPE);
-
-        // Validate the EventUserAttending in ElasticSearch
-        //EventUserAttending eventUserAttendingEs = eventUserAttendingSearchRepository.findOne(testEventUserAttending.getId());
-        //assertThat(eventUserAttendingEs).isEqualToComparingFieldByField(testEventUserAttending);
+        assertThat(testEventUserAttending.getUser()).isEqualTo(user);
     }
 
     @Test
@@ -161,25 +175,6 @@ public class EventUserAttendingResourceIntTest {
         // Validate the Alice in the database
         List<EventUserAttending> eventUserAttendingList = eventUserAttendingRepository.findAll();
         assertThat(eventUserAttendingList).hasSize(databaseSizeBeforeCreate);
-    }
-
-    @Test
-    @Transactional
-    public void checkCreatedDateIsRequired() throws Exception {
-        int databaseSizeBeforeTest = eventUserAttendingRepository.findAll().size();
-        // set the field null
-        eventUserAttending.setCreatedDate(null);
-
-        // Create the EventUserAttending, which fails.
-        EventUserAttendingDTO eventUserAttendingDTO = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
-
-        restEventUserAttendingMockMvc.perform(post("/api/event-user-attendings")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(eventUserAttendingDTO)))
-            .andExpect(status().isBadRequest());
-
-        List<EventUserAttending> eventUserAttendingList = eventUserAttendingRepository.findAll();
-        assertThat(eventUserAttendingList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -252,8 +247,10 @@ public class EventUserAttendingResourceIntTest {
         updatedEventUserAttending
                 .createdDate(UPDATED_CREATED_DATE)
                 .type(UPDATED_TYPE);
+        updatedEventUserAttending.setUser(null);
         EventUserAttendingDTO eventUserAttendingDTO = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(updatedEventUserAttending);
 
+        when(userService.getUserWithAuthorities()).thenReturn(user);
         restEventUserAttendingMockMvc.perform(put("/api/event-user-attendings")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventUserAttendingDTO)))
@@ -277,9 +274,11 @@ public class EventUserAttendingResourceIntTest {
         int databaseSizeBeforeUpdate = eventUserAttendingRepository.findAll().size();
 
         // Create the EventUserAttending
+        eventUserAttending.setUser(null);
         EventUserAttendingDTO eventUserAttendingDTO = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
+        when(userService.getUserWithAuthorities()).thenReturn(user);
         restEventUserAttendingMockMvc.perform(put("/api/event-user-attendings")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventUserAttendingDTO)))

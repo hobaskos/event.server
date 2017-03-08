@@ -97,6 +97,7 @@ public class EventUserAttendingResource {
             return createEventUserAttending(eventUserAttendingDTO);
         }
         EventUserAttending eventUserAttending = eventUserAttendingMapper.eventUserAttendingDTOToEventUserAttending(eventUserAttendingDTO);
+        eventUserAttending.setUser(userService.getUserWithAuthorities());
         eventUserAttending = eventUserAttendingRepository.save(eventUserAttending);
         EventUserAttendingDTO result = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
         eventUserAttendingSearchRepository.save(eventUserAttending);
