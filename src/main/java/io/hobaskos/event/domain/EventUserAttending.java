@@ -36,11 +36,11 @@ public class EventUserAttending implements Serializable {
     @Column(name = "type", nullable = false)
     private EventAttendingType type;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @NotNull
     private Event event;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @NotNull
     private User user;
 

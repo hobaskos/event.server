@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,4 +24,6 @@ public interface EventRepository extends JpaRepository<Event,Long> {
     Page<Event> findByLocationsInAndEventCategoryIn(Set<Location> locations, Set<EventCategory> eventCategories, Pageable pageable);
 
     Page<Event> findByEventCategory(EventCategory eventCategory, Pageable pageable);
+
+    Optional<Event> findOneById(Long id);
 }

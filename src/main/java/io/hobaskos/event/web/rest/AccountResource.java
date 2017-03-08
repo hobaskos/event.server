@@ -3,16 +3,20 @@ package io.hobaskos.event.web.rest;
 import com.codahale.metrics.annotation.Timed;
 
 import io.hobaskos.event.config.Constants;
+import io.hobaskos.event.domain.EventUserAttending;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.UserConnection;
 import io.hobaskos.event.domain.enumeration.UserConnectionType;
+import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.SecurityUtils;
 import io.hobaskos.event.service.MailService;
 import io.hobaskos.event.service.UserConnectionService;
 import io.hobaskos.event.service.UserService;
+import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.dto.UserConnectionDTO;
 import io.hobaskos.event.service.dto.UserDTO;
+import io.hobaskos.event.service.mapper.EventMapper;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.web.rest.vm.KeyAndPasswordVM;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
@@ -59,6 +63,12 @@ public class AccountResource {
 
     @Inject
     private UserConnectionService userConnectionService;
+
+    @Inject
+    private EventUserAttendingRepository eventUserAttendingRepository;
+
+    @Inject
+    private EventMapper eventMapper;
 
     /**
      * POST  /register : register the user.
@@ -152,6 +162,18 @@ public class AccountResource {
                 return new ResponseEntity<String>(HttpStatus.OK);
             })
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @GetMapping("/account/attending-events")
+    @Timed
+    public ResponseEntity<List<EventDTO>> getAttendingEvents(@ApiParam Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to get account attending events");
+        Page<EventUserAttending> page = eventUserAttendingRepository.findByUser(userService.getUserWithAuthorities(), pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/attending-events");
+        return new ResponseEntity<>(page.getContent().stream().map(eventUserAttending ->
+            eventMapper.eventToEventDTO(eventUserAttending.getEvent())
+        ).collect(Collectors.toList()), headers, HttpStatus.OK);
     }
 
     /**
