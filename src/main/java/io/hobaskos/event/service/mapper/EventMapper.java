@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {UserMapper.class, LocationMapper.class, EventCategoryMapper.class})
 public interface EventMapper {
 
-    @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "owner.login", target = "ownerLogin")
     EventDTO eventToEventDTO(Event event);
 
     List<EventDTO> eventsToEventDTOs(List<Event> events);
