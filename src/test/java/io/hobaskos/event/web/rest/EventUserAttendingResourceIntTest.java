@@ -158,6 +158,31 @@ public class EventUserAttendingResourceIntTest {
 
     @Test
     @Transactional
+    public void createEventUserAttendingTwoTimes() throws Exception {
+
+        // Create the EventUserAttending
+        EventUserAttendingDTO firstEventUserAttendingDTO = new EventUserAttendingDTO();
+        firstEventUserAttendingDTO.setEventId(eventUserAttending.getEvent().getId());
+        firstEventUserAttendingDTO.setType(EventAttendingType.GOING);
+        EventUserAttendingDTO secondEventUserAttendingDTO = new EventUserAttendingDTO();
+        secondEventUserAttendingDTO.setEventId(eventUserAttending.getEvent().getId());
+        secondEventUserAttendingDTO.setType(EventAttendingType.GOING);
+
+        when(userService.getUserWithAuthorities()).thenReturn(user);
+        restEventUserAttendingMockMvc.perform(post("/api/event-user-attendings")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(firstEventUserAttendingDTO)))
+            .andExpect(status().isCreated());
+
+        when(userService.getUserWithAuthorities()).thenReturn(user);
+        restEventUserAttendingMockMvc.perform(post("/api/event-user-attendings")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(secondEventUserAttendingDTO)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
     public void createEventUserAttendingWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = eventUserAttendingRepository.findAll().size();
 

@@ -3,6 +3,7 @@ package io.hobaskos.event.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.hobaskos.event.domain.EventUserAttending;
 
+import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.search.EventUserAttendingSearchRepository;
 import io.hobaskos.event.service.UserService;
@@ -66,12 +67,16 @@ public class EventUserAttendingResource {
     @Timed
     public ResponseEntity<EventUserAttendingDTO> createEventUserAttending(@Valid @RequestBody EventUserAttendingDTO eventUserAttendingDTO) throws URISyntaxException {
         log.debug("REST request to save EventUserAttending : {}", eventUserAttendingDTO);
+        User user = userService.getUserWithAuthorities();
         if (eventUserAttendingDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("eventUserAttending", "idexists", "A new eventUserAttending cannot already have an ID")).body(null);
         }
         EventUserAttending eventUserAttending = eventUserAttendingMapper.eventUserAttendingDTOToEventUserAttending(eventUserAttendingDTO);
+        if (eventUserAttendingRepository.findOneByEventAndUser(eventUserAttending.getEvent(), user).isPresent()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         eventUserAttending.setCreatedDate(ZonedDateTime.now());
-        eventUserAttending.setUser(userService.getUserWithAuthorities());
+        eventUserAttending.setUser(user);
         eventUserAttending = eventUserAttendingRepository.save(eventUserAttending);
         EventUserAttendingDTO result = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
         eventUserAttendingSearchRepository.save(eventUserAttending);

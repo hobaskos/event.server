@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data JPA repository for the EventUserAttending entity.
@@ -22,4 +23,6 @@ public interface EventUserAttendingRepository extends JpaRepository<EventUserAtt
     Page<EventUserAttending> findByEvent(Event event, Pageable pageable);
 
     Page<EventUserAttending> findByUser(User user, Pageable pageable);
+
+    Optional<EventUserAttending> findOneByEventAndUser(Event event, User user);
 }
