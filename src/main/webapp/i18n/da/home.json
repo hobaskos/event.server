@@ -1,7 +1,7 @@
 {
     "home": {
-        "title": "Velkommen, Java Hipster!",
-        "subtitle": "Dette er din startside",
+        "title": "Velkommen to Backend",
+        "subtitle": "The backbone of Eventure",
         "logged": {
             "message": "Du er logget ind som bruger \"{{username}}\"."
         },
