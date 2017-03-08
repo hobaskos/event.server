@@ -1,0 +1,26 @@
+{
+    "backendApp": {
+        "eventPoll" : {
+            "home": {
+                "title": "Event Polls",
+                "createLabel": "Create a new Event Poll",
+                "createOrEditLabel": "Create or edit a Event Poll",
+                "search": "Search for Event Poll"
+            },
+            "created": "A new Event Poll is created with identifier {{ param }}",
+            "updated": "A Event Poll is updated with identifier {{ param }}",
+            "deleted": "A Event Poll is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Event Poll {{ id }}?"
+            },
+            "detail": {
+                "title": "Event Poll"
+            },
+            "title": "Title",
+            "description": "Description",
+            "status": "Status",
+            "event": "Event",
+            "images": "Images"
+        }
+    }
+}

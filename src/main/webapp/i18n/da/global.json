@@ -12,6 +12,9 @@
                 "eventCategory": "Event Category",
                 "userConnection": "User Connection",
                 "eventUserAttending": "Event User Attending",
+                "eventPoll": "Event Poll",
+                "eventImage": "Event Image",
+                "eventImageVote": "Event Image Vote",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
