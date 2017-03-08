@@ -1,5 +1,6 @@
 package io.hobaskos.event.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -38,6 +39,7 @@ public class EventUserAttending implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull
+    @JsonBackReference
     private Event event;
 
     @ManyToOne(fetch = FetchType.EAGER)

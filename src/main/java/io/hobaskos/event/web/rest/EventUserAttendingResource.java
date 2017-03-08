@@ -1,10 +1,13 @@
 package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.EventUserAttending;
 
 import io.hobaskos.event.domain.User;
+import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
+import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.repository.search.EventUserAttendingSearchRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
@@ -56,6 +59,12 @@ public class EventUserAttendingResource {
     @Inject
     private UserService userService;
 
+    @Inject
+    private EventSearchRepository eventSearchRepository;
+
+    @Inject
+    private EventRepository eventRepository;
+
     /**
      * POST  /event-user-attendings : Create a new eventUserAttending.
      *
@@ -78,6 +87,11 @@ public class EventUserAttendingResource {
         eventUserAttending.setCreatedDate(ZonedDateTime.now());
         eventUserAttending.setUser(user);
         eventUserAttending = eventUserAttendingRepository.save(eventUserAttending);
+
+        Event event = eventRepository.findOneWithEagerRelations(eventUserAttending.getEvent().getId());
+        event.addAttending(eventUserAttending);
+        eventSearchRepository.save(event);
+
         EventUserAttendingDTO result = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
         eventUserAttendingSearchRepository.save(eventUserAttending);
         return ResponseEntity.created(new URI("/api/event-user-attendings/" + result.getId()))
@@ -104,6 +118,11 @@ public class EventUserAttendingResource {
         EventUserAttending eventUserAttending = eventUserAttendingMapper.eventUserAttendingDTOToEventUserAttending(eventUserAttendingDTO);
         eventUserAttending.setUser(userService.getUserWithAuthorities());
         eventUserAttending = eventUserAttendingRepository.save(eventUserAttending);
+
+        Event event = eventRepository.findOneWithEagerRelations(eventUserAttending.getEvent().getId());
+        event.addAttending(eventUserAttending);
+        eventSearchRepository.save(event);
+
         EventUserAttendingDTO result = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
         eventUserAttendingSearchRepository.save(eventUserAttending);
         return ResponseEntity.ok()
@@ -157,6 +176,12 @@ public class EventUserAttendingResource {
     @Timed
     public ResponseEntity<Void> deleteEventUserAttending(@PathVariable Long id) {
         log.debug("REST request to delete EventUserAttending : {}", id);
+
+        EventUserAttending eventUserAttending = eventUserAttendingRepository.findOne(id);
+        Event event = eventRepository.findOneWithEagerRelations(eventUserAttending.getEvent().getId());
+        event.removeAttending(eventUserAttending);
+        eventSearchRepository.save(event);
+
         eventUserAttendingRepository.delete(id);
         eventUserAttendingSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("eventUserAttending", id.toString())).build();
@@ -180,6 +205,4 @@ public class EventUserAttendingResource {
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/event-user-attendings");
         return new ResponseEntity<>(eventUserAttendingMapper.eventUserAttendingsToEventUserAttendingDTOs(page.getContent()), headers, HttpStatus.OK);
     }
-
-
 }

@@ -26,4 +26,9 @@ public interface EventRepository extends JpaRepository<Event,Long> {
     Page<Event> findByEventCategory(EventCategory eventCategory, Pageable pageable);
 
     Optional<Event> findOneById(Long id);
+
+    @Query("select event from Event event " +
+        "left join fetch event.attendings left join fetch event.locations " +
+        "where event.id = ?1")
+    Event findOneWithEagerRelations(Long id);
 }

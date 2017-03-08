@@ -41,6 +41,14 @@ public interface UserMapper {
         return user;
     }
 
+    default User userFromLogin(String login) {
+        if (login == null) return null;
+
+        User user = new User();
+        user.setLogin(login);
+        return user;
+    }
+
     default Set<String> stringsFromAuthorities (Set<Authority> authorities) {
         return authorities.stream().map(Authority::getName)
             .collect(Collectors.toSet());

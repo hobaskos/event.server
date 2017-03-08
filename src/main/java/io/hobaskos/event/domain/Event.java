@@ -61,6 +61,12 @@ public class Event implements Serializable {
     @Field(type = FieldType.Nested)
     private Set<Location> locations = new HashSet<>();
 
+    @OneToMany(mappedBy = "event")
+    @Cache(usage = CacheConcurrencyStrategy.NONE)
+    @JsonManagedReference
+    @Field(type = FieldType.Nested)
+    private Set<EventUserAttending> attendings = new HashSet<>();
+
     @ManyToOne
     @NotNull
     private EventCategory eventCategory;
@@ -182,6 +188,27 @@ public class Event implements Serializable {
     public void setLocations(Set<Location> locations) {
         this.locations = locations;
     }
+
+    public Set<EventUserAttending> getAttendings() {
+        return attendings;
+    }
+
+    public void setAttendings(Set<EventUserAttending> attendings) {
+        this.attendings = attendings;
+    }
+
+    public Event addAttending(EventUserAttending attendance) {
+        attendings.add(attendance);
+        attendance.setEvent(this);
+        return this;
+    }
+
+    public Event removeAttending(EventUserAttending attendance) {
+        attendings.remove(attendance);
+        attendance.setEvent(null);
+        return this;
+    }
+
 
     public EventCategory getEventCategory() {
         return eventCategory;
