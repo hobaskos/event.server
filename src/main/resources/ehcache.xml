@@ -34,6 +34,8 @@
 
     <cache alias="io.hobaskos.event.domain.UserConnection" uses-template="simple"/>
 
+    <cache alias="io.hobaskos.event.domain.EventUserAttending" uses-template="simple"/>
+
     <cache alias="io.hobaskos.event.domain.EventPoll" uses-template="simple"/>
 
     <cache alias="io.hobaskos.event.domain.Event.polls" uses-template="simple"/>

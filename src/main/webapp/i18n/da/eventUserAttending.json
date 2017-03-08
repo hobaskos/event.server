@@ -1,0 +1,25 @@
+{
+    "backendApp": {
+        "eventUserAttending" : {
+            "home": {
+                "title": "Event User Attendings",
+                "createLabel": "Create a new Event User Attending",
+                "createOrEditLabel": "Create or edit a Event User Attending",
+                "search": "Search for Event User Attending"
+            },
+            "created": "A new Event User Attending is created with identifier {{ param }}",
+            "updated": "A Event User Attending is updated with identifier {{ param }}",
+            "deleted": "A Event User Attending is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Event User Attending {{ id }}?"
+            },
+            "detail": {
+                "title": "Event User Attending"
+            },
+            "createdDate": "Created Date",
+            "type": "Type",
+            "event": "Event",
+            "user": "User"
+        }
+    }
+}

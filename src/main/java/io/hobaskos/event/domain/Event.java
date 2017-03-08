@@ -62,7 +62,15 @@ public class Event implements Serializable {
     private Set<Location> locations = new HashSet<>();
 
     @OneToMany(mappedBy = "event")
+    @Cache(usage = CacheConcurrencyStrategy.NONE)
+    @JsonManagedReference
     @JsonIgnore
+    @Field(type = FieldType.Nested)
+    private Set<EventUserAttending> attendings = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "event")
+    @JsonManagedReference
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<EventPoll> polls = new HashSet<>();
 
@@ -186,6 +194,26 @@ public class Event implements Serializable {
 
     public void setLocations(Set<Location> locations) {
         this.locations = locations;
+    }
+
+    public Set<EventUserAttending> getAttendings() {
+        return attendings;
+    }
+
+    public void setAttendings(Set<EventUserAttending> attendings) {
+        this.attendings = attendings;
+    }
+
+    public Event addAttending(EventUserAttending attendance) {
+        attendings.add(attendance);
+        attendance.setEvent(this);
+        return this;
+    }
+
+    public Event removeAttending(EventUserAttending attendance) {
+        attendings.remove(attendance);
+        attendance.setEvent(null);
+        return this;
     }
 
     public Set<EventPoll> getPolls() {

@@ -1,5 +1,7 @@
 package io.hobaskos.event.service.dto;
 
+import io.hobaskos.event.domain.enumeration.EventAttendingType;
+
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -33,6 +35,10 @@ public class EventDTO implements Serializable {
     private Set<LocationDTO> locations;
 
     private EventCategoryDTO eventCategory;
+
+    private EventAttendingType myAttendance;
+
+    private int attendanceCount;
 
     public Long getId() {
         return id;
@@ -99,6 +105,22 @@ public class EventDTO implements Serializable {
 
     public void setEventCategory(EventCategoryDTO eventCategory) {
         this.eventCategory = eventCategory;
+    }
+
+    public EventAttendingType getMyAttendance() {
+        return myAttendance;
+    }
+
+    public void setMyAttendance(EventAttendingType myAttendance) {
+        this.myAttendance = myAttendance;
+    }
+
+    public int getAttendanceCount() {
+        return attendanceCount;
+    }
+
+    public void setAttendanceCount(int attendanceCount) {
+        this.attendanceCount = attendanceCount;
     }
 
     @Override

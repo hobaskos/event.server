@@ -1,0 +1,10 @@
+{
+    "backendApp": {
+        "EventAttendingType" : {
+            "null": "",
+            "GOING": "GOING",
+            "THINKING": "THINKING",
+            "UNDECIDED": "UNDECIDED"
+        }
+    }
+}
