@@ -1,5 +1,7 @@
 package io.hobaskos.event.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -7,6 +9,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
 
 /**
@@ -36,6 +40,12 @@ public class EventImage implements Serializable {
     @ManyToOne
     @NotNull
     private EventPoll poll;
+
+    @OneToMany(mappedBy = "eventImage")
+    @JsonIgnore
+    @JsonManagedReference
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<EventImageVote> votes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -82,6 +92,31 @@ public class EventImage implements Serializable {
 
     public void setPoll(EventPoll eventPoll) {
         this.poll = eventPoll;
+    }
+
+    public Set<EventImageVote> getVotes() {
+        return votes;
+    }
+
+    public EventImage votes(Set<EventImageVote> eventImageVotes) {
+        this.votes = eventImageVotes;
+        return this;
+    }
+
+    public EventImage addVotes(EventImageVote eventImageVote) {
+        votes.add(eventImageVote);
+        eventImageVote.setEventImage(this);
+        return this;
+    }
+
+    public EventImage removeVotes(EventImageVote eventImageVote) {
+        votes.remove(eventImageVote);
+        eventImageVote.setEventImage(null);
+        return this;
+    }
+
+    public void setVotes(Set<EventImageVote> eventImageVotes) {
+        this.votes = eventImageVotes;
     }
 
     @Override

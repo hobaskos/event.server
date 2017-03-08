@@ -13,6 +13,7 @@
                 "userConnection": "User Connection",
                 "eventPoll": "Event Poll",
                 "eventImage": "Event Image",
+                "eventImageVote": "Event Image Vote",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

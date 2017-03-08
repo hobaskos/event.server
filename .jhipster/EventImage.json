@@ -9,6 +9,12 @@
                 "required"
             ],
             "otherEntityField": "id"
+        },
+        {
+            "relationshipName": "votes",
+            "otherEntityName": "eventImageVote",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "eventImage"
         }
     ],
     "fields": [
