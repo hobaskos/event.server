@@ -1,0 +1,52 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myEventUserAttendingLabel" data-translate="backendApp.eventUserAttending.home.createOrEditLabel">Create or edit a Event User Attending</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.eventUserAttending.id">
+            <label for="id" data-translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.eventUserAttending.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventUserAttending.type" for="field_type">Type</label>
+            <select class="form-control" name="type" ng-model="vm.eventUserAttending.type" id="field_type" required>
+                <option value="GOING" data-translate="backendApp.EventAttendingType.GOING">GOING</option>
+                <option value="THINKING" data-translate="backendApp.EventAttendingType.THINKING">THINKING</option>
+                <option value="UNDECIDED" data-translate="backendApp.EventAttendingType.UNDECIDED">UNDECIDED</option>
+            </select>
+            <div ng-show="editForm.type.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.type.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label data-translate="backendApp.eventUserAttending.event" for="field_event">Event</label>
+            <select class="form-control" id="field_event" name="event" ng-model="vm.eventUserAttending.eventId" ng-options="event.id as event.id for event in vm.events"             required>
+                <option value=""></option>
+            </select>
+        </div>
+        <div ng-show="editForm.event.$invalid">
+            <p class="help-block"
+                ng-show="editForm.event.$error.required" data-translate="entity.validation.required">
+                This field is required.
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span data-translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span data-translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>
