@@ -19,6 +19,7 @@ public interface EventMapper {
 
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "locations", ignore = true)
+    @Mapping(target = "polls", ignore = true)
     Event eventDTOToEvent(EventDTO eventDTO);
 
     List<Event> eventDTOsToEvents(List<EventDTO> eventDTOs);

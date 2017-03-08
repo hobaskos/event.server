@@ -25,6 +25,12 @@
                 "required"
             ],
             "otherEntityField": "title"
+        },
+        {
+            "relationshipName": "polls",
+            "otherEntityName": "eventPoll",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "event"
         }
     ],
     "fields": [
