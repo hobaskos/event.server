@@ -1,0 +1,44 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipName": "poll",
+            "otherEntityName": "eventPoll",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipName": "votes",
+            "otherEntityName": "eventImageVote",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "eventImage"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "title",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "256"
+        },
+        {
+            "fieldName": "imageUrl",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "256"
+        }
+    ],
+    "changelogDate": "20170302114645",
+    "dto": "mapstruct",
+    "service": "serviceImpl",
+    "entityTableName": "event_image",
+    "pagination": "pagination"
+}
