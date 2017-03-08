@@ -1,0 +1,24 @@
+{
+    "backendApp": {
+        "eventImageVote" : {
+            "home": {
+                "title": "Event Image Votes",
+                "createLabel": "Create a new Event Image Vote",
+                "createOrEditLabel": "Create or edit a Event Image Vote",
+                "search": "Search for Event Image Vote"
+            },
+            "created": "A new Event Image Vote is created with identifier {{ param }}",
+            "updated": "A Event Image Vote is updated with identifier {{ param }}",
+            "deleted": "A Event Image Vote is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Event Image Vote {{ id }}?"
+            },
+            "detail": {
+                "title": "Event Image Vote"
+            },
+            "vote": "Vote",
+            "user": "User",
+            "eventImage": "Event Image"
+        }
+    }
+}

@@ -6,6 +6,7 @@ import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.service.UserService;
 
 import io.hobaskos.event.service.mapper.UserMapper;
+import io.hobaskos.event.service.util.RandomUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,10 +54,10 @@ public class UserResourceIntTest {
      */
     public static User createEntity(EntityManager em) {
         User user = new User();
-        user.setLogin("test");
+        user.setLogin(RandomUtil.generateLogin());
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
-        user.setEmail("test@test.com");
+        user.setEmail(RandomUtil.generateRandomEmail());
         user.setProfileImageUrl("http://localhost:8080/files/someFile.png");
         user.setFirstName("test");
         user.setLastName("test");

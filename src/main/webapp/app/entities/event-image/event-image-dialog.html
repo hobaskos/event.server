@@ -1,0 +1,78 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myEventImageLabel" data-translate="backendApp.eventImage.home.createOrEditLabel">Create or edit a Event Image</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.eventImage.id">
+            <label for="id" data-translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.eventImage.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventImage.title" for="field_title">Title</label>
+            <input type="text" class="form-control" name="title" id="field_title"
+                    ng-model="vm.eventImage.title"
+                    ng-maxlength="256" />
+            <div ng-show="editForm.title.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.title.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
+                    This field cannot be longer than 256 characters.
+                </p>
+            </div>
+        </div>
+        <div class="form-group" ngf-drop ngf-change="vm.setFile($file, vm.eventImage)" ngf-pattern="'image/*'">
+            <label class="control-label" data-translate="backendApp.eventImage.file" for="field_file">File</label>
+            <div>
+                <img data-ng-src="{{'data:' + vm.eventImage.fileContentType + ';base64,' + vm.eventImage.file}}" style="max-height: 100px;" ng-if="vm.eventImage.file" alt="eventImage image"/>
+                <div ng-if="vm.eventImage.file" class="help-block clearfix">
+                    <span class="pull-left">{{vm.eventImage.fileContentType}}, {{vm.byteSize(vm.eventImage.file)}}</span>
+                    <button type="button" ng-click="vm.eventImage.file=null;vm.eventImage.fileContentType=null;"
+                            class="btn btn-default btn-xs pull-right">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+                <button type="button" ngf-select class="btn btn-default btn-block"
+                        ngf-change="vm.setFile($file, vm.eventImage)" accept="image/*" data-translate="entity.action.addimage">
+                    Add image
+                </button>
+            </div>
+            <input type="hidden" class="form-control" name="file" id="field_file"
+                    ng-model="vm.eventImage.file"
+                    required />
+            <input type="hidden" class="form-control" name="fileContentType" id="field_fileContentType"
+                    ng-model="vm.eventImage.fileContentType" />
+            <div ng-show="editForm.file.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.file.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label data-translate="backendApp.eventImage.poll" for="field_poll">Poll</label>
+            <select class="form-control" id="field_poll" name="poll" ng-model="vm.eventImage.pollId" ng-options="eventPoll.id as eventPoll.id for eventPoll in vm.eventpolls"             required>
+                <option value=""></option>
+            </select>
+        </div>
+        <div ng-show="editForm.poll.$invalid">
+            <p class="help-block"
+                ng-show="editForm.poll.$error.required" data-translate="entity.validation.required">
+                This field is required.
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span data-translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span data-translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

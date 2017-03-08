@@ -1,0 +1,10 @@
+{
+    "backendApp": {
+        "EventPollStatus" : {
+            "null": "",
+            "INACTIVE": "INACTIVE",
+            "NOMINATION": "NOMINATION",
+            "ACTIVE": "ACTIVE"
+        }
+    }
+}
