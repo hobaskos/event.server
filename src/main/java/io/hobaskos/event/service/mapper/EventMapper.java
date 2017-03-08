@@ -21,7 +21,7 @@ public abstract class EventMapper {
     @Inject
     private UserService userService;
 
-    @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "owner.login", target = "ownerLogin")
     @Mapping(source = "attendings", target = "myAttendance")
     @Mapping(source = "attendings", target = "attendanceCount")
     public abstract EventDTO eventToEventDTO(Event event);
@@ -31,6 +31,7 @@ public abstract class EventMapper {
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "locations", ignore = true)
     @Mapping(target = "attendings", ignore = true)
+    @Mapping(target = "polls", ignore = true)
     public abstract Event eventDTOToEvent(EventDTO eventDTO);
 
     public abstract List<Event> eventDTOsToEvents(List<EventDTO> eventDTOs);

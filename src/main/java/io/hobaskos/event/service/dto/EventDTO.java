@@ -30,7 +30,7 @@ public class EventDTO implements Serializable {
 
     private ZonedDateTime toDate;
 
-    private Long ownerId;
+    private String ownerLogin;
 
     private Set<LocationDTO> locations;
 
@@ -83,12 +83,12 @@ public class EventDTO implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public String getOwnerLogin() {
+        return ownerLogin;
     }
 
-    public void setOwnerId(Long userId) {
-        this.ownerId = userId;
+    public void setOwnerLogin(String ownerLogin) {
+        this.ownerLogin = ownerLogin;
     }
 
     public Set<LocationDTO> getLocations() {

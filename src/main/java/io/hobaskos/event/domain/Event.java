@@ -64,8 +64,15 @@ public class Event implements Serializable {
     @OneToMany(mappedBy = "event")
     @Cache(usage = CacheConcurrencyStrategy.NONE)
     @JsonManagedReference
+    @JsonIgnore
     @Field(type = FieldType.Nested)
     private Set<EventUserAttending> attendings = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "event")
+    @JsonManagedReference
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<EventPoll> polls = new HashSet<>();
 
     @ManyToOne
     @NotNull
@@ -209,6 +216,30 @@ public class Event implements Serializable {
         return this;
     }
 
+    public Set<EventPoll> getPolls() {
+        return polls;
+    }
+
+    public Event polls(Set<EventPoll> eventPolls) {
+        this.polls = eventPolls;
+        return this;
+    }
+
+    public Event addPolls(EventPoll eventPoll) {
+        polls.add(eventPoll);
+        eventPoll.setEvent(this);
+        return this;
+    }
+
+    public Event removePolls(EventPoll eventPoll) {
+        polls.remove(eventPoll);
+        eventPoll.setEvent(null);
+        return this;
+    }
+
+    public void setPolls(Set<EventPoll> eventPolls) {
+        this.polls = eventPolls;
+    }
 
     public EventCategory getEventCategory() {
         return eventCategory;

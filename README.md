@@ -12,6 +12,7 @@ This application was generated using JHipster 3.12.2, you can find documentation
 ![nearby_search](docs/nearby.search.01.png)
 ![db_model](docs/db.model.06.png)
 
+
 ## Development
 
 Before you can build this project, you must install and configure the following dependencies on your machine:

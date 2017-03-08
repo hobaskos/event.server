@@ -1,0 +1,80 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myEventPollLabel" data-translate="backendApp.eventPoll.home.createOrEditLabel">Create or edit a Event Poll</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.eventPoll.id">
+            <label for="id" data-translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.eventPoll.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventPoll.title" for="field_title">Title</label>
+            <input type="text" class="form-control" name="title" id="field_title"
+                    ng-model="vm.eventPoll.title"
+                    required ng-maxlength="256" />
+            <div ng-show="editForm.title.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.title.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.title.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
+                    This field cannot be longer than 256 characters.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventPoll.description" for="field_description">Description</label>
+            <input type="text" class="form-control" name="description" id="field_description"
+                    ng-model="vm.eventPoll.description"
+                    ng-maxlength="8192" />
+            <div ng-show="editForm.description.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.description.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="8192">
+                    This field cannot be longer than 8192 characters.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" data-translate="backendApp.eventPoll.status" for="field_status">Status</label>
+            <select class="form-control" name="status" ng-model="vm.eventPoll.status" id="field_status" required>
+                <option value="INACTIVE" data-translate="backendApp.EventPollStatus.INACTIVE">INACTIVE</option>
+                <option value="NOMINATION" data-translate="backendApp.EventPollStatus.NOMINATION">NOMINATION</option>
+                <option value="ACTIVE" data-translate="backendApp.EventPollStatus.ACTIVE">ACTIVE</option>
+            </select>
+            <div ng-show="editForm.status.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.status.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label data-translate="backendApp.eventPoll.event" for="field_event">Event</label>
+            <select class="form-control" id="field_event" name="event" ng-model="vm.eventPoll.eventId" ng-options="event.id as event.id for event in vm.events"             required>
+                <option value=""></option>
+            </select>
+        </div>
+        <div ng-show="editForm.event.$invalid">
+            <p class="help-block"
+                ng-show="editForm.event.$error.required" data-translate="entity.validation.required">
+                This field is required.
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span data-translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span data-translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

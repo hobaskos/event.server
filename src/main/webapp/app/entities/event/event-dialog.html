@@ -52,21 +52,6 @@
             </div>
 
         </div>
-
-        <!--
-        <div class="form-group">
-            <label data-translate="backendApp.event.owner" for="field_owner">Owner</label>
-            <select class="form-control" id="field_owner" name="owner" ng-model="vm.event.ownerId" ng-options="user.id as user.id for user in vm.users"             required>
-                <option value=""></option>
-            </select>
-        </div>
-        <div ng-show="editForm.owner.$invalid">
-            <p class="help-block"
-                ng-show="editForm.owner.$error.required" data-translate="entity.validation.required">
-                This field is required.
-            </p>
-        </div>
-        -->
         <div class="form-group">
             <label data-translate="backendApp.event.eventCategory" for="field_eventCategory">Event Category</label>
             <select class="form-control" id="field_eventCategory" name="eventCategory" ng-model="vm.event.eventCategory" ng-options="eventCategory as eventCategory.title for eventCategory in vm.eventcategories" required>

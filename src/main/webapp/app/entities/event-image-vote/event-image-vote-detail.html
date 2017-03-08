@@ -1,0 +1,31 @@
+
+<div>
+    <h2><span data-translate="backendApp.eventImageVote.detail.title">Event Image Vote</span> {{vm.eventImageVote.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
+        <dt><span data-translate="backendApp.eventImageVote.vote">Vote</span></dt>
+        <dd>
+            <span>{{vm.eventImageVote.vote}}</span>
+        </dd>
+        <dt><span data-translate="backendApp.eventImageVote.user">User</span></dt>
+        <dd>
+            {{vm.eventImageVote.userLogin}}
+        </dd>
+        <dt><span data-translate="backendApp.eventImageVote.eventImage">Event Image</span></dt>
+        <dd>
+            <a ui-sref="event-image-detail({id:vm.eventImageVote.eventImageId})">{{vm.eventImageVote.eventImageId}}</a>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            ui-sref="{{ vm.previousState }}"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span data-translate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button" ui-sref="event-image-vote-detail.edit({id:vm.eventImageVote.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-xs hidden-sm" data-translate="entity.action.edit"> Edit</span>
+    </button>
+</div>
