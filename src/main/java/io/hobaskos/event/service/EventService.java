@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Interface for managing Event.
@@ -44,6 +45,14 @@ public interface EventService {
      *  @return the entity
      */
     EventDTO findOne(Long id);
+
+    /**
+     *  Get the "id" event.
+     *
+     *  @param inviteCode
+     *  @return the entity
+     */
+    Optional<EventDTO> findOneByInviteCode(String inviteCode);
 
     /**
      *  Delete the "id" event.

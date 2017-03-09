@@ -21,9 +21,12 @@
             "imageUrl": "Image Url",
             "fromDate": "From Date",
             "toDate": "To Date",
+            "privateEvent": "Private Event",
+            "invitationCode": "Invitation Code",
             "owner": "Owner",
             "locations": "Locations",
-            "eventCategory": "Event Category"
+            "eventCategory": "Event Category",
+            "polls": "Polls"
         }
     }
 }

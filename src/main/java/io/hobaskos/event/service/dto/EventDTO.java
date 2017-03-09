@@ -30,6 +30,12 @@ public class EventDTO implements Serializable {
 
     private ZonedDateTime toDate;
 
+    @NotNull
+    private Boolean privateEvent;
+
+    @Size(max = 64)
+    private String invitationCode;
+
     private String ownerLogin;
 
     private Set<LocationDTO> locations;
@@ -75,6 +81,23 @@ public class EventDTO implements Serializable {
     public void setToDate(ZonedDateTime toDate) {
         this.toDate = toDate;
     }
+
+    public Boolean getPrivateEvent() {
+        return privateEvent;
+    }
+
+    public void setPrivateEvent(Boolean privateEvent) {
+        this.privateEvent = privateEvent;
+    }
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -153,6 +176,8 @@ public class EventDTO implements Serializable {
             ", imageUrl='" + imageUrl + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
+            ", privateEvent='" + privateEvent + "'" +
+            ", invitationCode='" + invitationCode + "'" +
             '}';
     }
 }

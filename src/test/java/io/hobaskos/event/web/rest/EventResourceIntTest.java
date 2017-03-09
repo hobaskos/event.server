@@ -76,6 +76,12 @@ public class EventResourceIntTest {
     private static final int UPDATED_LOCATION_FROM_DATE_DAYS = 30;
     private static final int UPDATED_LOCATION_TO_DATE_DAYS = 31;
 
+    private static final Boolean DEFAULT_PRIVATE_EVENT = false;
+    private static final Boolean UPDATED_PRIVATE_EVENT = true;
+
+    private static final String DEFAULT_INVITATION_CODE = "AAAAAAAAAA";
+    private static final String UPDATED_INVITATION_CODE = "BBBBBBBBBB";
+
     @Inject
     private UserRepository userRepository;
 
@@ -146,7 +152,9 @@ public class EventResourceIntTest {
         Event event = new Event()
                 .title(DEFAULT_TITLE)
                 .description(DEFAULT_DESCRIPTION)
-                .imageUrl(DEFAULT_IMAGE_URL);
+                .imageUrl(DEFAULT_IMAGE_URL)
+                .privateEvent(DEFAULT_PRIVATE_EVENT)
+                .invitationCode(DEFAULT_INVITATION_CODE);
         // Add required entity
         User owner = UserResourceIntTest.createEntity(em);
         em.persist(owner);
@@ -170,6 +178,7 @@ public class EventResourceIntTest {
         event2.setDescription(DEFAULT_DESCRIPTION);
         event2.setImageUrl(DEFAULT_IMAGE_URL);
         event2.setOwner(event.getOwner());
+        event2.setPrivateEvent(false);
         EventCategory eventCategory = EventCategoryResourceIntTest.createEntity(em);
         em.persist(eventCategory);
         em.flush();
@@ -198,6 +207,8 @@ public class EventResourceIntTest {
         assertThat(testEvent.getTitle()).isEqualTo(DEFAULT_TITLE);
         assertThat(testEvent.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testEvent.getImageUrl()).isEqualTo(DEFAULT_IMAGE_URL);
+        assertThat(testEvent.isPrivateEvent()).isEqualTo(DEFAULT_PRIVATE_EVENT);
+        assertThat(testEvent.getInvitationCode()).isEqualTo(DEFAULT_INVITATION_CODE);
 
         // Validate the Event in ElasticSearch
         Event eventEs = eventSearchRepository.findOne(testEvent.getId());
@@ -227,6 +238,25 @@ public class EventResourceIntTest {
 
     @Test
     @Transactional
+    public void checkPrivateEventIsRequired() throws Exception {
+        int databaseSizeBeforeTest = eventRepository.findAll().size();
+        // set the field null
+        event.setPrivateEvent(null);
+
+        // Create the Event, which fails.
+        EventDTO eventDTO = eventMapper.eventToEventDTO(event);
+
+        restEventMockMvc.perform(post("/api/events")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(eventDTO)))
+            .andExpect(status().isBadRequest());
+
+        List<Event> eventList = eventRepository.findAll();
+        assertThat(eventList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     public void getAllEvents() throws Exception {
         // Initialize the database
         eventRepository.saveAndFlush(event);
@@ -238,7 +268,10 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(event.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL.toString())));
+            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL.toString())))
+            .andExpect(jsonPath("$.[*].privateEvent").value(hasItem(DEFAULT_PRIVATE_EVENT.booleanValue())))
+            .andExpect(jsonPath("$.[*].invitationCode").value(hasItem(DEFAULT_INVITATION_CODE.toString())));
+
     }
 
     @Test
@@ -255,7 +288,9 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGE_URL.toString()))
-            .andExpect(jsonPath("$.eventCategory.id").value(event.getEventCategory().getId()));
+            .andExpect(jsonPath("$.eventCategory.id").value(event.getEventCategory().getId()))
+            .andExpect(jsonPath("$.privateEvent").value(DEFAULT_PRIVATE_EVENT.booleanValue()))
+            .andExpect(jsonPath("$.invitationCode").value(DEFAULT_INVITATION_CODE.toString()));
     }
 
     @Test
@@ -306,7 +341,9 @@ public class EventResourceIntTest {
         updatedEvent
                 .title(UPDATED_TITLE)
                 .description(UPDATED_DESCRIPTION)
-                .imageUrl(UPDATED_IMAGE_URL);
+                .imageUrl(UPDATED_IMAGE_URL)
+                .privateEvent(UPDATED_PRIVATE_EVENT)
+                .invitationCode(UPDATED_INVITATION_CODE);
         EventDTO eventDTO = eventMapper.eventToEventDTO(updatedEvent);
 
         restEventMockMvc.perform(put("/api/events")
@@ -321,6 +358,8 @@ public class EventResourceIntTest {
         assertThat(testEvent.getTitle()).isEqualTo(UPDATED_TITLE);
         assertThat(testEvent.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testEvent.getImageUrl()).isEqualTo(UPDATED_IMAGE_URL);
+        assertThat(testEvent.isPrivateEvent()).isEqualTo(UPDATED_PRIVATE_EVENT);
+        assertThat(testEvent.getInvitationCode()).isEqualTo(UPDATED_INVITATION_CODE);
 
         // Validate the Event in ElasticSearch
         Event eventEs = eventSearchRepository.findOne(testEvent.getId());
@@ -382,7 +421,10 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(event.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL.toString())));
+            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL.toString())))
+            .andExpect(jsonPath("$.[*].privateEvent").value(hasItem(DEFAULT_PRIVATE_EVENT.booleanValue())))
+            .andExpect(jsonPath("$.[*].invitationCode").value(hasItem(DEFAULT_INVITATION_CODE.toString())));
+
     }
 
     @Test
@@ -415,6 +457,22 @@ public class EventResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*]").isEmpty());
+
+        event.setPrivateEvent(true);
+        eventService.save(eventMapper.eventToEventDTO(event));
+        // Search for the private event and expect it to not be visible
+        restEventMockMvc.perform(get("/api/_search/events?query=" + event.getTitle()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
+
+        event.setPrivateEvent(false);
+        eventService.save(eventMapper.eventToEventDTO(event));
+        // Make the event public, and expect to see it
+        restEventMockMvc.perform(get("/api/_search/events?query=" + event.getTitle()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)));
     }
 
     @Test
@@ -445,6 +503,28 @@ public class EventResourceIntTest {
             .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lat").value(hasItem(DEFAULT_LOCATION_LAT)))
             .andExpect(jsonPath("$.[*].locations.[*].geoPoint.lon").value(hasItem(DEFAULT_LOCATION_LON)));
 
+        // Search the event using a nearby search on the location
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].locations.[*].name").value(hasItem(DEFAULT_LOCATION_NAME)))
+            .andExpect(jsonPath("$.[*].locations.[*].description").value(hasItem(DEFAULT_LOCATION_DESCRIPTION)));
+
+        event.setPrivateEvent(true);
+        eventService.save(eventMapper.eventToEventDTO(event));
+        eventService.save(eventMapper.eventToEventDTO(event2));
+        // Search the event using a nearby search on the location
+        restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
+                DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*]").isEmpty());
+
+        event.setPrivateEvent(false);
+        eventService.save(eventMapper.eventToEventDTO(event));
+        eventService.save(eventMapper.eventToEventDTO(event2));
         // Search the event using a nearby search on the location
         restEventMockMvc.perform(get(String.format("/api/_search/events-nearby?lat=%f&lon=%f&distance=100m",
                 DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON)))

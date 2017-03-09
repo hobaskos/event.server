@@ -8,6 +8,7 @@ import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
+import io.hobaskos.event.service.util.RandomUtil;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -55,10 +57,22 @@ public class EventServiceImpl implements EventService{
         log.debug("Request to save Event : {}", eventDTO);
         Event event = eventMapper.eventDTOToEvent(eventDTO);
         event.setOwner(userService.getUserWithAuthorities());
+
+        if (event.getId() != null) { // done to keep elastic happy...
+            Event originEvent = eventRepository.findOneWithEagerRelations(event.getId());
+            event.setAttendings(originEvent.getAttendings());
+            event.setPolls(originEvent.getPolls());
+            event.setLocations(originEvent.getLocations());
+        }
+
+        if (event.isPrivateEvent() && event.getInvitationCode() == null){
+            event.setInvitationCode(RandomUtil.generateRandomInviteCode());
+        }
+
         event = eventRepository.save(event);
-        EventDTO result = eventMapper.eventToEventDTO(event);
         eventSearchRepository.save(event);
-        return result;
+
+        return eventMapper.eventToEventDTO(event);
     }
 
     /**
@@ -101,6 +115,16 @@ public class EventServiceImpl implements EventService{
     }
 
     /**
+     * Get one event by invite code
+     * @param inviteCode
+     * @return
+     */
+    public Optional<EventDTO> findOneByInviteCode(String inviteCode) {
+        return eventRepository.findOneWithEagerRelations(inviteCode)
+            .map(eventMapper::eventToEventDTO);
+    }
+
+    /**
      *  Delete the  event by id.
      *
      *  @param id the id of the entity
@@ -120,7 +144,13 @@ public class EventServiceImpl implements EventService{
     @Transactional(readOnly = true)
     public Page<EventDTO> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Events for query {}", query);
-        Page<Event> result = eventSearchRepository.search(queryStringQuery(query), pageable);
+        BoolQueryBuilder queryBuilder = boolQuery()
+            .mustNot(termQuery("privateEvent", true))
+            .must(queryStringQuery(query));
+        Page<Event> result = eventSearchRepository.search(new NativeSearchQueryBuilder()
+            .withPageable(pageable)
+            .withQuery(queryBuilder)
+            .build());
         return result.map(event -> eventMapper.eventToEventDTO(event));
     }
 
@@ -148,6 +178,7 @@ public class EventServiceImpl implements EventService{
             query, lat, lon, distance, eventCategoryIds);
 
         BoolQueryBuilder queryBuilder = boolQuery()
+            .mustNot(termQuery("privateEvent", true))
             .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
             .filter(termsQuery("eventCategory.id", eventCategoryIds))
             .filter(nestedQuery("locations", geoDistanceQuery("locations.geoPoint")

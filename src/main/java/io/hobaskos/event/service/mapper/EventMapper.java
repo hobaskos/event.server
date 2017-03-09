@@ -37,6 +37,7 @@ public abstract class EventMapper {
     public abstract List<Event> eventDTOsToEvents(List<EventDTO> eventDTOs);
 
     public EventAttendingType attendingsToMyAttendance(Set<EventUserAttending> attendings) {
+        if (attendings == null) return null;
         User user = userService.getUserWithAuthorities();
         return attendings.stream().filter(eventUserAttending ->
             eventUserAttending.getUser().equals(user)).findFirst()
@@ -45,6 +46,7 @@ public abstract class EventMapper {
     }
 
     public int attendingsToAttendanceCount(Set<EventUserAttending> attendings) {
+        if (attendings == null) return 0;
         return attendings.size();
     }
 }

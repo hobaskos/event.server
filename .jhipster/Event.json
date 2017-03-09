@@ -66,6 +66,21 @@
         {
             "fieldName": "toDate",
             "fieldType": "ZonedDateTime"
+        },
+        {
+            "fieldName": "privateEvent",
+            "fieldType": "Boolean",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "invitationCode",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "64"
         }
     ],
     "changelogDate": "20170123132303",
