@@ -51,6 +51,14 @@ public class Event implements Serializable {
     @Column(name = "to_date")
     private ZonedDateTime toDate;
 
+    @NotNull
+    @Column(name = "private_event", nullable = false)
+    private Boolean privateEvent;
+
+    @Size(max = 64)
+    @Column(name = "invitation_code", length = 64)
+    private String invitationCode;
+
     @ManyToOne
     @NotNull
     private User owner;
@@ -149,6 +157,32 @@ public class Event implements Serializable {
 
     public void setToDate(ZonedDateTime toDate) {
         this.toDate = toDate;
+    }
+
+    public Boolean isPrivateEvent() {
+        return privateEvent;
+    }
+
+    public Event privateEvent(Boolean privateEvent) {
+        this.privateEvent = privateEvent;
+        return this;
+    }
+
+    public void setPrivateEvent(Boolean privateEvent) {
+        this.privateEvent = privateEvent;
+    }
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
+    public Event invitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+        return this;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
     }
 
     public User getOwner() {
@@ -283,6 +317,8 @@ public class Event implements Serializable {
             ", imageUrl='" + imageUrl + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
+            ", privateEvent='" + privateEvent + "'" +
+            ", invitationCode='" + invitationCode + "'" +
             '}';
     }
 }

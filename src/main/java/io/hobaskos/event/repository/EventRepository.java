@@ -28,7 +28,9 @@ public interface EventRepository extends JpaRepository<Event,Long> {
     Optional<Event> findOneById(Long id);
 
     @Query("select event from Event event " +
-        "left join fetch event.attendings left join fetch event.locations " +
+        "left join fetch event.attendings " +
+        "left join fetch event.locations " +
+        "left join fetch event.polls " +
         "where event.id = ?1")
     Event findOneWithEagerRelations(Long id);
 }

@@ -6,6 +6,7 @@ import io.hobaskos.event.domain.EventUserAttending;
 import io.hobaskos.event.repository.EventCategoryRepository;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
+import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.service.dto.UserDTO;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
@@ -22,6 +23,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -110,6 +112,7 @@ public class EventResource {
      */
     @GetMapping("/events")
     @Timed
+    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<List<EventDTO>> getAllEvents(@ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of Events");

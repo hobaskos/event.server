@@ -55,10 +55,17 @@ public class EventServiceImpl implements EventService{
         log.debug("Request to save Event : {}", eventDTO);
         Event event = eventMapper.eventDTOToEvent(eventDTO);
         event.setOwner(userService.getUserWithAuthorities());
+
+        if (event.getId() != null) { // done to keep elastic happy...
+            Event originEvent = eventRepository.findOneWithEagerRelations(event.getId());
+            event.setAttendings(originEvent.getAttendings());
+            event.setPolls(originEvent.getPolls());
+            event.setLocations(originEvent.getLocations());
+        }
         event = eventRepository.save(event);
-        EventDTO result = eventMapper.eventToEventDTO(event);
         eventSearchRepository.save(event);
-        return result;
+
+        return eventMapper.eventToEventDTO(event);
     }
 
     /**
@@ -120,7 +127,13 @@ public class EventServiceImpl implements EventService{
     @Transactional(readOnly = true)
     public Page<EventDTO> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Events for query {}", query);
-        Page<Event> result = eventSearchRepository.search(queryStringQuery(query), pageable);
+        BoolQueryBuilder queryBuilder = boolQuery()
+            .mustNot(termQuery("privateEvent", true))
+            .must(queryStringQuery(query));
+        Page<Event> result = eventSearchRepository.search(new NativeSearchQueryBuilder()
+            .withPageable(pageable)
+            .withQuery(queryBuilder)
+            .build());
         return result.map(event -> eventMapper.eventToEventDTO(event));
     }
 
@@ -148,6 +161,7 @@ public class EventServiceImpl implements EventService{
             query, lat, lon, distance, eventCategoryIds);
 
         BoolQueryBuilder queryBuilder = boolQuery()
+            .mustNot(termQuery("privateEvent", true))
             .must(rangeQuery("fromDate").gte(fromDate).queryName("toDate").lte(toDate))
             .filter(termsQuery("eventCategory.id", eventCategoryIds))
             .filter(nestedQuery("locations", geoDistanceQuery("locations.geoPoint")

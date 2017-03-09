@@ -53,6 +53,18 @@
 
         </div>
         <div class="form-group">
+            <label class="control-label" data-translate="backendApp.event.privateEvent" for="field_privateEvent">Private Event</label>
+            <input type="checkbox" class="form-control" name="privateEvent" id="field_privateEvent"
+                   ng-model="vm.event.privateEvent"
+            />
+            <div ng-show="editForm.privateEvent.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.privateEvent.$error.required" data-translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
             <label data-translate="backendApp.event.eventCategory" for="field_eventCategory">Event Category</label>
             <select class="form-control" id="field_eventCategory" name="eventCategory" ng-model="vm.event.eventCategory" ng-options="eventCategory as eventCategory.title for eventCategory in vm.eventcategories" required>
                 <option value=""></option>
