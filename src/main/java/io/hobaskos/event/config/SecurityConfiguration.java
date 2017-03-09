@@ -89,8 +89,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/account/reset_password/init").permitAll()
             .antMatchers("/api/account/reset_password/finish").permitAll()
             .antMatchers("/api/profile-info").permitAll()
-            .antMatchers("/api/events").permitAll()
-            .antMatchers("/api/events/**").permitAll()
+
+            .antMatchers(HttpMethod.GET,"/api/events").permitAll()
+            .antMatchers(HttpMethod.GET,"/api/events/**").permitAll()
+            .antMatchers(HttpMethod.GET,"/api/_search/events-nearby").permitAll()
+            .antMatchers(HttpMethod.GET,"/api/_search/events").permitAll()
+
+            .antMatchers(HttpMethod.GET,"/api/event-categories").permitAll()
+            .antMatchers(HttpMethod.GET,"/api/event-categories/**").permitAll()
+
             .antMatchers("/api/**").authenticated()
             .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/websocket/**").permitAll()

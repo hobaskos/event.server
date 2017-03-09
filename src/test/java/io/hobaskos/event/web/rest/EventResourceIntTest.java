@@ -485,7 +485,6 @@ public class EventResourceIntTest {
         LocationDTO locationDTO = new LocationDTO();
         locationDTO.setName(DEFAULT_LOCATION_NAME);
         locationDTO.setDescription(DEFAULT_LOCATION_DESCRIPTION);
-        locationDTO.setVector(1);
         locationDTO.setGeoPoint(new GeoPoint(DEFAULT_LOCATION_LAT, DEFAULT_LOCATION_LON));
         locationDTO.setEventId(event.getId());
         locationDTO.setFromDate(ZonedDateTime.now().plusDays(DEFAULT_LOCATION_FROM_DATE_DAYS));
