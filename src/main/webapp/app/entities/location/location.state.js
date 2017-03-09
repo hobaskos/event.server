@@ -128,7 +128,6 @@
                                 description: null,
                                 lat: null,
                                 lon: null,
-                                vector: null,
                                 fromDate: null,
                                 toDate: null,
                                 id: null

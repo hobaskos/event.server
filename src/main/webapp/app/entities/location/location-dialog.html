@@ -86,22 +86,6 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label" data-translate="backendApp.location.vector" for="field_vector">Vector</label>
-            <input type="number" class="form-control" name="vector" id="field_vector"
-                    ng-model="vm.location.vector"
-                    required />
-            <div ng-show="editForm.vector.$invalid">
-                <p class="help-block"
-                    ng-show="editForm.vector.$error.required" data-translate="entity.validation.required">
-                    This field is required.
-                </p>
-                <p class="help-block"
-                    ng-show="editForm.vector.$error.number" data-translate="entity.validation.number">
-                    This field should be a number.
-                </p>
-            </div>
-        </div>
-        <div class="form-group">
             <label class="control-label" data-translate="backendApp.location.fromDate" for="field_fromDate">From Date</label>
                 <div class="input-group">
                     <input id="field_fromDate" type="text" class="form-control" name="fromDate" datetime-picker="{{dateformat}}" ng-model="vm.location.fromDate" is-open="vm.datePickerOpenStatus.fromDate"

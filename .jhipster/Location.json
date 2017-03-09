@@ -51,13 +51,6 @@
             "fieldValidateRulesMax": "180"
         },
         {
-            "fieldName": "vector",
-            "fieldType": "Integer",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
             "fieldName": "fromDate",
             "fieldType": "ZonedDateTime",
             "fieldValidateRules": [
