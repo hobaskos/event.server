@@ -126,7 +126,7 @@ if (project.hasProperty('shell')) {
 }
 
 group = 'io.hobaskos.event'
-version = '0.0.9-SNAPSHOT'
+version = '0.0.10-SNAPSHOT'
 
 description = ''
 
