@@ -49,8 +49,7 @@ def create_location_payload(event, index, month, day, start_hour, end_hour):
         "geoPoint": {
                    "lat": random.uniform(59.75, 59.95),
                    "lon": random.uniform(10.55, 10.75)
-        },
-        "vector": index
+        }
     }
 
 def create_locations(event):

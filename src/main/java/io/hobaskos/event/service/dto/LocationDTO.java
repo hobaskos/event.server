@@ -25,9 +25,6 @@ public class LocationDTO implements Serializable {
     private GeoPoint geoPoint;
 
     @NotNull
-    private Integer vector;
-
-    @NotNull
     private ZonedDateTime fromDate;
 
     @NotNull
@@ -66,13 +63,6 @@ public class LocationDTO implements Serializable {
         this.geoPoint = geoPoint;
     }
 
-    public Integer getVector() {
-        return vector;
-    }
-
-    public void setVector(Integer vector) {
-        this.vector = vector;
-    }
     public ZonedDateTime getFromDate() {
         return fromDate;
     }
@@ -123,7 +113,6 @@ public class LocationDTO implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +
-            ", vector='" + vector + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
             '}';
