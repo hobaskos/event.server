@@ -6,8 +6,10 @@ import io.hobaskos.event.domain.EventUserAttending;
 import io.hobaskos.event.repository.EventCategoryRepository;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
+import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.service.dto.UserDTO;
+import io.hobaskos.event.service.mapper.EventMapper;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
@@ -22,6 +24,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -110,6 +113,7 @@ public class EventResource {
      */
     @GetMapping("/events")
     @Timed
+    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<List<EventDTO>> getAllEvents(@ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of Events");
@@ -154,6 +158,20 @@ public class EventResource {
             .map(result -> new ResponseEntity<>(
                 result,
                 HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET /event-by-invite/:code : get a event by invite code
+     * @param code
+     * @return
+     */
+    @GetMapping("/event-by-invite/{code}")
+    @Timed
+    public ResponseEntity<EventDTO> getEventByInviteCode(@PathVariable String code) {
+        log.debug("REST request to get a Event by invite code: {}", code);
+        return eventService.findOneByInviteCode(code)
+            .map(eventDTO -> new ResponseEntity<>(eventDTO, HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
