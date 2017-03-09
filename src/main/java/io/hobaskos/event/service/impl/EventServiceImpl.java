@@ -8,6 +8,7 @@ import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
+import io.hobaskos.event.service.util.RandomUtil;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -62,6 +64,11 @@ public class EventServiceImpl implements EventService{
             event.setPolls(originEvent.getPolls());
             event.setLocations(originEvent.getLocations());
         }
+
+        if (event.isPrivateEvent() && event.getInvitationCode() == null){
+            event.setInvitationCode(RandomUtil.generateRandomInviteCode());
+        }
+
         event = eventRepository.save(event);
         eventSearchRepository.save(event);
 
@@ -105,6 +112,16 @@ public class EventServiceImpl implements EventService{
         Event event = eventRepository.findOne(id);
         EventDTO eventDTO = eventMapper.eventToEventDTO(event);
         return eventDTO;
+    }
+
+    /**
+     * Get one event by invite code
+     * @param inviteCode
+     * @return
+     */
+    public Optional<EventDTO> findOneByInviteCode(String inviteCode) {
+        return eventRepository.findOneWithEagerRelations(inviteCode)
+            .map(eventMapper::eventToEventDTO);
     }
 
     /**

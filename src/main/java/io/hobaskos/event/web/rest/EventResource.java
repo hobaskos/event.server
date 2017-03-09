@@ -9,6 +9,7 @@ import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.service.dto.UserDTO;
+import io.hobaskos.event.service.mapper.EventMapper;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
@@ -157,6 +158,20 @@ public class EventResource {
             .map(result -> new ResponseEntity<>(
                 result,
                 HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET /event-by-invite/:code : get a event by invite code
+     * @param code
+     * @return
+     */
+    @GetMapping("/event-by-invite/{code}")
+    @Timed
+    public ResponseEntity<EventDTO> getEventByInviteCode(@PathVariable String code) {
+        log.debug("REST request to get a Event by invite code: {}", code);
+        return eventService.findOneByInviteCode(code)
+            .map(eventDTO -> new ResponseEntity<>(eventDTO, HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
