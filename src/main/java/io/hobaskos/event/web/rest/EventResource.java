@@ -247,7 +247,7 @@ public class EventResource {
     }
 
     private List<Long> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
-        if (eventCategories == null || eventCategories.size() == 0) {
+        if (eventCategories == null || eventCategories.size() == 0 || eventCategories.contains(0L)) {
             return eventCategoryRepository.findAll().stream()
                 .map(EventCategory::getId).collect(Collectors.toList());
         }
