@@ -60,9 +60,6 @@ public class LocationResourceIntTest {
     private static final Double DEFAULT_LON = -180D;
     private static final Double UPDATED_LON = -179D;
 
-    private static final Integer DEFAULT_VECTOR = 1;
-    private static final Integer UPDATED_VECTOR = 2;
-
     private static final ZonedDateTime DEFAULT_FROM_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_FROM_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
 
@@ -115,7 +112,6 @@ public class LocationResourceIntTest {
                 .name(DEFAULT_NAME)
                 .description(DEFAULT_DESCRIPTION)
                 .geoPoint(new GeoPoint(DEFAULT_LAT, DEFAULT_LON))
-                .vector(DEFAULT_VECTOR)
                 .fromDate(DEFAULT_FROM_DATE)
                 .toDate(DEFAULT_TO_DATE);
         // Add required entity
@@ -153,7 +149,6 @@ public class LocationResourceIntTest {
         assertThat(testLocation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testLocation.getGeoPoint().getLat()).isEqualTo(DEFAULT_LAT);
         assertThat(testLocation.getGeoPoint().getLon()).isEqualTo(DEFAULT_LON);
-        assertThat(testLocation.getVector()).isEqualTo(DEFAULT_VECTOR);
         assertThat(testLocation.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
         assertThat(testLocation.getToDate()).isEqualTo(DEFAULT_TO_DATE);
 
@@ -163,7 +158,6 @@ public class LocationResourceIntTest {
         assertThat(locationEs.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(locationEs.getGeoPoint().getLat()).isEqualTo(DEFAULT_LAT);
         assertThat(locationEs.getGeoPoint().getLon()).isEqualTo(DEFAULT_LON);
-        assertThat(locationEs.getVector()).isEqualTo(DEFAULT_VECTOR);
         assertThat(locationEs.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
         assertThat(locationEs.getToDate()).isEqualTo(DEFAULT_TO_DATE);
 
@@ -196,25 +190,6 @@ public class LocationResourceIntTest {
         int databaseSizeBeforeTest = locationRepository.findAll().size();
         // set the field null
         location.geoPoint(null);
-
-        // Create the Location, which fails.
-        LocationDTO locationDTO = locationMapper.locationToLocationDTO(location);
-
-        restLocationMockMvc.perform(post("/api/locations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(locationDTO)))
-            .andExpect(status().isBadRequest());
-
-        List<Location> locationList = locationRepository.findAll();
-        assertThat(locationList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkVectorIsRequired() throws Exception {
-        int databaseSizeBeforeTest = locationRepository.findAll().size();
-        // set the field null
-        location.setVector(null);
 
         // Create the Location, which fails.
         LocationDTO locationDTO = locationMapper.locationToLocationDTO(location);
@@ -281,7 +256,6 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].geoPoint.lat").value(hasItem(DEFAULT_LAT.doubleValue())))
             .andExpect(jsonPath("$.[*].geoPoint.lon").value(hasItem(DEFAULT_LON.doubleValue())))
-            .andExpect(jsonPath("$.[*].vector").value(hasItem(DEFAULT_VECTOR)))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
             .andExpect(jsonPath("$.[*].toDate").value(hasItem(sameInstant(DEFAULT_TO_DATE))));
     }
@@ -301,7 +275,6 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.geoPoint.lat").value(DEFAULT_LAT.doubleValue()))
             .andExpect(jsonPath("$.geoPoint.lon").value(DEFAULT_LON.doubleValue()))
-            .andExpect(jsonPath("$.vector").value(DEFAULT_VECTOR))
             .andExpect(jsonPath("$.fromDate").value(sameInstant(DEFAULT_FROM_DATE)))
             .andExpect(jsonPath("$.toDate").value(sameInstant(DEFAULT_TO_DATE)));
     }
@@ -328,7 +301,6 @@ public class LocationResourceIntTest {
                 .name(UPDATED_NAME)
                 .description(UPDATED_DESCRIPTION)
                 .geoPoint(new GeoPoint(UPDATED_LAT, UPDATED_LON))
-                .vector(UPDATED_VECTOR)
                 .fromDate(UPDATED_FROM_DATE)
                 .toDate(UPDATED_TO_DATE);
         LocationDTO locationDTO = locationMapper.locationToLocationDTO(updatedLocation);
@@ -346,7 +318,6 @@ public class LocationResourceIntTest {
         assertThat(testLocation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testLocation.getGeoPoint().getLat()).isEqualTo(UPDATED_LAT);
         assertThat(testLocation.getGeoPoint().getLon()).isEqualTo(UPDATED_LON);
-        assertThat(testLocation.getVector()).isEqualTo(UPDATED_VECTOR);
         assertThat(testLocation.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
         assertThat(testLocation.getToDate()).isEqualTo(UPDATED_TO_DATE);
 
@@ -356,7 +327,6 @@ public class LocationResourceIntTest {
         assertThat(locationEs.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(locationEs.getGeoPoint().getLat()).isEqualTo(UPDATED_LAT);
         assertThat(locationEs.getGeoPoint().getLon()).isEqualTo(UPDATED_LON);
-        assertThat(locationEs.getVector()).isEqualTo(UPDATED_VECTOR);
         assertThat(locationEs.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
         assertThat(locationEs.getToDate()).isEqualTo(UPDATED_TO_DATE);
 
@@ -419,7 +389,6 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].geoPoint.lat").value(hasItem(DEFAULT_LAT.doubleValue())))
             .andExpect(jsonPath("$.[*].geoPoint.lon").value(hasItem(DEFAULT_LON.doubleValue())))
-            .andExpect(jsonPath("$.[*].vector").value(hasItem(DEFAULT_VECTOR)))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
             .andExpect(jsonPath("$.[*].toDate").value(hasItem(sameInstant(DEFAULT_TO_DATE))));
     }

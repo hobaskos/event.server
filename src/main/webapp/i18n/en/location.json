@@ -20,7 +20,6 @@
             "description": "Description",
             "lat": "Lat",
             "lon": "Lon",
-            "vector": "Vector",
             "fromDate": "From Date",
             "toDate": "To Date",
             "event": "Event"
