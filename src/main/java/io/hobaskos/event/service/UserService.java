@@ -143,7 +143,12 @@ public class UserService {
             );
             user.setAuthorities(authorities);
         }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        String encryptedPassword;
+        if (managedUserVM.getPassword() == null) {
+            encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        } else  {
+            encryptedPassword = passwordEncoder.encode(managedUserVM.getPassword());
+        }
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
