@@ -19,7 +19,6 @@ word_file = "/usr/share/dict/cracklib-small"
 words = open(word_file).read().splitlines()
 fake = Faker('no_NO')
 
-
 def random_event_title():
     return "%s %s" % \
             (random.choice(words).capitalize(), random.choice(words))
@@ -49,8 +48,7 @@ def create_location_payload(event, index, lat_tuple, lon_tuple, month, day, star
         "geoPoint": {
                    "lat": random.uniform(lat_tuple[0], lat_tuple[1]),
                    "lon": random.uniform(lon_tuple[0], lon_tuple[1])
-        },
-        "vector": index
+        }
     }
 
 def create_locations(event):
@@ -59,8 +57,8 @@ def create_locations(event):
     start_hour = 10
     end_hour = 11
     locations = []
-    rand_lat = random.uniform(-89, 89)
-    rand_lon = random.uniform(-179, 179)
+    rand_lat = random.uniform(59.30, 60.46)
+    rand_lon = random.uniform(9.56, 11.30)
     lat_tuple = (rand_lat, rand_lat + 0.05)
     lon_tuple = (rand_lon, rand_lon + 0.05)
     for i in range(0, random.randrange(1, 6)):
