@@ -7,6 +7,7 @@ ADD *.war /app.war
 
 RUN sh -c 'touch /app.war'
 VOLUME /tmp
+VOLUME /upload-dir
 EXPOSE 8080
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \
     sleep ${JHIPSTER_SLEEP} && \

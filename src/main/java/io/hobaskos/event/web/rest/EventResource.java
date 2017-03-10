@@ -2,8 +2,14 @@ package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.hobaskos.event.domain.EventCategory;
+import io.hobaskos.event.domain.EventUserAttending;
 import io.hobaskos.event.repository.EventCategoryRepository;
+import io.hobaskos.event.repository.EventRepository;
+import io.hobaskos.event.repository.EventUserAttendingRepository;
+import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.service.EventService;
+import io.hobaskos.event.service.dto.UserDTO;
+import io.hobaskos.event.service.mapper.EventMapper;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventDTO;
@@ -14,17 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -51,6 +55,12 @@ public class EventResource {
 
     @Inject
     private EventCategoryRepository eventCategoryRepository;
+
+    @Inject
+    private EventRepository eventRepository;
+
+    @Inject
+    private EventUserAttendingRepository eventUserAttendingRepository;
 
     /**
      * POST  /events : Create a new event.
@@ -103,6 +113,7 @@ public class EventResource {
      */
     @GetMapping("/events")
     @Timed
+    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<List<EventDTO>> getAllEvents(@ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of Events");
@@ -147,6 +158,43 @@ public class EventResource {
             .map(result -> new ResponseEntity<>(
                 result,
                 HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET /event-by-invite/:code : get a event by invite code
+     * @param code
+     * @return
+     */
+    @GetMapping("/event-by-invite/{code}")
+    @Timed
+    public ResponseEntity<EventDTO> getEventByInviteCode(@PathVariable String code) {
+        log.debug("REST request to get a Event by invite code: {}", code);
+        return eventService.findOneByInviteCode(code)
+            .map(eventDTO -> new ResponseEntity<>(eventDTO, HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /events/:id/attending : get the attending users of an event
+     *
+     * @param id the id of the eventDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the eventDTO, or with status 404 (Not Found)
+     */
+    @GetMapping("/events/{id}/attending")
+    @Timed
+    public ResponseEntity<List<UserDTO>> getUsersForEvent(@PathVariable Long id, @ApiParam Pageable pageable) {
+        log.debug("REST request to get users for event: {}", id);
+        return eventRepository.findOneById(id)
+            .map(event -> {
+                try {
+                    Page<EventUserAttending> page = eventUserAttendingRepository.findByEvent(event, pageable);
+                    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/event/" + id + "/attending");
+                    return new ResponseEntity<>(page.getContent().stream().map(
+                        eventUserAttending -> new UserDTO(eventUserAttending.getUser())
+                    ).collect(Collectors.toList()), headers, HttpStatus.OK);
+                } catch (URISyntaxException use) { throw Exceptions.propagate(use); }
+            })
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -217,7 +265,7 @@ public class EventResource {
     }
 
     private List<Long> getEventCategoriesFromIntegerSet(Set<Long> eventCategories) {
-        if (eventCategories == null || eventCategories.size() == 0) {
+        if (eventCategories == null || eventCategories.size() == 0 || eventCategories.contains(0L)) {
             return eventCategoryRepository.findAll().stream()
                 .map(EventCategory::getId).collect(Collectors.toList());
         }

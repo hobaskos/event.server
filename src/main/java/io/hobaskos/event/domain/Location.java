@@ -43,10 +43,6 @@ public class Location implements Serializable {
     private GeoPoint geoPoint;
 
     @NotNull
-    @Column(name = "vector", nullable = false)
-    private Integer vector;
-
-    @NotNull
     @Column(name = "from_date", nullable = false)
     private ZonedDateTime fromDate;
 
@@ -104,19 +100,6 @@ public class Location implements Serializable {
     public Location geoPoint(GeoPoint geoPoint) {
         this.geoPoint = geoPoint;
         return this;
-    }
-
-    public Integer getVector() {
-        return vector;
-    }
-
-    public Location vector(Integer vector) {
-        this.vector = vector;
-        return this;
-    }
-
-    public void setVector(Integer vector) {
-        this.vector = vector;
     }
 
     public ZonedDateTime getFromDate() {
@@ -184,7 +167,6 @@ public class Location implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +
-            ", vector='" + vector + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
             '}';

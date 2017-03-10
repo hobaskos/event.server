@@ -46,8 +46,8 @@ def create_location_payload(event, index, lat_tuple, lon_tuple, month, day, star
         "toDate": "2017-%02d-%02dT%02d:00:00.000Z" % (month, day, end_hour),
         "eventId": event.json().get("id"),
         "geoPoint": {
-                   "lat": random.uniform(lat_tuple[0], lat_tuple[1]),
-                   "lon": random.uniform(lon_tuple[0], lon_tuple[1])
+           "lat": random.uniform(lat_tuple[0], lat_tuple[1]),
+           "lon": random.uniform(lon_tuple[0], lon_tuple[1])
         }
     }
 

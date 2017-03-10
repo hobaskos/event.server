@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GeneratorType;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -51,6 +53,14 @@ public class Event implements Serializable {
     @Column(name = "to_date")
     private ZonedDateTime toDate;
 
+    @NotNull
+    @Column(name = "private_event", nullable = false)
+    private Boolean privateEvent;
+
+    @Size(max = 64)
+    @Column(name = "invitation_code", length = 64)
+    private String invitationCode;
+
     @ManyToOne
     @NotNull
     private User owner;
@@ -60,6 +70,19 @@ public class Event implements Serializable {
     @JsonManagedReference
     @Field(type = FieldType.Nested)
     private Set<Location> locations = new HashSet<>();
+
+    @OneToMany(mappedBy = "event")
+    @Cache(usage = CacheConcurrencyStrategy.NONE)
+    @JsonManagedReference
+    @JsonIgnore
+    @Field(type = FieldType.Nested)
+    private Set<EventUserAttending> attendings = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "event")
+    @JsonManagedReference
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<EventPoll> polls = new HashSet<>();
 
     @ManyToOne
     @NotNull
@@ -138,6 +161,32 @@ public class Event implements Serializable {
         this.toDate = toDate;
     }
 
+    public Boolean isPrivateEvent() {
+        return privateEvent;
+    }
+
+    public Event privateEvent(Boolean privateEvent) {
+        this.privateEvent = privateEvent;
+        return this;
+    }
+
+    public void setPrivateEvent(Boolean privateEvent) {
+        this.privateEvent = privateEvent;
+    }
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
+    public Event invitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+        return this;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public User getOwner() {
         return owner;
     }
@@ -183,6 +232,51 @@ public class Event implements Serializable {
         this.locations = locations;
     }
 
+    public Set<EventUserAttending> getAttendings() {
+        return attendings;
+    }
+
+    public void setAttendings(Set<EventUserAttending> attendings) {
+        this.attendings = attendings;
+    }
+
+    public Event addAttending(EventUserAttending attendance) {
+        attendings.add(attendance);
+        attendance.setEvent(this);
+        return this;
+    }
+
+    public Event removeAttending(EventUserAttending attendance) {
+        attendings.remove(attendance);
+        attendance.setEvent(null);
+        return this;
+    }
+
+    public Set<EventPoll> getPolls() {
+        return polls;
+    }
+
+    public Event polls(Set<EventPoll> eventPolls) {
+        this.polls = eventPolls;
+        return this;
+    }
+
+    public Event addPolls(EventPoll eventPoll) {
+        polls.add(eventPoll);
+        eventPoll.setEvent(this);
+        return this;
+    }
+
+    public Event removePolls(EventPoll eventPoll) {
+        polls.remove(eventPoll);
+        eventPoll.setEvent(null);
+        return this;
+    }
+
+    public void setPolls(Set<EventPoll> eventPolls) {
+        this.polls = eventPolls;
+    }
+
     public EventCategory getEventCategory() {
         return eventCategory;
     }
@@ -225,6 +319,8 @@ public class Event implements Serializable {
             ", imageUrl='" + imageUrl + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
+            ", privateEvent='" + privateEvent + "'" +
+            ", invitationCode='" + invitationCode + "'" +
             '}';
     }
 }

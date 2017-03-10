@@ -126,7 +126,7 @@ if (project.hasProperty('shell')) {
 }
 
 group = 'io.hobaskos.event'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.10-SNAPSHOT'
 
 description = ''
 
@@ -264,6 +264,12 @@ task wrapper(type: Wrapper) {
 }
 
 task stage(dependsOn: 'bootRepackage') {
+}
+
+task('showVersion') {
+    doLast {
+        println version
+    }
 }
 
 compileJava.dependsOn processResources

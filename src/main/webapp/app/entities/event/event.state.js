@@ -127,6 +127,10 @@
                                 title: null,
                                 description: null,
                                 imageUrl: null,
+                                fromDate: null,
+                                toDate: null,
+                                privateEvent: false,
+                                invitationCode: null,
                                 id: null
                             };
                         }

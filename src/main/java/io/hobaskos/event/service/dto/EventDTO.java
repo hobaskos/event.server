@@ -1,5 +1,7 @@
 package io.hobaskos.event.service.dto;
 
+import io.hobaskos.event.domain.enumeration.EventAttendingType;
+
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -28,11 +30,21 @@ public class EventDTO implements Serializable {
 
     private ZonedDateTime toDate;
 
-    private Long ownerId;
+    @NotNull
+    private Boolean privateEvent;
+
+    @Size(max = 64)
+    private String invitationCode;
+
+    private String ownerLogin;
 
     private Set<LocationDTO> locations;
 
     private EventCategoryDTO eventCategory;
+
+    private EventAttendingType myAttendance;
+
+    private int attendanceCount;
 
     public Long getId() {
         return id;
@@ -69,6 +81,23 @@ public class EventDTO implements Serializable {
     public void setToDate(ZonedDateTime toDate) {
         this.toDate = toDate;
     }
+
+    public Boolean getPrivateEvent() {
+        return privateEvent;
+    }
+
+    public void setPrivateEvent(Boolean privateEvent) {
+        this.privateEvent = privateEvent;
+    }
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -77,12 +106,12 @@ public class EventDTO implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public String getOwnerLogin() {
+        return ownerLogin;
     }
 
-    public void setOwnerId(Long userId) {
-        this.ownerId = userId;
+    public void setOwnerLogin(String ownerLogin) {
+        this.ownerLogin = ownerLogin;
     }
 
     public Set<LocationDTO> getLocations() {
@@ -99,6 +128,22 @@ public class EventDTO implements Serializable {
 
     public void setEventCategory(EventCategoryDTO eventCategory) {
         this.eventCategory = eventCategory;
+    }
+
+    public EventAttendingType getMyAttendance() {
+        return myAttendance;
+    }
+
+    public void setMyAttendance(EventAttendingType myAttendance) {
+        this.myAttendance = myAttendance;
+    }
+
+    public int getAttendanceCount() {
+        return attendanceCount;
+    }
+
+    public void setAttendanceCount(int attendanceCount) {
+        this.attendanceCount = attendanceCount;
     }
 
     @Override
@@ -131,6 +176,8 @@ public class EventDTO implements Serializable {
             ", imageUrl='" + imageUrl + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
+            ", privateEvent='" + privateEvent + "'" +
+            ", invitationCode='" + invitationCode + "'" +
             '}';
     }
 }

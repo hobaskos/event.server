@@ -105,6 +105,14 @@ Main page styles
     background-size: contain;
 }
 
+.plod {
+    display: inline-block;
+    width: 327px;
+    height: 400px;
+    background: url("../images/plod-blue.png") no-repeat center top;
+    background-size: contain;
+}
+
 /* wait autoprefixer update to allow simple generation of high pixel density media query */
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),
@@ -371,6 +379,13 @@ Social Buttons
     background-color: #2795e9;
     border-color: rgba(0, 0, 0, 0.2);
     color: #fff;
+}
+
+/* ==========================================================================
+Fix error field display
+========================================================================== */
+.form-group .help-block {
+    position: static;
 }
 
 /* jhipster-needle-css-add-main JHipster will add new css style */
