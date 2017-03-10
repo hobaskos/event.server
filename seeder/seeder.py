@@ -4,20 +4,38 @@
 #
 
 import requests
-import json
-import uuid
-import base64
 import random
 from faker import Faker
 
 
 base_url = input("=> Enter host: ")
-user_name = input("=> Enter username: ")
-user_pass = input("=> Enter password: ")
+user_name = input("=> Enter admin username: ")
+user_pass = input("=> Enter admin password: ")
 
 word_file = "/usr/share/dict/cracklib-small"
 words = open(word_file).read().splitlines()
 fake = Faker('no_NO')
+
+event_categories = ["Music", "Pub Crawl", "Business", "Family", "Sport",
+            "Seminars", "Team Building", "Health", "Fashion", "Religion"]
+event_count = 1000
+user_count = 5
+default_password = "password"
+user_emails = []
+
+def create_random_user():
+    email = fake.email()
+    return {
+        "activated": True,
+        "authorities": ["ROLE_USER"],
+        "email": email,
+        "login": email,
+        "firstName": fake.name().split(" ")[0],
+        "lastName": fake.name().split(" ")[1],
+        "langKey": "en",
+        "password": default_password,
+        "profileImageUrl": "http://no-url.no"
+    }
 
 def random_event_title():
     return "%s %s" % \
@@ -80,13 +98,20 @@ jwt_header = {
     "Content-Type": "application/json"
 }
 
+print("# Generating users")
+for u in range(1, user_count):
+    generated_user = create_random_user()
+    user_emails.append(generated_user["email"])
+    user = requests.post(base_url + "/api/managed-users",
+                         headers=jwt_header,
+                         json=create_random_user())
+
 print("# Generating data")
-for cat in ["Music", "Pub Crawl", "Business", "Family", "Sport",
-            "Seminars", "Team Building", "Health", "Fashion", "Religion"]:
+for cat in event_categories:
     eventCategory = requests.post(base_url + "/api/event-categories",
                headers=jwt_header,
                json=create_category_payload(cat))
-    for ei in range(1,1000):
+    for ei in range(1, event_count):
         event = requests.post(base_url + "/api/events",
                     headers=jwt_header,
                     json=create_event_payload(eventCategory))
