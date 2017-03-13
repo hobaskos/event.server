@@ -168,6 +168,12 @@ public class AccountResource {
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
+    /**
+     * Get attending events for account
+     * @param pageable
+     * @return
+     * @throws URISyntaxException
+     */
     @GetMapping("/account/attending-events")
     @Timed
     public ResponseEntity<List<EventDTO>> getAttendingEvents(@ApiParam Pageable pageable)
