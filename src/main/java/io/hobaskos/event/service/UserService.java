@@ -13,6 +13,8 @@ import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.repository.search.UserSearchRepository;
 import io.hobaskos.event.security.AuthoritiesConstants;
 import io.hobaskos.event.security.SecurityUtils;
+import io.hobaskos.event.service.dto.UserDTO;
+import io.hobaskos.event.service.util.ContentTypeUtil;
 import io.hobaskos.event.service.util.RandomUtil;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
 import io.hobaskos.event.web.rest.vm.SocialAuthVM;
@@ -57,6 +59,9 @@ public class UserService {
 
     @Inject
     private SocialUserConnectionRepository socialUserConnectionRepository;
+
+    @Inject
+    private StorageService storageService;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -175,13 +180,20 @@ public class UserService {
         return socialUserConnectionRepository.findFirstByProviderIdAndProviderUserId(providerId, socialUserID);
     }
 
-    public void updateUser(String firstName, String lastName, String email, String profileImageUrl, String langKey) {
+    public void updateUser(UserDTO userDTO) {
         userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setProfileImageUrl(profileImageUrl);
-            user.setLangKey(langKey);
+            user.setFirstName(userDTO.getFirstName());
+            user.setLastName(userDTO.getLastName());
+            user.setEmail(userDTO.getEmail());
+            user.setProfileImageUrl(userDTO.getProfileImageUrl());
+            user.setLangKey(userDTO.getLangKey());
+
+            if (userDTO.getProfileImage() != null && userDTO.getProfileImageContentType() != null) {
+                String filename = storageService.store(userDTO.getProfileImage(),
+                    ContentTypeUtil.defineImageName(userDTO.getProfileImageContentType()));
+                user.setProfileImageUrl("/files/" + filename);
+            }
+
             userSearchRepository.save(user);
             log.debug("Changed Information for User: {}", user);
         });

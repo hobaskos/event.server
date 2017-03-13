@@ -7,6 +7,7 @@ import io.hobaskos.event.domain.User;
 
 import org.hibernate.validator.constraints.Email;
 
+import javax.persistence.Lob;
 import javax.validation.constraints.*;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +40,12 @@ public class UserDTO {
     private String langKey;
 
     private Set<String> authorities;
+
+    @Lob
+    @Size(max = 5000000)
+    private byte[] profileImage;
+
+    private String profileImageContentType;
 
     public UserDTO() {
     }
@@ -93,6 +100,14 @@ public class UserDTO {
 
     public Set<String> getAuthorities() {
         return authorities;
+    }
+
+    public byte[] getProfileImage() {
+        return profileImage;
+    }
+
+    public String getProfileImageContentType() {
+        return profileImageContentType;
     }
 
     @Override
