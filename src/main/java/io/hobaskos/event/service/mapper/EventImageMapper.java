@@ -12,6 +12,8 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {})
 public interface EventImageMapper {
 
+    @Mapping(target = "file", ignore = true)
+    @Mapping(target = "fileContentType", ignore = true)
     @Mapping(source = "poll.id", target = "pollId")
     EventImageDTO eventImageToEventImageDTO(EventImage eventImage);
 

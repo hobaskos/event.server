@@ -21,6 +21,8 @@ public abstract class EventMapper {
     @Inject
     private UserService userService;
 
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "imageContentType", ignore = true)
     @Mapping(source = "owner.login", target = "ownerLogin")
     @Mapping(source = "attendings", target = "myAttendance")
     @Mapping(source = "attendings", target = "attendanceCount")

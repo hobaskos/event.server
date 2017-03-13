@@ -12,6 +12,8 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {})
 public interface EventCategoryMapper {
 
+    @Mapping(target = "icon", ignore = true)
+    @Mapping(target = "iconContentType", ignore = true)
     EventCategoryDTO eventCategoryToEventCategoryDTO(EventCategory eventCategory);
 
     List<EventCategoryDTO> eventCategoriesToEventCategoryDTOs(List<EventCategory> eventCategories);
