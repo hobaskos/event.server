@@ -4,6 +4,7 @@ import io.hobaskos.event.domain.Event;
 
 import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.domain.Location;
+import io.hobaskos.event.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -20,6 +21,8 @@ public interface EventRepository extends JpaRepository<Event,Long> {
 
     @Query("select event from Event event where event.owner.login = ?#{principal.username}")
     List<Event> findByOwnerIsCurrentUser();
+
+    Page<Event> findByOwner(User owner, Pageable pageable);
 
     Page<Event> findByLocationsInAndEventCategoryIn(Set<Location> locations, Set<EventCategory> eventCategories, Pageable pageable);
 
