@@ -1,7 +1,7 @@
 package io.hobaskos.event.service.mapper;
 
 import io.hobaskos.event.domain.*;
-import io.hobaskos.event.domain.enumeration.EventAttendingType;
+import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 
@@ -9,8 +9,6 @@ import org.mapstruct.*;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Mapper for the entity Event and its DTO EventDTO.
@@ -21,11 +19,13 @@ public abstract class EventMapper {
     @Inject
     private UserService userService;
 
+    @Inject
+    private EventUserAttendingRepository eventUserAttendingRepository;
+
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "imageContentType", ignore = true)
+    @Mapping(target = "myAttendance", ignore = true)
     @Mapping(source = "owner.login", target = "ownerLogin")
-    @Mapping(source = "attendings", target = "myAttendance")
-    @Mapping(source = "attendings", target = "attendanceCount")
     public abstract EventDTO eventToEventDTO(Event event);
 
     public abstract List<EventDTO> eventsToEventDTOs(List<Event> events);
@@ -38,17 +38,11 @@ public abstract class EventMapper {
 
     public abstract List<Event> eventDTOsToEvents(List<EventDTO> eventDTOs);
 
-    public EventAttendingType attendingsToMyAttendance(Set<EventUserAttending> attendings) {
-        if (attendings == null) return null;
+    @AfterMapping
+    protected void sideLoadMetaData(Event event, @MappingTarget EventDTO result) {
         User user = userService.getUserWithAuthorities();
-        return attendings.stream().filter(eventUserAttending ->
-            eventUserAttending.getUser().equals(user)).findFirst()
-            .map(EventUserAttending::getType)
-            .orElse(null);
-    }
-
-    public int attendingsToAttendanceCount(Set<EventUserAttending> attendings) {
-        if (attendings == null) return 0;
-        return attendings.size();
+        if (user == null) return;
+        eventUserAttendingRepository.findOneByEventAndUser(event, user).ifPresent(eventUserAttending ->
+            result.setMyAttendance(eventUserAttending.getType()));
     }
 }

@@ -3,10 +3,12 @@ package io.hobaskos.event.web.rest;
 import com.codahale.metrics.annotation.Timed;
 
 import io.hobaskos.event.config.Constants;
+import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.EventUserAttending;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.UserConnection;
 import io.hobaskos.event.domain.enumeration.UserConnectionType;
+import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.SecurityUtils;
@@ -163,6 +165,12 @@ public class AccountResource {
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
+    /**
+     * Get attending events for account
+     * @param pageable
+     * @return
+     * @throws URISyntaxException
+     */
     @GetMapping("/account/attending-events")
     @Timed
     public ResponseEntity<List<EventDTO>> getAttendingEvents(@ApiParam Pageable pageable)
