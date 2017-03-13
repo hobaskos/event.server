@@ -76,6 +76,34 @@
                 This field is required.
             </p>
         </div>
+        <div class="form-group" ngf-drop ngf-change="vm.setImage($file, vm.event)" ngf-pattern="'image/*'">
+            <label class="control-label" data-translate="backendApp.event.image" for="field_image">Image</label>
+            <div>
+                <img data-ng-src="{{'data:' + vm.event.imageContentType + ';base64,' + vm.event.image}}" style="max-height: 100px;" ng-if="vm.event.image" alt="event image"/>
+                <div ng-if="vm.event.image" class="help-block clearfix">
+                    <span class="pull-left">{{vm.event.imageContentType}}, {{vm.byteSize(vm.event.image)}}</span>
+                    <button type="button" ng-click="vm.event.image=null;vm.event.imageContentType=null;"
+                            class="btn btn-default btn-xs pull-right">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+                <button type="button" ngf-select class="btn btn-default btn-block"
+                        ngf-change="vm.setImage($file, vm.event)" accept="image/*" data-translate="entity.action.addimage">
+                    Add image
+                </button>
+            </div>
+            <input type="hidden" class="form-control" name="image" id="field_image"
+                   ng-model="vm.event.image"
+                   maxbytes="5000000" />
+            <input type="hidden" class="form-control" name="imageContentType" id="field_imageContentType"
+                   ng-model="vm.event.imageContentType" />
+            <div ng-show="editForm.image.$invalid">
+                <p class="help-block"
+                   ng-show="editForm.image.$error.maxbytes" data-translate="entity.validation.maxbytes" translate-value-max="5000000">
+                    This field cannot be more than 5000000.
+                </p>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">

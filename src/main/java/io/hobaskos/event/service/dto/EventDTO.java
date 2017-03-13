@@ -2,6 +2,7 @@ package io.hobaskos.event.service.dto;
 
 import io.hobaskos.event.domain.enumeration.EventAttendingType;
 
+import javax.persistence.Lob;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -25,6 +26,12 @@ public class EventDTO implements Serializable {
 
     @Size(max = 512)
     private String imageUrl;
+
+    private String imageContentType;
+
+    @Size(max = 5000000)
+    @Lob
+    private byte[] image;
 
     private ZonedDateTime fromDate;
 
@@ -104,6 +111,22 @@ public class EventDTO implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getImageContentType() {
+        return imageContentType;
+    }
+
+    public void setImageContentType(String imageContentType) {
+        this.imageContentType = imageContentType;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 
     public String getOwnerLogin() {
