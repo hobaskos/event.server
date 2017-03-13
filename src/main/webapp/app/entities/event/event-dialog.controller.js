@@ -5,9 +5,9 @@
         .module('backendApp')
         .controller('EventDialogController', EventDialogController);
 
-    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event', 'User', 'Location', 'EventCategory'];
+    EventDialogController.$inject = ['$timeout', '$scope', '$stateParams', '$uibModalInstance', 'entity', 'Event', 'User', 'Location', 'EventCategory', 'DataUtils'];
 
-    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event, User, Location, EventCategory) {
+    function EventDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Event, User, Location, EventCategory, DataUtils) {
         var vm = this;
 
         vm.event = entity;
@@ -44,6 +44,19 @@
             vm.isSaving = false;
         }
 
+        vm.setImage = function ($file, event) {
+            if ($file && $file.$error === 'pattern') {
+                return;
+            }
+            if ($file) {
+                DataUtils.toBase64($file, function(base64Data) {
+                    $scope.$apply(function() {
+                        event.image = base64Data;
+                        event.imageContentType = $file.type;
+                    });
+                });
+            }
+        };
 
     }
 })();

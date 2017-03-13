@@ -5,9 +5,11 @@ import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.search.EventSearchRepository;
+import io.hobaskos.event.service.StorageService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
+import io.hobaskos.event.service.util.ContentTypeUtil;
 import io.hobaskos.event.service.util.RandomUtil;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class EventServiceImpl implements EventService{
     @Inject
     private UserService userService;
 
+    @Inject
+    private StorageService storageService;
+
     /**
      * Save a event.
      *
@@ -67,6 +72,14 @@ public class EventServiceImpl implements EventService{
 
         if (event.isPrivateEvent() && event.getInvitationCode() == null){
             event.setInvitationCode(RandomUtil.generateRandomInviteCode());
+        }
+
+        log.debug("eventDTO image check");
+        if (eventDTO.getImage() != null && eventDTO.getImageContentType() != null) {
+            log.debug("Trying to save image");
+            String filename = storageService.store(eventDTO.getImage(),
+                ContentTypeUtil.defineImageName(eventDTO.getImageContentType()));
+            event.setImageUrl("/files/" + filename);
         }
 
         event = eventRepository.save(event);

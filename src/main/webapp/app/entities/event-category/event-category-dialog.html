@@ -52,6 +52,7 @@
         <div class="form-group" ngf-drop ngf-change="vm.setIcon($file, vm.eventCategory)" ngf-pattern="'image/*'">
             <label class="control-label" data-translate="backendApp.eventCategory.icon" for="field_icon">Icon</label>
             <div>
+                <img data-ng-src="{{'data:' + vm.eventCategory.iconContentType + ';base64,' + vm.eventCategory.icon}}" style="max-height: 100px;" ng-if="vm.eventCategory.icon" alt="eventCategory icon"/>
                 <div ng-if="vm.eventCategory.icon" class="help-block clearfix">
                     <span class="pull-left">{{vm.eventCategory.iconContentType}}, {{vm.byteSize(vm.eventCategory.icon)}}</span>
                     <button type="button" ng-click="vm.eventCategory.icon=null;vm.eventCategory.iconContentType=null;"

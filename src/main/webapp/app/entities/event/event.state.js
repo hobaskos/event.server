@@ -131,6 +131,8 @@
                                 toDate: null,
                                 privateEvent: false,
                                 invitationCode: null,
+                                image: null,
+                                imageContentType: null,
                                 id: null
                             };
                         }
