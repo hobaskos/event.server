@@ -3,10 +3,12 @@ package io.hobaskos.event.web.rest;
 import com.codahale.metrics.annotation.Timed;
 
 import io.hobaskos.event.config.Constants;
+import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.domain.EventUserAttending;
 import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.UserConnection;
 import io.hobaskos.event.domain.enumeration.UserConnectionType;
+import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.SecurityUtils;
@@ -69,6 +71,9 @@ public class AccountResource {
 
     @Inject
     private EventMapper eventMapper;
+
+    @Inject
+    private EventRepository eventRepository;
 
     /**
      * POST  /register : register the user.
@@ -163,6 +168,12 @@ public class AccountResource {
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
+    /**
+     * Get attending events for account
+     * @param pageable
+     * @return
+     * @throws URISyntaxException
+     */
     @GetMapping("/account/attending-events")
     @Timed
     public ResponseEntity<List<EventDTO>> getAttendingEvents(@ApiParam Pageable pageable)
@@ -173,6 +184,22 @@ public class AccountResource {
         return new ResponseEntity<>(page.getContent().stream().map(eventUserAttending ->
             eventMapper.eventToEventDTO(eventUserAttending.getEvent())
         ).collect(Collectors.toList()), headers, HttpStatus.OK);
+    }
+
+    /**
+     * Get events that the account user has created
+     * @param pageable
+     * @return
+     * @throws URISyntaxException
+     */
+    @GetMapping("/account/my-events")
+    @Timed
+    public ResponseEntity<List<EventDTO>> getMyEvents(@ApiParam Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to get account attending events");
+        Page<Event> page = eventRepository.findByOwner(userService.getUserWithAuthorities(), pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/attending-events");
+        return new ResponseEntity<>(eventMapper.eventsToEventDTOs(page.getContent()), headers, HttpStatus.OK);
     }
 
     /**

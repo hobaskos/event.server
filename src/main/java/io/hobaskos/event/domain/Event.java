@@ -4,15 +4,15 @@ package io.hobaskos.event.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.GeneratorType;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -87,6 +87,9 @@ public class Event implements Serializable {
     @ManyToOne
     @NotNull
     private EventCategory eventCategory;
+
+    @Formula("(select count(*) from event_user_attending a where a.event_id = id)")
+    private int attendanceCount;
 
     public Long getId() {
         return id;
@@ -288,6 +291,14 @@ public class Event implements Serializable {
     public Event eventCategory(EventCategory eventCategory) {
         this.eventCategory = eventCategory;
         return this;
+    }
+
+    public int getAttendanceCount() {
+        return attendanceCount;
+    }
+
+    public void setAttendanceCount(int attendanceCount) {
+        this.attendanceCount = attendanceCount;
     }
 
     @Override
