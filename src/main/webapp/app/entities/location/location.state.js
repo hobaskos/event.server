@@ -130,6 +130,8 @@
                                 lon: null,
                                 fromDate: null,
                                 toDate: null,
+                                address: null,
+                                searchName: null,
                                 id: null
                             };
                         }
