@@ -21,6 +21,12 @@ public class LocationDTO implements Serializable {
     @Size(max = 8129)
     private String description;
 
+    @Size(max = 256)
+    private String address;
+
+    @Size(max = 256)
+    private String searchName;
+
     @NotNull
     private GeoPoint geoPoint;
 
@@ -53,6 +59,21 @@ public class LocationDTO implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public String getSearchName() {
+        return searchName;
+    }
+
+    public void setSearchName(String searchName) {
+        this.searchName = searchName;
     }
 
     public GeoPoint getGeoPoint() {
@@ -113,6 +134,8 @@ public class LocationDTO implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +
+            ", address='" + address + "'" +
+            ", searchName='" + searchName + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
             '}';

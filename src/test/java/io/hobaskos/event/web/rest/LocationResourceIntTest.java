@@ -54,6 +54,12 @@ public class LocationResourceIntTest {
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
+    private static final String DEFAULT_ADDRESS = "AAAAAAAAAA";
+    private static final String UPDATED_ADDRESS = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SEARCH_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_SEARCH_NAME = "BBBBBBBBBB";
+
     private static final Double DEFAULT_LAT = -90D;
     private static final Double UPDATED_LAT = -89D;
 
@@ -111,6 +117,8 @@ public class LocationResourceIntTest {
         Location location = new Location()
                 .name(DEFAULT_NAME)
                 .description(DEFAULT_DESCRIPTION)
+                .address(DEFAULT_ADDRESS)
+                .searchName(DEFAULT_SEARCH_NAME)
                 .geoPoint(new GeoPoint(DEFAULT_LAT, DEFAULT_LON))
                 .fromDate(DEFAULT_FROM_DATE)
                 .toDate(DEFAULT_TO_DATE);
@@ -147,6 +155,8 @@ public class LocationResourceIntTest {
         Location testLocation = locationList.get(locationList.size() - 1);
         assertThat(testLocation.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testLocation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testLocation.getAddress()).isEqualTo(DEFAULT_ADDRESS);
+        assertThat(testLocation.getSearchName()).isEqualTo(DEFAULT_SEARCH_NAME);
         assertThat(testLocation.getGeoPoint().getLat()).isEqualTo(DEFAULT_LAT);
         assertThat(testLocation.getGeoPoint().getLon()).isEqualTo(DEFAULT_LON);
         assertThat(testLocation.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
@@ -156,6 +166,8 @@ public class LocationResourceIntTest {
         Location locationEs = locationSearchRepository.findOne(testLocation.getId());
         assertThat(locationEs.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(locationEs.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(locationEs.getAddress()).isEqualTo(DEFAULT_ADDRESS);
+        assertThat(locationEs.getSearchName()).isEqualTo(DEFAULT_SEARCH_NAME);
         assertThat(locationEs.getGeoPoint().getLat()).isEqualTo(DEFAULT_LAT);
         assertThat(locationEs.getGeoPoint().getLon()).isEqualTo(DEFAULT_LON);
         assertThat(locationEs.getFromDate()).isEqualTo(DEFAULT_FROM_DATE);
@@ -254,6 +266,8 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(location.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].address").value(DEFAULT_ADDRESS.toString()))
+            .andExpect(jsonPath("$.[*].searchName").value(DEFAULT_SEARCH_NAME.toString()))
             .andExpect(jsonPath("$.[*].geoPoint.lat").value(hasItem(DEFAULT_LAT.doubleValue())))
             .andExpect(jsonPath("$.[*].geoPoint.lon").value(hasItem(DEFAULT_LON.doubleValue())))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))
@@ -300,6 +314,8 @@ public class LocationResourceIntTest {
         updatedLocation
                 .name(UPDATED_NAME)
                 .description(UPDATED_DESCRIPTION)
+                .address(UPDATED_ADDRESS)
+                .searchName(UPDATED_SEARCH_NAME)
                 .geoPoint(new GeoPoint(UPDATED_LAT, UPDATED_LON))
                 .fromDate(UPDATED_FROM_DATE)
                 .toDate(UPDATED_TO_DATE);
@@ -316,6 +332,8 @@ public class LocationResourceIntTest {
         Location testLocation = locationList.get(locationList.size() - 1);
         assertThat(testLocation.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testLocation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testLocation.getAddress()).isEqualTo(UPDATED_ADDRESS);
+        assertThat(testLocation.getSearchName()).isEqualTo(UPDATED_SEARCH_NAME);
         assertThat(testLocation.getGeoPoint().getLat()).isEqualTo(UPDATED_LAT);
         assertThat(testLocation.getGeoPoint().getLon()).isEqualTo(UPDATED_LON);
         assertThat(testLocation.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
@@ -325,6 +343,8 @@ public class LocationResourceIntTest {
         Location locationEs = locationSearchRepository.findOne(testLocation.getId());
         assertThat(locationEs.getName()).isEqualTo(UPDATED_NAME);
         assertThat(locationEs.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(locationEs.getAddress()).isEqualTo(UPDATED_ADDRESS);
+        assertThat(locationEs.getSearchName()).isEqualTo(UPDATED_SEARCH_NAME);
         assertThat(locationEs.getGeoPoint().getLat()).isEqualTo(UPDATED_LAT);
         assertThat(locationEs.getGeoPoint().getLon()).isEqualTo(UPDATED_LON);
         assertThat(locationEs.getFromDate()).isEqualTo(UPDATED_FROM_DATE);
@@ -387,6 +407,8 @@ public class LocationResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(location.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS.toString())))
+            .andExpect(jsonPath("$.[*].searchName").value(hasItem(DEFAULT_SEARCH_NAME.toString())))
             .andExpect(jsonPath("$.[*].geoPoint.lat").value(hasItem(DEFAULT_LAT.doubleValue())))
             .andExpect(jsonPath("$.[*].geoPoint.lon").value(hasItem(DEFAULT_LON.doubleValue())))
             .andExpect(jsonPath("$.[*].fromDate").value(hasItem(sameInstant(DEFAULT_FROM_DATE))))

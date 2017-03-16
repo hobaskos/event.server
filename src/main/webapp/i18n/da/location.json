@@ -22,6 +22,8 @@
             "lon": "Lon",
             "fromDate": "From Date",
             "toDate": "To Date",
+            "address": "Address",
+            "searchName": "Search Name",
             "event": "Event"
         }
     }

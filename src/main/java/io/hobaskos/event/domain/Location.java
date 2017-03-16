@@ -35,6 +35,14 @@ public class Location implements Serializable {
     @Column(name = "description", length = 8129)
     private String description;
 
+    @Size(max = 256)
+    @Column(name = "address", length = 256)
+    private String address;
+
+    @Size(max = 256)
+    @Column(name = "search_name", length = 256)
+    private String searchName;
+
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "lat", column = @Column(name = "lat")),
@@ -87,6 +95,32 @@ public class Location implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public Location address(String address) {
+        this.address = address;
+        return this;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getSearchName() {
+        return searchName;
+    }
+
+    public Location searchName(String searchName) {
+        this.searchName = searchName;
+        return this;
+    }
+
+    public void setSearchName(String searchName) {
+        this.searchName = searchName;
     }
 
     public GeoPoint getGeoPoint() {
@@ -167,6 +201,8 @@ public class Location implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +
+            ", address='" + address + "'" +
+            ", searchName='" + searchName + "'" +
             ", fromDate='" + fromDate + "'" +
             ", toDate='" + toDate + "'" +
             '}';
