@@ -27,6 +27,14 @@ public interface LocationService {
     Page<LocationDTO> findAll(Pageable pageable);
 
     /**
+     * Get locations with event id;
+     * @param eventId
+     * @param pageable
+     * @return
+     */
+    Page<LocationDTO> getLocationsWithEvent(Long eventId, Pageable pageable);
+
+    /**
      *  Get the "id" location.
      *
      *  @param id the id of the entity
