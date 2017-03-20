@@ -1,6 +1,7 @@
 package io.hobaskos.event.service.mapper;
 
 import io.hobaskos.event.domain.*;
+import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
@@ -25,6 +26,7 @@ public abstract class EventMapper {
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "imageContentType", ignore = true)
     @Mapping(target = "myAttendance", ignore = true)
+    @Mapping(target = "attendanceCount", ignore = true)
     @Mapping(source = "owner.login", target = "ownerLogin")
     public abstract EventDTO eventToEventDTO(Event event);
 
@@ -40,6 +42,7 @@ public abstract class EventMapper {
 
     @AfterMapping
     protected void sideLoadMetaData(Event event, @MappingTarget EventDTO result) {
+        result.setAttendanceCount(eventUserAttendingRepository.countByEventId(event.getId()));
         User user = userService.getUserWithAuthorities();
         if (user == null) return;
         eventUserAttendingRepository.findOneByEventAndUser(event, user).ifPresent(eventUserAttending ->
