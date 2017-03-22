@@ -38,30 +38,6 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label" data-translate="backendApp.location.address" for="field_address">Address</label>
-            <input type="text" class="form-control" name="address" id="field_address"
-                   ng-model="vm.location.address"
-                   ng-maxlength="256" />
-            <div ng-show="editForm.address.$invalid">
-                <p class="help-block"
-                   ng-show="editForm.address.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
-                    This field cannot be longer than 256 characters.
-                </p>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="control-label" data-translate="backendApp.location.searchName" for="field_searchName">Search Name</label>
-            <input type="text" class="form-control" name="searchName" id="field_searchName"
-                   ng-model="vm.location.searchName"
-                   ng-maxlength="256" />
-            <div ng-show="editForm.searchName.$invalid">
-                <p class="help-block"
-                   ng-show="editForm.searchName.$error.maxlength" data-translate="entity.validation.maxlength" translate-value-max="256">
-                    This field cannot be longer than 256 characters.
-                </p>
-            </div>
-        </div>
-        <div class="form-group">
             <label class="control-label" data-translate="backendApp.event.imageUrl" for="field_imageUrl">Image Url</label>
             <input type="text" class="form-control" name="imageUrl" id="field_imageUrl"
                     ng-model="vm.event.imageUrl"

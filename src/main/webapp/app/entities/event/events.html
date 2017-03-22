@@ -42,6 +42,7 @@
                     <th jh-sort-by="fromDate"><span data-translate="backendApp.event.fromDate">From Date</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="toDate"><span data-translate="backendApp.event.toDate">To Date</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="privateEvent"><span data-translate="backendApp.event.privateEvent">Private Event</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="attendanceCount">Attendance Count<span class="glyphicon glyphicon-sort"></span></th>
                     <th><span data-translate="backendApp.event.locations">Locations</span></span></th>
                     <th jh-sort-by="ownerLogin"><span data-translate="backendApp.event.owner">Owner</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th><span data-translate="backendApp.event.eventCategory">Event Category</span></span></th>
@@ -57,6 +58,7 @@
                     <td>{{event.fromDate | date:'medium'}}</td>
                     <td>{{event.toDate | date:'medium'}}</td>
                     <td>{{event.privateEvent}}</td>
+                    <td>{{event.attendanceCount}}</td>
                     <td>
                         <span ng-repeat="location in event.locations">
                                     <a class="form-control-static" ui-sref="location-detail({id: location.id})">{{location.id}}</a>{{$last ? '' : ', '}}
