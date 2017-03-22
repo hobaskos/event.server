@@ -72,7 +72,7 @@ public class Event implements Serializable {
     private Set<Location> locations = new HashSet<>();
 
     @OneToMany(mappedBy = "event")
-    @Cache(usage = CacheConcurrencyStrategy.NONE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonManagedReference
     @JsonIgnore
     @Field(type = FieldType.Nested)
@@ -87,9 +87,6 @@ public class Event implements Serializable {
     @ManyToOne
     @NotNull
     private EventCategory eventCategory;
-
-    @Formula("(select count(*) from event_user_attending a where a.event_id = id)")
-    private int attendanceCount;
 
     public Long getId() {
         return id;
@@ -291,14 +288,6 @@ public class Event implements Serializable {
     public Event eventCategory(EventCategory eventCategory) {
         this.eventCategory = eventCategory;
         return this;
-    }
-
-    public int getAttendanceCount() {
-        return attendanceCount;
-    }
-
-    public void setAttendanceCount(int attendanceCount) {
-        this.attendanceCount = attendanceCount;
     }
 
     @Override

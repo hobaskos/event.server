@@ -1,5 +1,6 @@
 package io.hobaskos.event.web.rest;
 
+import com.redis.E;
 import io.hobaskos.event.BackendApp;
 
 import io.hobaskos.event.domain.EventUserAttending;
@@ -23,6 +24,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -78,6 +80,9 @@ public class EventUserAttendingResourceIntTest {
 
     @Inject
     private EventRepository eventRepository;
+
+    @Inject
+    private EventResource eventResource;
 
     @Inject
     private EventSearchRepository eventSearchRepository;
@@ -151,7 +156,9 @@ public class EventUserAttendingResourceIntTest {
     @Test
     @Transactional
     public void createEventUserAttending() throws Exception {
+        eventUserAttendingRepository.flush();
         int databaseSizeBeforeCreate = eventUserAttendingRepository.findAll().size();
+        assertThat(databaseSizeBeforeCreate).isEqualTo(0);
 
         // Create the EventUserAttending
         EventUserAttendingDTO eventUserAttendingDTO = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
@@ -162,16 +169,37 @@ public class EventUserAttendingResourceIntTest {
             .content(TestUtil.convertObjectToJsonBytes(eventUserAttendingDTO)))
             .andExpect(status().isCreated());
 
+        for (int i = 0; i<10; i++) {
+            when(userService.getUserWithAuthorities()).thenReturn(UserResourceIntTest.createRandomEntity(em));
+            restEventUserAttendingMockMvc.perform(post("/api/event-user-attendings")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(eventUserAttendingDTO)))
+                .andExpect(status().isCreated());
+        }
+
         // Validate the EventUserAttending in the database
         List<EventUserAttending> eventUserAttendingList = eventUserAttendingRepository.findAll();
-        assertThat(eventUserAttendingList).hasSize(databaseSizeBeforeCreate + 1);
-        EventUserAttending testEventUserAttending = eventUserAttendingList.get(eventUserAttendingList.size() - 1);
+        assertThat(eventUserAttendingList).hasSize(databaseSizeBeforeCreate + 11);
+        EventUserAttending testEventUserAttending = eventUserAttendingList.get(0);
         assertThat(testEventUserAttending.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testEventUserAttending.getUser()).isEqualTo(user);
 
+        eventUserAttendingRepository.flush();
+        eventRepository.flush();
+
+        ResponseEntity<EventDTO> eventResponse = eventResource.getEvent(eventUserAttending.getEvent().getId());
+        assertThat(eventResponse.getBody().getAttendanceCount()).isEqualTo(11);
+
+        for (Event e : eventRepository.findAll()) {
+            if (e.getId().equals(eventUserAttending.getEvent().getId())) {
+                assertThat(e.getAttendings().size()).isEqualTo(11);
+            }
+        }
+
         Event event = eventRepository.findOneWithEagerRelations(eventUserAttending.getEvent().getId());
+        assertThat(event.getAttendings().size()).isEqualTo(11);
         EventDTO eventDTO = eventMapper.eventToEventDTO(event);
-        //assertThat(eventDTO.getAttendanceCount()).isEqualTo(1);
+        assertThat(eventDTO.getAttendanceCount()).isEqualTo(11);
     }
 
     @Test
