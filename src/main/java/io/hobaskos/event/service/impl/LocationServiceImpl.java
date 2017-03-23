@@ -148,4 +148,16 @@ public class LocationServiceImpl implements LocationService{
         Page<Location> result = locationSearchRepository.search(searchQueryBuilder.build());
         return result.map(location -> locationMapper.locationToLocationDTO(location));
     }
+
+    /**
+     * Get locations with event id
+     * @param eventId
+     * @param pageable
+     * @return
+     */
+    public Page<LocationDTO> getLocationsWithEvent(Long eventId, Pageable pageable) {
+        log.debug("Request to get locations with event id: {}", eventId);
+        Page<Location> result = locationRepository.findByEventId(eventId, pageable);
+        return result.map(locationMapper::locationToLocationDTO);
+    }
 }

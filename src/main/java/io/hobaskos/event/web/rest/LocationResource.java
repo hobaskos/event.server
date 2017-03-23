@@ -1,11 +1,13 @@
 package io.hobaskos.event.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.service.LocationService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.LocationDTO;
 
+import io.reactivex.exceptions.Exceptions;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,9 @@ public class LocationResource {
 
     @Inject
     private LocationService locationService;
+
+    @Inject
+    private EventService eventService;
 
     /**
      * POST  /locations : Create a new location.
@@ -150,6 +155,15 @@ public class LocationResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    /**
+     * Get locations nearby
+     * @param lat
+     * @param lon
+     * @param distance
+     * @param pageable
+     * @return
+     * @throws URISyntaxException
+     */
     @GetMapping("/_search/locations-nearby")
     @Timed
     public ResponseEntity<List<LocationDTO>> searchLocationNearby(@RequestParam Double lat,
@@ -161,5 +175,28 @@ public class LocationResource {
         Page<LocationDTO> page = locationService.searchNearby(lat, lon, distance, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(distance, page, "/api/_search/locations-nearby");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * Get locations connected to an event
+     * @param id
+     * @param pageable
+     * @return
+     * @throws URISyntaxException
+     */
+    @GetMapping("/events/{id}/locations")
+    @Timed
+    public ResponseEntity<List<LocationDTO>> getLocationsForEvent(@PathVariable Long id, @ApiParam Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to get locations for event id: {}", id);
+        return Optional.ofNullable(eventService.findOne(id))
+            .map(eventDTO -> {
+                try {
+                    Page<LocationDTO> page = locationService.getLocationsWithEvent(id, pageable);
+                    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/events/"+id+"/locations");
+                    return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+                } catch (URISyntaxException use) { throw Exceptions.propagate(use); }
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
