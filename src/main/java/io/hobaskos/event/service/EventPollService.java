@@ -4,6 +4,7 @@ import io.hobaskos.event.service.dto.EventPollDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Interface for managing EventPoll.
@@ -20,11 +21,18 @@ public interface EventPollService {
 
     /**
      *  Get all the eventPolls.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
     Page<EventPollDTO> findAll(Pageable pageable);
+
+    /**
+     * Get all polls for event
+     * @param eventId
+     * @return list of all polls
+     */
+    Optional<List<EventPollDTO>> findPollsForEvent(Long eventId);
 
     /**
      *  Get the "id" eventPoll.
@@ -45,7 +53,7 @@ public interface EventPollService {
      * Search for the eventPoll corresponding to the query.
      *
      *  @param query the query of the search
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */

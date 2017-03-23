@@ -36,7 +36,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventPollResource {
 
     private final Logger log = LoggerFactory.getLogger(EventPollResource.class);
-        
+
     @Inject
     private EventPollService eventPollService;
 
@@ -100,6 +100,22 @@ public class EventPollResource {
     }
 
     /**
+     * GET  /events/:id/event-polls : get all the eventPolls.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of eventPolls in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/events/{id}/event-polls")
+    @Timed
+    public ResponseEntity<List<EventPollDTO>> getAllEventPolls(@PathVariable Long id)
+        throws URISyntaxException {
+        log.debug("REST request to get a page of EventPolls");
+        return eventPollService.findPollsForEvent(id)
+            .map(eventPollDTOS -> new ResponseEntity<>(eventPollDTOS, HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
      * GET  /event-polls/:id : get the "id" eventPoll.
      *
      * @param id the id of the eventPollDTO to retrieve
@@ -135,7 +151,7 @@ public class EventPollResource {
      * SEARCH  /_search/event-polls?query=:query : search for the eventPoll corresponding
      * to the query.
      *
-     * @param query the query of the eventPoll search 
+     * @param query the query of the eventPoll search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
