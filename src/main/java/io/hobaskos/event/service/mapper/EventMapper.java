@@ -27,6 +27,7 @@ public abstract class EventMapper {
     @Mapping(target = "imageContentType", ignore = true)
     @Mapping(target = "myAttendance", ignore = true)
     @Mapping(target = "attendanceCount", ignore = true)
+    @Mapping(target = "defaultPollId", ignore = true)
     @Mapping(source = "owner.login", target = "ownerLogin")
     public abstract EventDTO eventToEventDTO(Event event);
 
@@ -47,5 +48,7 @@ public abstract class EventMapper {
         if (user == null) return;
         eventUserAttendingRepository.findOneByEventAndUser(event, user).ifPresent(eventUserAttending ->
             result.setMyAttendance(eventUserAttending.getType()));
+        result.setDefaultPollId(event.getDefaultPollId());
     }
+
 }

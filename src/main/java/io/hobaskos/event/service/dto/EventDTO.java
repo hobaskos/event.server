@@ -53,6 +53,8 @@ public class EventDTO implements Serializable {
 
     private int attendanceCount;
 
+    private Long defaultPollId;
+
     public Long getId() {
         return id;
     }
@@ -167,6 +169,14 @@ public class EventDTO implements Serializable {
 
     public void setAttendanceCount(int attendanceCount) {
         this.attendanceCount = attendanceCount;
+    }
+
+    public Long getDefaultPollId() {
+        return defaultPollId;
+    }
+
+    public void setDefaultPollId(Long defaultPollId) {
+        this.defaultPollId = defaultPollId;
     }
 
     @Override

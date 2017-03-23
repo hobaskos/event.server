@@ -273,6 +273,11 @@ public class Event implements Serializable {
         return this;
     }
 
+    public Long getDefaultPollId() {
+        if (getPolls().size() == 0) return null;
+        return  getPolls().iterator().next().getId();
+    }
+
     public void setPolls(Set<EventPoll> eventPolls) {
         this.polls = eventPolls;
     }

@@ -1,5 +1,6 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.service.EventPollService;
 import io.hobaskos.event.domain.EventPoll;
 import io.hobaskos.event.repository.EventPollRepository;
@@ -14,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -29,7 +30,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventPollServiceImpl implements EventPollService{
 
     private final Logger log = LoggerFactory.getLogger(EventPollServiceImpl.class);
-    
+
     @Inject
     private EventPollRepository eventPollRepository;
 
@@ -38,6 +39,9 @@ public class EventPollServiceImpl implements EventPollService{
 
     @Inject
     private EventPollSearchRepository eventPollSearchRepository;
+
+    @Inject
+    private EventRepository eventRepository;
 
     /**
      * Save a eventPoll.
@@ -56,15 +60,25 @@ public class EventPollServiceImpl implements EventPollService{
 
     /**
      *  Get all the eventPolls.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public Page<EventPollDTO> findAll(Pageable pageable) {
         log.debug("Request to get all EventPolls");
         Page<EventPoll> result = eventPollRepository.findAll(pageable);
         return result.map(eventPoll -> eventPollMapper.eventPollToEventPollDTO(eventPoll));
+    }
+
+    /**
+     * Get List of polls for event
+     * @param eventId
+     * @return
+     */
+    public Optional<List<EventPollDTO>> findPollsForEvent(Long eventId) {
+        return eventRepository.findOneById(eventId)
+            .map(event -> eventPollMapper.eventPollsToEventPollDTOs(new ArrayList<>(event.getPolls())));
     }
 
     /**
@@ -73,7 +87,7 @@ public class EventPollServiceImpl implements EventPollService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public EventPollDTO findOne(Long id) {
         log.debug("Request to get EventPoll : {}", id);
         EventPoll eventPoll = eventPollRepository.findOne(id);

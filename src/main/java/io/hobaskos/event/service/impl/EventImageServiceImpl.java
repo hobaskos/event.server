@@ -1,5 +1,6 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.repository.EventPollRepository;
 import io.hobaskos.event.service.EventImageService;
 import io.hobaskos.event.domain.EventImage;
 import io.hobaskos.event.repository.EventImageRepository;
@@ -17,10 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -47,6 +47,9 @@ public class EventImageServiceImpl implements EventImageService{
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private EventPollRepository eventPollRepository;
 
     /**
      * Save a eventImage.
@@ -83,6 +86,16 @@ public class EventImageServiceImpl implements EventImageService{
         log.debug("Request to get all EventImages");
         Page<EventImage> result = eventImageRepository.findAll(pageable);
         return result.map(eventImage -> eventImageMapper.eventImageToEventImageDTO(eventImage));
+    }
+
+    /**
+     * Get all eventImages for event-poll
+     * @param id
+     * @return
+     */
+    public Optional<List<EventImageDTO>> findAllForEvent(Long id) {
+        return eventPollRepository.findOneById(id)
+            .map(eventPoll -> eventImageMapper.eventImagesToEventImageDTOs(new ArrayList<>(eventPoll.getImages())));
     }
 
     /**

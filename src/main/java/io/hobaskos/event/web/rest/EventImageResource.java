@@ -36,7 +36,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventImageResource {
 
     private final Logger log = LoggerFactory.getLogger(EventImageResource.class);
-        
+
     @Inject
     private EventImageService eventImageService;
 
@@ -100,6 +100,22 @@ public class EventImageResource {
     }
 
     /**
+     * GET  /event-polls/:id/event-images : get all the eventImages.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of eventImages in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/event-polls/{id}/event-images")
+    @Timed
+    public ResponseEntity<List<EventImageDTO>> getAllEventImagesForPoll(@PathVariable Long id)
+        throws URISyntaxException {
+        log.debug("REST request to get a page of EventImages");
+        return eventImageService.findAllForEvent(id)
+            .map(eventImageDTOS -> new ResponseEntity<>(eventImageDTOS, HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
      * GET  /event-images/:id : get the "id" eventImage.
      *
      * @param id the id of the eventImageDTO to retrieve
@@ -135,7 +151,7 @@ public class EventImageResource {
      * SEARCH  /_search/event-images?query=:query : search for the eventImage corresponding
      * to the query.
      *
-     * @param query the query of the eventImage search 
+     * @param query the query of the eventImage search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
