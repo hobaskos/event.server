@@ -12,4 +12,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface EventImageRepository extends JpaRepository<EventImage,Long> {
 
+    @Query("select eventImage from EventImage eventImage where eventImage.user.login = ?#{principal.username}")
+    List<EventImage> findByUserIsCurrentUser();
+
 }

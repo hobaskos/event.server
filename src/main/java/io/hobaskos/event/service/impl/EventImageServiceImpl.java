@@ -5,6 +5,7 @@ import io.hobaskos.event.domain.EventImage;
 import io.hobaskos.event.repository.EventImageRepository;
 import io.hobaskos.event.repository.search.EventImageSearchRepository;
 import io.hobaskos.event.service.StorageService;
+import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventImageDTO;
 import io.hobaskos.event.service.mapper.EventImageMapper;
 import io.hobaskos.event.service.util.ContentTypeUtil;
@@ -44,6 +45,9 @@ public class EventImageServiceImpl implements EventImageService{
     @Inject
     private StorageService storageService;
 
+    @Inject
+    private UserService userService;
+
     /**
      * Save a eventImage.
      *
@@ -59,6 +63,8 @@ public class EventImageServiceImpl implements EventImageService{
                 ContentTypeUtil.defineImageName(eventImageDTO.getFileContentType()));
             eventImage.setImageUrl("/files/" + filename);
         }
+
+        eventImage.setUser(userService.getUserWithAuthorities());
 
         eventImage = eventImageRepository.save(eventImage);
         EventImageDTO result = eventImageMapper.eventImageToEventImageDTO(eventImage);

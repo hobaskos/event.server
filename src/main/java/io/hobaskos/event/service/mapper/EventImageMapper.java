@@ -15,12 +15,14 @@ public interface EventImageMapper {
     @Mapping(target = "file", ignore = true)
     @Mapping(target = "fileContentType", ignore = true)
     @Mapping(source = "poll.id", target = "pollId")
+    @Mapping(source = "user.login", target = "userLogin")
     EventImageDTO eventImageToEventImageDTO(EventImage eventImage);
 
     List<EventImageDTO> eventImagesToEventImageDTOs(List<EventImage> eventImages);
 
     @Mapping(source = "pollId", target = "poll")
     @Mapping(target = "votes", ignore = true)
+    @Mapping(target = "user", ignore = true)
     EventImage eventImageDTOToEventImage(EventImageDTO eventImageDTO);
 
     List<EventImage> eventImageDTOsToEventImages(List<EventImageDTO> eventImageDTOs);

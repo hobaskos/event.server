@@ -39,6 +39,7 @@
                     <th jh-sort-by="title"><span data-translate="backendApp.eventImage.title">Title</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="imageUrl"><span data-translate="backendApp.eventImage.imageUrl">Image Url</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="pollId"><span data-translate="backendApp.eventImage.poll">Poll</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="userLogin"><span data-translate="backendApp.eventImage.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
@@ -49,6 +50,9 @@
                     <td>{{eventImage.imageUrl}}</td>
                     <td>
                         <a ui-sref="event-poll-detail({id:eventImage.pollId})">{{eventImage.pollId}}</a>
+                    </td>
+                    <td>
+                        {{eventImage.userLogin}}
                     </td>
                     <td class="text-right">
                         <div class="btn-group flex-btn-group-container">
