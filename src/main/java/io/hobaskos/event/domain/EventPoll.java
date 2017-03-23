@@ -49,7 +49,7 @@ public class EventPoll implements Serializable {
 
     @OneToMany(mappedBy = "poll")
     @JsonIgnore
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Cache(usage = CacheConcurrencyStrategy.NONE)
     private Set<EventImage> images = new HashSet<>();
 
     public Long getId() {

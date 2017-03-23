@@ -4,6 +4,7 @@ import io.hobaskos.event.service.dto.EventImageDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Interface for managing EventImage.
@@ -20,11 +21,18 @@ public interface EventImageService {
 
     /**
      *  Get all the eventImages.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
     Page<EventImageDTO> findAll(Pageable pageable);
+
+    /**
+     * Get all event images for poll
+     * @param id
+     * @return
+     */
+    Optional<List<EventImageDTO>> findAllForEvent(Long id);
 
     /**
      *  Get the "id" eventImage.
@@ -45,7 +53,7 @@ public interface EventImageService {
      * Search for the eventImage corresponding to the query.
      *
      *  @param query the query of the search
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
