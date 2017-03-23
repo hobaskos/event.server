@@ -1,6 +1,9 @@
 package io.hobaskos.event.service.impl;
 
 import io.hobaskos.event.domain.EventCategory;
+import io.hobaskos.event.domain.EventPoll;
+import io.hobaskos.event.domain.enumeration.EventPollStatus;
+import io.hobaskos.event.service.EventPollService;
 import io.hobaskos.event.service.EventService;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.repository.EventRepository;
@@ -8,6 +11,7 @@ import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.service.StorageService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
+import io.hobaskos.event.service.dto.EventPollDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
 import io.hobaskos.event.service.util.ContentTypeUtil;
 import io.hobaskos.event.service.util.RandomUtil;
@@ -52,6 +56,9 @@ public class EventServiceImpl implements EventService{
     @Inject
     private StorageService storageService;
 
+    @Inject
+    private EventPollService eventPollService;
+
     /**
      * Save a event.
      *
@@ -74,6 +81,7 @@ public class EventServiceImpl implements EventService{
             event.setInvitationCode(RandomUtil.generateRandomInviteCode());
         }
 
+
         log.debug("eventDTO image check");
         if (eventDTO.getImage() != null && eventDTO.getImageContentType() != null) {
             log.debug("Trying to save image");
@@ -84,6 +92,12 @@ public class EventServiceImpl implements EventService{
 
         event = eventRepository.save(event);
         eventSearchRepository.save(event);
+
+        EventPollDTO poll = new EventPollDTO();
+        poll.setEventId(event.getId());
+        poll.setTitle("Default poll for " + event.getTitle());
+        poll.setStatus(EventPollStatus.ACTIVE);
+        eventPollService.save(poll);
 
         return eventMapper.eventToEventDTO(event);
     }
