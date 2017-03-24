@@ -19,6 +19,7 @@
             "title": "Title",
             "file": "File",
             "imageUrl": "Image URL",
+            "voteCount": "Vote Count",
             "user": "User",
             "poll": "Poll"
         }

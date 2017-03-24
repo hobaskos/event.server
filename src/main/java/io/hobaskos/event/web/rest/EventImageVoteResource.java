@@ -5,6 +5,7 @@ import io.hobaskos.event.domain.EventImageVote;
 
 import io.hobaskos.event.repository.EventImageVoteRepository;
 import io.hobaskos.event.repository.search.EventImageVoteSearchRepository;
+import io.hobaskos.event.service.EventImageService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
@@ -25,11 +26,8 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -52,6 +50,9 @@ public class EventImageVoteResource {
     private EventImageVoteSearchRepository eventImageVoteSearchRepository;
 
     @Inject
+    private EventImageService eventImageService;
+
+    @Inject
     private UserService userService;
 
     /**
@@ -71,6 +72,7 @@ public class EventImageVoteResource {
         EventImageVote eventImageVote = eventImageVoteMapper.eventImageVoteDTOToEventImageVote(eventImageVoteDTO);
         eventImageVote.setUser(userService.getUserWithAuthorities());
         eventImageVote = eventImageVoteRepository.save(eventImageVote);
+        eventImageService.increaseVoteCount(eventImageVoteDTO.getEventImageId());
         EventImageVoteDTO result = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
         eventImageVoteSearchRepository.save(eventImageVote);
         return ResponseEntity.created(new URI("/api/event-image-votes/" + result.getId()))
@@ -124,9 +126,14 @@ public class EventImageVoteResource {
     @Timed
     public ResponseEntity<Void> deleteEventImageVote(@PathVariable Long id) {
         log.debug("REST request to delete EventImageVote : {}", id);
-        eventImageVoteRepository.delete(id);
-        eventImageVoteSearchRepository.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("eventImageVote", id.toString())).build();
+        return Optional.ofNullable(eventImageVoteRepository.findOne(id))
+            .map(eventImageVote -> {
+                eventImageService.decreaseVoteCount(eventImageVote.getEventImage().getId());
+                eventImageVoteRepository.delete(id);
+                eventImageVoteSearchRepository.delete(id);
+                return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("eventImageVote", id.toString())).build();
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -60,6 +61,11 @@ public class EventImageServiceImpl implements EventImageService{
     public EventImageDTO save(EventImageDTO eventImageDTO) {
         log.debug("Request to save EventImage : {}", eventImageDTO);
         EventImage eventImage = eventImageMapper.eventImageDTOToEventImage(eventImageDTO);
+
+        if (eventImage.getId() != null) {
+            EventImage originalEventImage = eventImageRepository.findOne(eventImage.getId());
+            eventImage.setVoteCount(originalEventImage.getVoteCount());
+        }
 
         if (eventImageDTO.getFile() != null && eventImageDTO.getFileContentType() != null) {
             String filename = storageService.store(eventImageDTO.getFile(),
@@ -134,5 +140,35 @@ public class EventImageServiceImpl implements EventImageService{
         log.debug("Request to search for a page of EventImages for query {}", query);
         Page<EventImage> result = eventImageSearchRepository.search(queryStringQuery(query), pageable);
         return result.map(eventImage -> eventImageMapper.eventImageToEventImageDTO(eventImage));
+    }
+
+    /**
+     * Decrease the voteCount for video
+     * @param videoId
+     */
+    @Async
+    public synchronized void increaseVoteCount(Long videoId) {
+        log.debug("Request to increase voteCount for video {}", videoId);
+        Optional.ofNullable(eventImageRepository.findOne(videoId))
+            .ifPresent(ei -> {
+                ei.increaseVoteCount();
+                EventImage eventImage = eventImageRepository.save(ei);
+                eventImageSearchRepository.save(eventImage);
+            });
+    }
+
+    /**
+     * Decrease the voteCount for video
+     * @param videoId
+     */
+    @Async
+    public void decreaseVoteCount(Long videoId) {
+        log.debug("Request to increase voteCount for video {}", videoId);
+         Optional.ofNullable(eventImageRepository.findOne(videoId))
+            .ifPresent(ei -> {
+                ei.decreaseVoteCount();
+                EventImage eventImage = eventImageRepository.save(ei);
+                eventImageSearchRepository.save(eventImage);
+            });
     }
 }

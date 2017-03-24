@@ -34,6 +34,7 @@ public abstract class EventImageMapper {
     @Mapping(source = "pollId", target = "poll")
     @Mapping(target = "votes", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "voteCount", ignore = true)
     public abstract EventImage eventImageDTOToEventImage(EventImageDTO eventImageDTO);
 
     public abstract List<EventImage> eventImageDTOsToEventImages(List<EventImageDTO> eventImageDTOs);
