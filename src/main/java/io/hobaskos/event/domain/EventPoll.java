@@ -1,5 +1,6 @@
 package io.hobaskos.event.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -45,6 +46,7 @@ public class EventPoll implements Serializable {
 
     @ManyToOne
     @NotNull
+    @JsonBackReference
     private Event event;
 
     @OneToMany(mappedBy = "poll")
