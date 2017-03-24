@@ -7,12 +7,15 @@ import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.EventImage;
 import io.hobaskos.event.repository.EventImageVoteRepository;
 import io.hobaskos.event.repository.search.EventImageVoteSearchRepository;
+import io.hobaskos.event.service.UserService;
+import io.hobaskos.event.service.UserServiceIntTest;
 import io.hobaskos.event.service.dto.EventImageVoteDTO;
 import io.hobaskos.event.service.mapper.EventImageVoteMapper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -32,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class for the EventImageVoteResource REST controller.
@@ -63,6 +67,9 @@ public class EventImageVoteResourceIntTest {
     @Inject
     private EntityManager em;
 
+    @Mock
+    private UserService userService;
+
     private MockMvc restEventImageVoteMockMvc;
 
     private EventImageVote eventImageVote;
@@ -74,6 +81,7 @@ public class EventImageVoteResourceIntTest {
         ReflectionTestUtils.setField(eventImageVoteResource, "eventImageVoteSearchRepository", eventImageVoteSearchRepository);
         ReflectionTestUtils.setField(eventImageVoteResource, "eventImageVoteRepository", eventImageVoteRepository);
         ReflectionTestUtils.setField(eventImageVoteResource, "eventImageVoteMapper", eventImageVoteMapper);
+        ReflectionTestUtils.setField(eventImageVoteResource, "userService", userService);
         this.restEventImageVoteMockMvc = MockMvcBuilders.standaloneSetup(eventImageVoteResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -115,6 +123,7 @@ public class EventImageVoteResourceIntTest {
         // Create the EventImageVote
         EventImageVoteDTO eventImageVoteDTO = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
 
+        when(userService.getUserWithAuthorities()).thenReturn(UserResourceIntTest.createRandomEntity(em));
         restEventImageVoteMockMvc.perform(post("/api/event-image-votes")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventImageVoteDTO)))
@@ -162,6 +171,7 @@ public class EventImageVoteResourceIntTest {
         // Create the EventImageVote, which fails.
         EventImageVoteDTO eventImageVoteDTO = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
 
+        when(userService.getUserWithAuthorities()).thenReturn(UserResourceIntTest.createRandomEntity(em));
         restEventImageVoteMockMvc.perform(post("/api/event-image-votes")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventImageVoteDTO)))
@@ -205,55 +215,6 @@ public class EventImageVoteResourceIntTest {
         // Get the eventImageVote
         restEventImageVoteMockMvc.perform(get("/api/event-image-votes/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    public void updateEventImageVote() throws Exception {
-        // Initialize the database
-        eventImageVoteRepository.saveAndFlush(eventImageVote);
-        eventImageVoteSearchRepository.save(eventImageVote);
-        int databaseSizeBeforeUpdate = eventImageVoteRepository.findAll().size();
-
-        // Update the eventImageVote
-        EventImageVote updatedEventImageVote = eventImageVoteRepository.findOne(eventImageVote.getId());
-        updatedEventImageVote
-                .vote(UPDATED_VOTE);
-        EventImageVoteDTO eventImageVoteDTO = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(updatedEventImageVote);
-
-        restEventImageVoteMockMvc.perform(put("/api/event-image-votes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(eventImageVoteDTO)))
-            .andExpect(status().isOk());
-
-        // Validate the EventImageVote in the database
-        List<EventImageVote> eventImageVoteList = eventImageVoteRepository.findAll();
-        assertThat(eventImageVoteList).hasSize(databaseSizeBeforeUpdate);
-        EventImageVote testEventImageVote = eventImageVoteList.get(eventImageVoteList.size() - 1);
-        assertThat(testEventImageVote.getVote()).isEqualTo(UPDATED_VOTE);
-
-        // Validate the EventImageVote in ElasticSearch
-        //EventImageVote eventImageVoteEs = eventImageVoteSearchRepository.findOne(testEventImageVote.getId());
-        //assertThat(eventImageVoteEs).isEqualToComparingFieldByField(testEventImageVote);
-    }
-
-    @Test
-    @Transactional
-    public void updateNonExistingEventImageVote() throws Exception {
-        int databaseSizeBeforeUpdate = eventImageVoteRepository.findAll().size();
-
-        // Create the EventImageVote
-        EventImageVoteDTO eventImageVoteDTO = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
-
-        // If the entity doesn't have an ID, it will be created instead of just being updated
-        restEventImageVoteMockMvc.perform(put("/api/event-image-votes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(eventImageVoteDTO)))
-            .andExpect(status().isCreated());
-
-        // Validate the EventImageVote in the database
-        List<EventImageVote> eventImageVoteList = eventImageVoteRepository.findAll();
-        assertThat(eventImageVoteList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test

@@ -19,14 +19,10 @@ public class EventImageVoteDTO implements Serializable {
     @Max(value = 1)
     private Integer vote;
 
-
-    private Long userId;
-    
-
     private String userLogin;
 
     private Long eventImageId;
-    
+
     public Long getId() {
         return id;
     }
@@ -41,15 +37,6 @@ public class EventImageVoteDTO implements Serializable {
     public void setVote(Integer vote) {
         this.vote = vote;
     }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
 
     public String getUserLogin() {
         return userLogin;

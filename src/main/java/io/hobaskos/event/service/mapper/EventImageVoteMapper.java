@@ -12,14 +12,13 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {UserMapper.class, })
 public interface EventImageVoteMapper {
 
-    @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "user.login", target = "userLogin")
     @Mapping(source = "eventImage.id", target = "eventImageId")
     EventImageVoteDTO eventImageVoteToEventImageVoteDTO(EventImageVote eventImageVote);
 
     List<EventImageVoteDTO> eventImageVotesToEventImageVoteDTOs(List<EventImageVote> eventImageVotes);
 
-    @Mapping(source = "userId", target = "user")
+    @Mapping(target = "user", ignore = true)
     @Mapping(source = "eventImageId", target = "eventImage")
     EventImageVote eventImageVoteDTOToEventImageVote(EventImageVoteDTO eventImageVoteDTO);
 
