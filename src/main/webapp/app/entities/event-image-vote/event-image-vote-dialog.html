@@ -39,18 +39,6 @@
         </div>
 
         <div class="form-group">
-            <label data-translate="backendApp.eventImageVote.user" for="field_user">User</label>
-            <select class="form-control" id="field_user" name="user" ng-model="vm.eventImageVote.userId" ng-options="user.id as user.login for user in vm.users"             required>
-                <option value=""></option>
-            </select>
-        </div>
-        <div ng-show="editForm.user.$invalid">
-            <p class="help-block"
-                ng-show="editForm.user.$error.required" data-translate="entity.validation.required">
-                This field is required.
-            </p>
-        </div>
-        <div class="form-group">
             <label data-translate="backendApp.eventImageVote.eventImage" for="field_eventImage">Event Image</label>
             <select class="form-control" id="field_eventImage" name="eventImage" ng-model="vm.eventImageVote.eventImageId" ng-options="eventImage.id as eventImage.id for eventImage in vm.eventimages"             required>
                 <option value=""></option>

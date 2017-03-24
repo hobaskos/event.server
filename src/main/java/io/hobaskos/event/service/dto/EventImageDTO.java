@@ -18,6 +18,8 @@ public class EventImageDTO implements Serializable {
 
     private String imageUrl;
 
+    private boolean hasMyVote;
+
     @NotNull
     @Lob
     private byte[] file;
@@ -50,6 +52,14 @@ public class EventImageDTO implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isHasMyVote() {
+        return hasMyVote;
+    }
+
+    public void setHasMyVote(boolean hasMyVote) {
+        this.hasMyVote = hasMyVote;
     }
 
     public byte[] getFile() {
