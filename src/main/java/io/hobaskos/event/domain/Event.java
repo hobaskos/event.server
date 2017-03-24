@@ -79,7 +79,7 @@ public class Event implements Serializable {
     private Set<EventUserAttending> attendings = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     @JsonManagedReference
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<EventPoll> polls = new HashSet<>();
