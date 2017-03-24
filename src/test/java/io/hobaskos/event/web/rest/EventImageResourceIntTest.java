@@ -4,15 +4,18 @@ import io.hobaskos.event.BackendApp;
 
 import io.hobaskos.event.domain.EventImage;
 import io.hobaskos.event.domain.EventPoll;
+import io.hobaskos.event.domain.User;
 import io.hobaskos.event.repository.EventImageRepository;
 import io.hobaskos.event.service.EventImageService;
 import io.hobaskos.event.repository.search.EventImageSearchRepository;
+import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventImageDTO;
 import io.hobaskos.event.service.mapper.EventImageMapper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -33,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class for the EventImageResource REST controller.
@@ -71,6 +75,9 @@ public class EventImageResourceIntTest {
     @Inject
     private EntityManager em;
 
+    @Mock
+    private UserService userService;
+
     private MockMvc restEventImageMockMvc;
 
     private EventImage eventImage;
@@ -79,6 +86,7 @@ public class EventImageResourceIntTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         EventImageResource eventImageResource = new EventImageResource();
+        ReflectionTestUtils.setField(eventImageService, "userService", userService);
         ReflectionTestUtils.setField(eventImageResource, "eventImageService", eventImageService);
         this.restEventImageMockMvc = MockMvcBuilders.standaloneSetup(eventImageResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -100,6 +108,11 @@ public class EventImageResourceIntTest {
         em.persist(poll);
         em.flush();
         eventImage.setPoll(poll);
+        // Add required entity
+        User user = UserResourceIntTest.createEntity(em);
+        em.persist(user);
+        em.flush();
+        eventImage.setUser(user);
         return eventImage;
     }
 
@@ -119,6 +132,7 @@ public class EventImageResourceIntTest {
         eventImageDTO.setFile(DEFAULT_FILE);
         eventImageDTO.setFileContentType(DEFAULT_FILE_CONTENT_TYPE);
 
+        when(userService.getUserWithAuthorities()).thenReturn(UserResourceIntTest.createRandomEntity(em));
         restEventImageMockMvc.perform(post("/api/event-images")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventImageDTO)))
@@ -207,6 +221,7 @@ public class EventImageResourceIntTest {
         eventImageDTO.setFile(DEFAULT_FILE);
         eventImageDTO.setFileContentType(DEFAULT_FILE_CONTENT_TYPE);
 
+        when(userService.getUserWithAuthorities()).thenReturn(UserResourceIntTest.createRandomEntity(em));
         restEventImageMockMvc.perform(put("/api/event-images")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventImageDTO)))
@@ -234,6 +249,7 @@ public class EventImageResourceIntTest {
         eventImageDTO.setFileContentType(DEFAULT_FILE_CONTENT_TYPE);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
+        when(userService.getUserWithAuthorities()).thenReturn(UserResourceIntTest.createRandomEntity(em));
         restEventImageMockMvc.perform(put("/api/event-images")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(eventImageDTO)))

@@ -26,6 +26,8 @@ public class EventImageDTO implements Serializable {
 
     private Long pollId;
 
+    private String userLogin;
+
     public Long getId() {
         return id;
     }
@@ -72,6 +74,14 @@ public class EventImageDTO implements Serializable {
 
     public void setPollId(Long eventPollId) {
         this.pollId = eventPollId;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
     }
 
     @Override

@@ -16,6 +16,10 @@
         <dd>
             <a ui-sref="event-poll-detail({id:vm.eventImage.pollId})">{{vm.eventImage.pollId}}</a>
         </dd>
+        <dt><span data-translate="backendApp.eventImage.user">User</span></dt>
+        <dd>
+            {{vm.eventImage.userLogin}}
+        </dd>
     </dl>
 
     <button type="submit"

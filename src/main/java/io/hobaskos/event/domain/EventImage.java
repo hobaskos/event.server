@@ -47,6 +47,10 @@ public class EventImage implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<EventImageVote> votes = new HashSet<>();
 
+    @ManyToOne
+    @NotNull
+    private User user;
+
     public Long getId() {
         return id;
     }
@@ -117,6 +121,19 @@ public class EventImage implements Serializable {
 
     public void setVotes(Set<EventImageVote> eventImageVotes) {
         this.votes = eventImageVotes;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public EventImage user(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

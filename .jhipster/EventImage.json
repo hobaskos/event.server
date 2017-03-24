@@ -15,6 +15,16 @@
             "otherEntityName": "eventImageVote",
             "relationshipType": "one-to-many",
             "otherEntityRelationshipName": "eventImage"
+        },
+        {
+            "relationshipName": "user",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "login",
+            "ownerSide": true
         }
     ],
     "fields": [
