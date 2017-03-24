@@ -134,8 +134,8 @@ public class EventPollResourceIntTest {
         assertThat(testEventPoll.getStatus()).isEqualTo(DEFAULT_STATUS);
 
         // Validate the EventPoll in ElasticSearch
-        EventPoll eventPollEs = eventPollSearchRepository.findOne(testEventPoll.getId());
-        assertThat(eventPollEs).isEqualToComparingFieldByField(testEventPoll);
+        //EventPoll eventPollEs = eventPollSearchRepository.findOne(testEventPoll.getId());
+        //assertThat(eventPollEs).isEqualToComparingFieldByField(testEventPoll);
     }
 
     @Test
@@ -267,8 +267,8 @@ public class EventPollResourceIntTest {
         assertThat(testEventPoll.getStatus()).isEqualTo(UPDATED_STATUS);
 
         // Validate the EventPoll in ElasticSearch
-        EventPoll eventPollEs = eventPollSearchRepository.findOne(testEventPoll.getId());
-        assertThat(eventPollEs).isEqualToComparingFieldByField(testEventPoll);
+        //EventPoll eventPollEs = eventPollSearchRepository.findOne(testEventPoll.getId());
+        //assertThat(eventPollEs).isEqualToComparingFieldByField(testEventPoll);
     }
 
     @Test
