@@ -37,8 +37,6 @@
                 <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.transition()">
                     <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="title"><span data-translate="backendApp.event.title">Title</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="description"><span data-translate="backendApp.event.description">Description</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="imageUrl"><span data-translate="backendApp.event.imageUrl">Image Url</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="fromDate"><span data-translate="backendApp.event.fromDate">From Date</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="toDate"><span data-translate="backendApp.event.toDate">To Date</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="privateEvent"><span data-translate="backendApp.event.privateEvent">Private Event</span> <span class="glyphicon glyphicon-sort"></span></th>
@@ -53,8 +51,6 @@
                 <tr ng-repeat="event in vm.events track by event.id">
                     <td><a ui-sref="event-detail({id:event.id})">{{event.id}}</a></td>
                     <td>{{event.title}}</td>
-                    <td>{{event.description}}</td>
-                    <td>{{event.imageUrl}}</td>
                     <td>{{event.fromDate | date:'medium'}}</td>
                     <td>{{event.toDate | date:'medium'}}</td>
                     <td>{{event.privateEvent}}</td>
