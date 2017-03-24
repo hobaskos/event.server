@@ -5,6 +5,7 @@ import io.hobaskos.event.domain.EventImageVote;
 
 import io.hobaskos.event.repository.EventImageVoteRepository;
 import io.hobaskos.event.repository.search.EventImageVoteSearchRepository;
+import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
 import io.hobaskos.event.service.dto.EventImageVoteDTO;
@@ -40,7 +41,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EventImageVoteResource {
 
     private final Logger log = LoggerFactory.getLogger(EventImageVoteResource.class);
-        
+
     @Inject
     private EventImageVoteRepository eventImageVoteRepository;
 
@@ -49,6 +50,9 @@ public class EventImageVoteResource {
 
     @Inject
     private EventImageVoteSearchRepository eventImageVoteSearchRepository;
+
+    @Inject
+    private UserService userService;
 
     /**
      * POST  /event-image-votes : Create a new eventImageVote.
@@ -65,36 +69,12 @@ public class EventImageVoteResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("eventImageVote", "idexists", "A new eventImageVote cannot already have an ID")).body(null);
         }
         EventImageVote eventImageVote = eventImageVoteMapper.eventImageVoteDTOToEventImageVote(eventImageVoteDTO);
+        eventImageVote.setUser(userService.getUserWithAuthorities());
         eventImageVote = eventImageVoteRepository.save(eventImageVote);
         EventImageVoteDTO result = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
         eventImageVoteSearchRepository.save(eventImageVote);
         return ResponseEntity.created(new URI("/api/event-image-votes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("eventImageVote", result.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * PUT  /event-image-votes : Updates an existing eventImageVote.
-     *
-     * @param eventImageVoteDTO the eventImageVoteDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated eventImageVoteDTO,
-     * or with status 400 (Bad Request) if the eventImageVoteDTO is not valid,
-     * or with status 500 (Internal Server Error) if the eventImageVoteDTO couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @PutMapping("/event-image-votes")
-    @Timed
-    public ResponseEntity<EventImageVoteDTO> updateEventImageVote(@Valid @RequestBody EventImageVoteDTO eventImageVoteDTO) throws URISyntaxException {
-        log.debug("REST request to update EventImageVote : {}", eventImageVoteDTO);
-        if (eventImageVoteDTO.getId() == null) {
-            return createEventImageVote(eventImageVoteDTO);
-        }
-        EventImageVote eventImageVote = eventImageVoteMapper.eventImageVoteDTOToEventImageVote(eventImageVoteDTO);
-        eventImageVote = eventImageVoteRepository.save(eventImageVote);
-        EventImageVoteDTO result = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
-        eventImageVoteSearchRepository.save(eventImageVote);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("eventImageVote", eventImageVoteDTO.getId().toString()))
             .body(result);
     }
 
@@ -153,7 +133,7 @@ public class EventImageVoteResource {
      * SEARCH  /_search/event-image-votes?query=:query : search for the eventImageVote corresponding
      * to the query.
      *
-     * @param query the query of the eventImageVote search 
+     * @param query the query of the eventImageVote search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
