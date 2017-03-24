@@ -248,6 +248,16 @@ dependencies {
     optional "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
 
+    compile "com.google.code.gson:gson:${gson_version}"
+    compile "com.squareup.retrofit2:retrofit:${retrofit_version}"
+    compile "com.squareup.retrofit2:retrofit-adapters:${retrofit_version}"
+    compile "com.squareup.retrofit2:retrofit-converters:${retrofit_version}"
+    compile "com.squareup.retrofit2:converter-gson:${retrofit_version}"
+    compile "com.squareup.retrofit2:converter-scalars:${retrofit_version}"
+    compile "com.squareup.retrofit2:adapter-rxjava:${retrofit_version}"
+    compile "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0"
+
+
     compile "io.reactivex.rxjava2:rxjava:${rxjava_version}"
 }
 
