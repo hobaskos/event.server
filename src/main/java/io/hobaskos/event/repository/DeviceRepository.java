@@ -2,11 +2,13 @@ package io.hobaskos.event.repository;
 
 import io.hobaskos.event.domain.Device;
 
+import io.hobaskos.event.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Spring Data JPA repository for the Device entity.
@@ -19,4 +21,6 @@ public interface DeviceRepository extends JpaRepository<Device,Long> {
 
     @Query("select device from Device device where device.user.login = ?#{principal.username}")
     Page<Device> findByUserIsCurrentUser(Pageable pageable);
+
+    Set<Device> findByUserIn(Set<User> users);
 }

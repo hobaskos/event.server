@@ -1,11 +1,13 @@
 package io.hobaskos.event.service.impl;
 
+import io.hobaskos.event.domain.EventPoll;
 import io.hobaskos.event.repository.EventPollRepository;
 import io.hobaskos.event.service.EventImageService;
 import io.hobaskos.event.domain.EventImage;
 import io.hobaskos.event.repository.EventImageRepository;
 import io.hobaskos.event.repository.search.EventImageSearchRepository;
 import io.hobaskos.event.service.StorageService;
+import io.hobaskos.event.service.TriggerService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventImageDTO;
 import io.hobaskos.event.service.mapper.EventImageMapper;
@@ -51,6 +53,9 @@ public class EventImageServiceImpl implements EventImageService{
     @Inject
     private EventPollRepository eventPollRepository;
 
+    @Inject
+    private TriggerService triggerService;
+
     /**
      * Save a eventImage.
      *
@@ -70,6 +75,10 @@ public class EventImageServiceImpl implements EventImageService{
         eventImage.setUser(userService.getUserWithAuthorities());
 
         eventImage = eventImageRepository.save(eventImage);
+
+        EventPoll eventPoll = eventPollRepository.getOne(eventImage.getPoll().getId());
+        triggerService.eventImageUploaded(eventImage, eventPoll.getEvent());
+
         EventImageDTO result = eventImageMapper.eventImageToEventImageDTO(eventImage);
         eventImageSearchRepository.save(eventImage);
         return result;

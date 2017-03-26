@@ -2,6 +2,7 @@ package io.hobaskos.event.domain.external;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by alex on 3/3/17.
@@ -9,20 +10,20 @@ import java.util.List;
 public class FcmNotificationMultiPayload {
 
     @SerializedName("registration_ids")
-    private List<String> recipients;
+    private Set<String> recipients;
 
     private FcmNotification notification;
 
-    public FcmNotificationMultiPayload(List<String> recipients, FcmNotification notification) {
+    public FcmNotificationMultiPayload(Set<String> recipients, FcmNotification notification) {
         this.recipients = recipients;
         this.notification = notification;
     }
 
-    public List<String> getRecipients() {
+    public Set<String> getRecipients() {
         return recipients;
     }
 
-    public void setRecipients(List<String> recipients) {
+    public void setRecipients(Set<String> recipients) {
         this.recipients = recipients;
     }
 

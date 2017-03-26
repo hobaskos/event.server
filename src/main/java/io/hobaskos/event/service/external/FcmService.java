@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FcmService {
@@ -38,7 +39,7 @@ public class FcmService {
         return fcmInterface.sendNotification(new FcmNotificationSinglePayload(deviceToken, notification));
     }
 
-    public Observable<FcmResponse> sendNotificationsToDevices(List<String> deviceTokens, FcmNotification notification) {
+    public Observable<FcmResponse> sendNotificationsToDevices(Set<String> deviceTokens, FcmNotification notification) {
         if (fcmInterface == null) {fcmInterface = createFcmService(); }
 
         return fcmInterface.sendNotifications(new FcmNotificationMultiPayload(deviceTokens, notification));
