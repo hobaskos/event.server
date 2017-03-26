@@ -54,6 +54,11 @@ public class DeviceServiceImpl implements DeviceService{
         log.debug("Request to save Device : {}", deviceDTO);
         Device device = deviceMapper.deviceDTOToDevice(deviceDTO);
         device.setUser(userService.getUserWithAuthorities());
+
+        Device deviceCheck = deviceRepository.findFirstByUserAndTokenAndType(device.getUser(),
+            device.getToken(), device.getType());
+        if (deviceCheck != null) return deviceMapper.deviceToDeviceDTO(deviceCheck);
+
         device = deviceRepository.save(device);
         DeviceDTO result = deviceMapper.deviceToDeviceDTO(device);
         deviceSearchRepository.save(device);
