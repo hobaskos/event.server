@@ -12,9 +12,11 @@ import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.SecurityUtils;
+import io.hobaskos.event.service.DeviceService;
 import io.hobaskos.event.service.MailService;
 import io.hobaskos.event.service.UserConnectionService;
 import io.hobaskos.event.service.UserService;
+import io.hobaskos.event.service.dto.DeviceDTO;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.dto.UserConnectionDTO;
 import io.hobaskos.event.service.dto.UserDTO;
@@ -74,6 +76,9 @@ public class AccountResource {
 
     @Inject
     private EventRepository eventRepository;
+
+    @Inject
+    private DeviceService deviceService;
 
     /**
      * POST  /register : register the user.
@@ -357,5 +362,32 @@ public class AccountResource {
                 return new ResponseEntity<>(HttpStatus.OK);
             })
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * Create a new device for account user
+     * @param deviceDTO
+     * @return the saved deviceDTO
+     */
+    @PostMapping(path = "/account/devices", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<DeviceDTO> addDevice(@RequestBody DeviceDTO deviceDTO) {
+        log.debug("REST request to create a new device for account user");
+        deviceDTO = deviceService.save(deviceDTO);
+        return new ResponseEntity<>(deviceDTO, HttpStatus.OK);
+    }
+
+    /**
+     * Get devices for user
+     * @param pageable
+     * @return the list of devices
+     */
+    @GetMapping(path = "/account/devices", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<List<DeviceDTO>> getMyDevices(@ApiParam Pageable pageable) throws URISyntaxException {
+        log.debug("REST request to get devices for account user");
+        Page<DeviceDTO> page = deviceService.findAllForUser(userService.getUserWithAuthorities(), pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/devices");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }
