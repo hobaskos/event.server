@@ -20,6 +20,9 @@ public class EventImageDTO implements Serializable {
 
     private boolean hasMyVote;
 
+    @Min(value = 0)
+    private Integer voteCount;
+
     @NotNull
     @Lob
     private byte[] file;
@@ -60,6 +63,14 @@ public class EventImageDTO implements Serializable {
 
     public void setHasMyVote(boolean hasMyVote) {
         this.hasMyVote = hasMyVote;
+    }
+
+    public Integer getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(Integer voteCount) {
+        this.voteCount = voteCount;
     }
 
     public byte[] getFile() {
@@ -121,6 +132,8 @@ public class EventImageDTO implements Serializable {
             "id=" + id +
             ", title='" + title + "'" +
             ", file='" + file + "'" +
+            ", imageUrl='" + imageUrl + "'" +
+            ", voteCount='" + voteCount + "'" +
             '}';
     }
 }

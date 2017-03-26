@@ -12,6 +12,10 @@
         <dd>
             <span>{{vm.eventImage.imageUrl}}</span>
         </dd>
+        <dt><span data-translate="backendApp.eventImage.voteCount">Vote Count</span></dt>
+        <dd>
+            <span>{{vm.eventImage.voteCount}}</span>
+        </dd>
         <dt><span data-translate="backendApp.eventImage.poll">Poll</span></dt>
         <dd>
             <a ui-sref="event-poll-detail({id:vm.eventImage.pollId})">{{vm.eventImage.pollId}}</a>

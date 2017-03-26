@@ -37,6 +37,11 @@ public class EventImage implements Serializable {
     @Column(name = "image_url", length = 256, nullable = false)
     private String imageUrl;
 
+    @NotNull
+    @Min(value = 0)
+    @Column(name = "vote_count", nullable = false)
+    private Integer voteCount = 0;
+
     @ManyToOne
     @NotNull
     private EventPoll poll;
@@ -83,6 +88,19 @@ public class EventImage implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getVoteCount() {
+        return voteCount;
+    }
+
+    public EventImage voteCount(Integer voteCount) {
+        this.voteCount = voteCount;
+        return this;
+    }
+
+    public void setVoteCount(Integer voteCount) {
+        this.voteCount = voteCount;
     }
 
     public EventPoll getPoll() {
@@ -136,6 +154,22 @@ public class EventImage implements Serializable {
         this.user = user;
     }
 
+    public void increaseVoteCount() {
+        if (this.voteCount != null) {
+            this.voteCount++;
+        } else {
+            this.voteCount = 1;
+        }
+    }
+
+    public void decreaseVoteCount() {
+        if (this.voteCount != null && this.voteCount > 0) {
+            this.voteCount--;
+        } else {
+            this.voteCount = 0;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -162,6 +196,7 @@ public class EventImage implements Serializable {
             "id=" + id +
             ", title='" + title + "'" +
             ", imageUrl='" + imageUrl + "'" +
+            ", voteCount='" + voteCount + "'" +
             '}';
     }
 }

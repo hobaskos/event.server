@@ -7,6 +7,7 @@ import io.hobaskos.event.domain.User;
 import io.hobaskos.event.domain.EventImage;
 import io.hobaskos.event.repository.EventImageVoteRepository;
 import io.hobaskos.event.repository.search.EventImageVoteSearchRepository;
+import io.hobaskos.event.service.EventImageService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.UserServiceIntTest;
 import io.hobaskos.event.service.dto.EventImageVoteDTO;
@@ -65,6 +66,9 @@ public class EventImageVoteResourceIntTest {
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
     @Inject
+    private EventImageService eventImageService;
+
+    @Inject
     private EntityManager em;
 
     @Mock
@@ -82,6 +86,7 @@ public class EventImageVoteResourceIntTest {
         ReflectionTestUtils.setField(eventImageVoteResource, "eventImageVoteRepository", eventImageVoteRepository);
         ReflectionTestUtils.setField(eventImageVoteResource, "eventImageVoteMapper", eventImageVoteMapper);
         ReflectionTestUtils.setField(eventImageVoteResource, "userService", userService);
+        ReflectionTestUtils.setField(eventImageVoteResource, "eventImageService", eventImageService);
         this.restEventImageVoteMockMvc = MockMvcBuilders.standaloneSetup(eventImageVoteResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();

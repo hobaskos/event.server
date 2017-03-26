@@ -44,6 +44,15 @@
                 "maxlength"
             ],
             "fieldValidateRulesMaxlength": "256"
+        },
+        {
+            "fieldName": "voteCount",
+            "fieldType": "Integer",
+            "fieldValidateRules": [
+                "required",
+                "min"
+            ],
+            "fieldValidateRulesMin": 0
         }
     ],
     "changelogDate": "20170302114645",

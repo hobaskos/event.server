@@ -3,6 +3,8 @@ package io.hobaskos.event.service;
 import io.hobaskos.event.service.dto.EventImageDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -58,4 +60,18 @@ public interface EventImageService {
      *  @return the list of entities
      */
     Page<EventImageDTO> search(String query, Pageable pageable);
+
+    /**
+     * Increase the voteCount for video
+     * @param videoId
+     */
+    @Async
+    void increaseVoteCount(Long videoId);
+
+    /**
+     * Decrease the voteCount for video
+     * @param videoId
+     */
+    @Async
+    void decreaseVoteCount(Long videoId);
 }
