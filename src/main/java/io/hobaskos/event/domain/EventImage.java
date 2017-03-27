@@ -42,6 +42,10 @@ public class EventImage implements Serializable {
     @Column(name = "vote_count", nullable = false)
     private Integer voteCount = 0;
 
+    @NotNull
+    @Column(name = "vote_score", nullable = false)
+    private Integer voteScore = 0;
+
     @ManyToOne
     @NotNull
     private EventPoll poll;
@@ -103,6 +107,14 @@ public class EventImage implements Serializable {
         this.voteCount = voteCount;
     }
 
+    public Integer getVoteScore() {
+        return voteScore;
+    }
+
+    public void setVoteScore(Integer voteScore) {
+        this.voteScore = voteScore;
+    }
+
     public EventPoll getPoll() {
         return poll;
     }
@@ -154,22 +166,6 @@ public class EventImage implements Serializable {
         this.user = user;
     }
 
-    public void increaseVoteCount() {
-        if (this.voteCount != null) {
-            this.voteCount++;
-        } else {
-            this.voteCount = 1;
-        }
-    }
-
-    public void decreaseVoteCount() {
-        if (this.voteCount != null && this.voteCount > 0) {
-            this.voteCount--;
-        } else {
-            this.voteCount = 0;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -197,6 +193,7 @@ public class EventImage implements Serializable {
             ", title='" + title + "'" +
             ", imageUrl='" + imageUrl + "'" +
             ", voteCount='" + voteCount + "'" +
+            ", voteScore='" + voteScore + "'" +
             '}';
     }
 }

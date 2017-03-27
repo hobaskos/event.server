@@ -19,4 +19,9 @@ public interface EventImageVoteRepository extends JpaRepository<EventImageVote,L
     List<EventImageVote> findByUserIsCurrentUser();
 
     Optional<EventImageVote> findFirstByEventImageAndUser(EventImage eventImage, User user);
+
+    int countByEventImage(EventImage eventImage);
+
+    @Query("select sum(eventImageVote.vote) from EventImageVote eventImageVote where eventImageVote.eventImage = ?1")
+    int sumVotesByEventImage(EventImage eventImage);
 }

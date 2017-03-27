@@ -32,4 +32,5 @@
     <include file="classpath:config/liquibase/changelog/20170316150001_modified_entity_Location.xml" relativeToChangelogFile="false" />
     <include file="classpath:config/liquibase/changelog/20170323160001_modified_entity_EventImage.xml" relativeToChangelogFile="false" />
     <include file="classpath:config/liquibase/changelog/20170324103001_modified_entity_EventImage.xml" relativeToChangelogFile="false" />
+    <include file="classpath:config/liquibase/changelog/20170327133001_modified_entity_EventImage.xml" relativeToChangelogFile="false" />
 </databaseChangeLog>

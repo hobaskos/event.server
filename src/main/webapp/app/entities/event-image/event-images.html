@@ -38,7 +38,8 @@
                     <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="title"><span data-translate="backendApp.eventImage.title">Title</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="imageUrl"><span data-translate="backendApp.eventImage.imageUrl">Image Url</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="voteCount"><span data-translate="backendApp.eventImage.voteCount">Vote Count</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="voteCount">V.C<span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="voteScore">V.S<span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="pollId"><span data-translate="backendApp.eventImage.poll">Poll</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="userLogin"><span data-translate="backendApp.eventImage.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
@@ -50,6 +51,7 @@
                     <td>{{eventImage.title}}</td>
                     <td>{{eventImage.imageUrl}}</td>
                     <td>{{eventImage.voteCount}}</td>
+                    <td>{{eventImage.voteScore}}</td>
                     <td>
                         <a ui-sref="event-poll-detail({id:eventImage.pollId})">{{eventImage.pollId}}</a>
                     </td>

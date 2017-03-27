@@ -54,6 +54,12 @@ public class EventImageResourceIntTest {
     private static final byte[] DEFAULT_FILE = TestUtil.createByteArray(1, "0");
     private static final String DEFAULT_FILE_CONTENT_TYPE = "image/jpg";
 
+    private static final Integer DEFAULT_VOTE_COUNT = 0;
+    private static final Integer UPDATED_VOTE_COUNT = 1;
+
+    private static final Integer DEFAULT_VOTE_SCORE = 1;
+    private static final Integer UPDATED_VOTE_SCORE = 2;
+
     @Inject
     private EventImageRepository eventImageRepository;
 

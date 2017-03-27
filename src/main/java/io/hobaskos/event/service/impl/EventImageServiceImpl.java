@@ -1,6 +1,7 @@
 package io.hobaskos.event.service.impl;
 
 import io.hobaskos.event.domain.EventPoll;
+import io.hobaskos.event.repository.EventImageVoteRepository;
 import io.hobaskos.event.repository.EventPollRepository;
 import io.hobaskos.event.service.EventImageService;
 import io.hobaskos.event.domain.EventImage;
@@ -53,6 +54,9 @@ public class EventImageServiceImpl implements EventImageService{
 
     @Inject
     private EventPollRepository eventPollRepository;
+
+    @Inject
+    private EventImageVoteRepository eventImageVoteRepository;
 
     @Inject
     private TriggerService triggerService;
@@ -152,30 +156,16 @@ public class EventImageServiceImpl implements EventImageService{
     }
 
     /**
-     * Decrease the voteCount for video
-     * @param videoId
+     * Decrease the voteCount for eventImage
+     * @param eventImageId
      */
     @Async
-    public synchronized void increaseVoteCount(Long videoId) {
-        log.debug("Request to increase voteCount for video {}", videoId);
-        Optional.ofNullable(eventImageRepository.findOne(videoId))
+    public synchronized void recalculateVoteStats(Long eventImageId) {
+        log.debug("Request to increase voteCount for eventImage {}", eventImageId);
+        Optional.ofNullable(eventImageRepository.findOne(eventImageId))
             .ifPresent(ei -> {
-                ei.increaseVoteCount();
-                EventImage eventImage = eventImageRepository.save(ei);
-                eventImageSearchRepository.save(eventImage);
-            });
-    }
-
-    /**
-     * Decrease the voteCount for video
-     * @param videoId
-     */
-    @Async
-    public void decreaseVoteCount(Long videoId) {
-        log.debug("Request to increase voteCount for video {}", videoId);
-         Optional.ofNullable(eventImageRepository.findOne(videoId))
-            .ifPresent(ei -> {
-                ei.decreaseVoteCount();
+                ei.setVoteCount(eventImageVoteRepository.countByEventImage(ei));
+                ei.setVoteScore(eventImageVoteRepository.sumVotesByEventImage(ei));
                 EventImage eventImage = eventImageRepository.save(ei);
                 eventImageSearchRepository.save(eventImage);
             });

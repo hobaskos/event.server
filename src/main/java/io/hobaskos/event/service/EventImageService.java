@@ -66,12 +66,5 @@ public interface EventImageService {
      * @param videoId
      */
     @Async
-    void increaseVoteCount(Long videoId);
-
-    /**
-     * Decrease the voteCount for video
-     * @param videoId
-     */
-    @Async
-    void decreaseVoteCount(Long videoId);
+    void recalculateVoteStats(Long videoId);
 }

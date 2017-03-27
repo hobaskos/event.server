@@ -53,6 +53,13 @@
                 "min"
             ],
             "fieldValidateRulesMin": 0
+        },
+        {
+            "fieldName": "voteScore",
+            "fieldType": "Integer",
+            "fieldValidateRules": [
+                "required"
+            ]
         }
     ],
     "changelogDate": "20170302114645",
