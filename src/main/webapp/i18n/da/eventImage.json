@@ -21,6 +21,7 @@
             "imageUrl": "Image URL",
             "user": "User",
             "voteCount": "Vote Count",
+            "voteScore": "Vote Score",
             "poll": "Poll"
         }
     }

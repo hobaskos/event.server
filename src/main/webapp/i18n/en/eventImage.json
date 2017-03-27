@@ -20,6 +20,7 @@
             "file": "File",
             "imageUrl": "Image URL",
             "voteCount": "Vote Count",
+            "voteScore": "Vote Score",
             "user": "User",
             "poll": "Poll"
         }

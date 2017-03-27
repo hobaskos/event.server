@@ -25,6 +25,7 @@ public abstract class EventImageMapper {
 
     @Mapping(target = "file", ignore = true)
     @Mapping(target = "fileContentType", ignore = true)
+    @Mapping(target = "hasMyVote", ignore = true)
     @Mapping(source = "poll.id", target = "pollId")
     @Mapping(source = "user.login", target = "userLogin")
     public abstract EventImageDTO eventImageToEventImageDTO(EventImage eventImage);
@@ -35,6 +36,7 @@ public abstract class EventImageMapper {
     @Mapping(target = "votes", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "voteCount", ignore = true)
+    @Mapping(target = "voteScore", ignore = true)
     public abstract EventImage eventImageDTOToEventImage(EventImageDTO eventImageDTO);
 
     public abstract List<EventImage> eventImageDTOsToEventImages(List<EventImageDTO> eventImageDTOs);

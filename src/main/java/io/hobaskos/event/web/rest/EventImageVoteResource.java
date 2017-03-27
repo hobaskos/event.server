@@ -72,7 +72,7 @@ public class EventImageVoteResource {
         EventImageVote eventImageVote = eventImageVoteMapper.eventImageVoteDTOToEventImageVote(eventImageVoteDTO);
         eventImageVote.setUser(userService.getUserWithAuthorities());
         eventImageVote = eventImageVoteRepository.save(eventImageVote);
-        eventImageService.increaseVoteCount(eventImageVoteDTO.getEventImageId());
+        eventImageService.recalculateVoteStats(eventImageVoteDTO.getEventImageId());
         EventImageVoteDTO result = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
         eventImageVoteSearchRepository.save(eventImageVote);
         return ResponseEntity.created(new URI("/api/event-image-votes/" + result.getId()))
@@ -128,9 +128,9 @@ public class EventImageVoteResource {
         log.debug("REST request to delete EventImageVote : {}", id);
         return Optional.ofNullable(eventImageVoteRepository.findOne(id))
             .map(eventImageVote -> {
-                eventImageService.decreaseVoteCount(eventImageVote.getEventImage().getId());
                 eventImageVoteRepository.delete(id);
                 eventImageVoteSearchRepository.delete(id);
+                eventImageService.recalculateVoteStats(eventImageVote.getEventImage().getId());
                 return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("eventImageVote", id.toString())).build();
             })
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));

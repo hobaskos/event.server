@@ -23,6 +23,8 @@ public class EventImageDTO implements Serializable {
     @Min(value = 0)
     private Integer voteCount;
 
+    private Integer voteScore;
+
     @NotNull
     @Lob
     private byte[] file;
@@ -71,6 +73,14 @@ public class EventImageDTO implements Serializable {
 
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
+    }
+
+    public Integer getVoteScore() {
+        return voteScore;
+    }
+
+    public void setVoteScore(Integer voteScore) {
+        this.voteScore = voteScore;
     }
 
     public byte[] getFile() {
@@ -134,6 +144,7 @@ public class EventImageDTO implements Serializable {
             ", file='" + file + "'" +
             ", imageUrl='" + imageUrl + "'" +
             ", voteCount='" + voteCount + "'" +
+            ", voteScore='" + voteScore + "'" +
             '}';
     }
 }
