@@ -3,12 +3,15 @@ package io.hobaskos.event.web.rest;
 import io.hobaskos.event.BackendApp;
 import io.hobaskos.event.domain.Authority;
 import io.hobaskos.event.domain.User;
+import io.hobaskos.event.domain.enumeration.DeviceType;
 import io.hobaskos.event.repository.AuthorityRepository;
 import io.hobaskos.event.repository.UserRepository;
 import io.hobaskos.event.security.AuthoritiesConstants;
+import io.hobaskos.event.service.DeviceService;
 import io.hobaskos.event.service.MailService;
 import io.hobaskos.event.service.UserConnectionService;
 import io.hobaskos.event.service.UserService;
+import io.hobaskos.event.service.dto.DeviceDTO;
 import io.hobaskos.event.service.dto.UserDTO;
 import io.hobaskos.event.web.rest.vm.ManagedUserVM;
 import org.junit.Before;
@@ -75,6 +78,9 @@ public class AccountResourceIntTest {
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
     @Inject
+    private DeviceService deviceService;
+
+    @Inject
     private EntityManager em;
 
     private MockMvc restUserMockMvc;
@@ -92,9 +98,12 @@ public class AccountResourceIntTest {
         ReflectionTestUtils.setField(accountResource, "userService", userService);
         ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
 
+        ReflectionTestUtils.setField(deviceService, "userService", mockUserService);
+
         AccountResource accountUserMockResource = new AccountResource();
         ReflectionTestUtils.setField(accountUserMockResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
+        ReflectionTestUtils.setField(accountUserMockResource, "deviceService", deviceService);
         ReflectionTestUtils.setField(accountUserMockResource, "userConnectionService", userConnectionService);
         ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
 
@@ -501,5 +510,27 @@ public class AccountResourceIntTest {
         restUserMockMvc.perform(post("/api/account/user-connections/" + randomUser1.getLogin())
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    @Transactional
+    public void addAndFetchDevices() throws Exception {
+        String deviceToken = "TOKENTOKEN";
+        DeviceDTO deviceDTO = new DeviceDTO();
+        deviceDTO.setToken(deviceToken);
+        deviceDTO.setType(DeviceType.IOS);
+
+        User randomUser1 = UserResourceIntTest.createRandomEntity(em);
+
+        when(mockUserService.getUserWithAuthorities()).thenReturn(randomUser1);
+        restUserMockMvc.perform(post("/api/account/devices")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(deviceDTO)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.token").value(deviceToken))
+            .andExpect(jsonPath("$.type").value(DeviceType.IOS.toString()))
+            .andExpect(jsonPath("$.userLogin").value(randomUser1.getLogin()));
     }
 }

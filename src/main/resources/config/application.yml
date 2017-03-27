@@ -100,3 +100,7 @@ jhipster:
     ribbon:
         # comma separated list of profiles to show a ribbon on the GUI
         displayOnActiveProfiles: dev
+    fcm:
+        serverKey: ${FCM_SERVER_KEY}
+        serverUrl: "https://fcm.googleapis.com/"
+        senderId: ${FCM_SENDER_ID}

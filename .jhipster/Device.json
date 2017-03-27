@@ -1,0 +1,39 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipName": "user",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "login",
+            "ownerSide": true
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "type",
+            "fieldType": "DeviceType",
+            "fieldValues": "IOS,ANDROID,WINDOWS,OTHER",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "token",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "maxlength"
+            ],
+            "fieldValidateRulesMaxlength": "512"
+        }
+    ],
+    "changelogDate": "20170326142750",
+    "dto": "mapstruct",
+    "service": "serviceImpl",
+    "entityTableName": "device",
+    "pagination": "pagination"
+}

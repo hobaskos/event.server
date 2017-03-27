@@ -21,6 +21,8 @@ public class JHipsterProperties {
 
     private final Mail mail = new Mail();
 
+    private final Fcm fcm = new Fcm();
+
     private final Security security = new Security();
 
     private final Swagger swagger = new Swagger();
@@ -47,6 +49,10 @@ public class JHipsterProperties {
 
     public Mail getMail() {
         return mail;
+    }
+
+    public Fcm getFcm() {
+        return fcm;
     }
 
     public Security getSecurity() {
@@ -169,6 +175,39 @@ public class JHipsterProperties {
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+    }
+
+    public static class Fcm {
+
+        private String serverKey;
+
+        private String serverUrl;
+
+        private String senderId;
+
+        public String getServerKey() {
+            return serverKey;
+        }
+
+        public void setServerKey(String serverKey) {
+            this.serverKey = serverKey;
+        }
+
+        public String getServerUrl() {
+            return serverUrl;
+        }
+
+        public void setServerUrl(String serverUrl) {
+            this.serverUrl = serverUrl;
+        }
+
+        public String getSenderId() {
+            return senderId;
+        }
+
+        public void setSenderId(String senderId) {
+            this.senderId = senderId;
         }
     }
 

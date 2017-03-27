@@ -22,6 +22,8 @@ public interface EventUserAttendingRepository extends JpaRepository<EventUserAtt
 
     Page<EventUserAttending> findByEvent(Event event, Pageable pageable);
 
+    List<EventUserAttending> findByEvent(Event event);
+
     Page<EventUserAttending> findByUser(User user, Pageable pageable);
 
     Optional<EventUserAttending> findOneByEventAndUser(Event event, User user);
