@@ -31,66 +31,63 @@
         </div>
     </div>
     <br/>
-    <div class="table-responsive">
-        <table class="jh-table table table-striped">
-            <thead>
-                <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.transition()">
-                    <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="title"><span data-translate="backendApp.event.title">Title</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="fromDate"><span data-translate="backendApp.event.fromDate">From Date</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="toDate"><span data-translate="backendApp.event.toDate">To Date</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="privateEvent"><span data-translate="backendApp.event.privateEvent">Private Event</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="attendanceCount">Attendance Count<span class="glyphicon glyphicon-sort"></span></th>
-                    <th><span data-translate="backendApp.event.locations">Locations</span></span></th>
-                    <th jh-sort-by="ownerLogin"><span data-translate="backendApp.event.owner">Owner</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th><span data-translate="backendApp.event.eventCategory">Event Category</span></span></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="event in vm.events track by event.id">
-                    <td><a ui-sref="event-detail({id:event.id})">{{event.id}}</a></td>
-                    <td>{{event.title}}</td>
-                    <td>{{event.fromDate | date:'medium'}}</td>
-                    <td>{{event.toDate | date:'medium'}}</td>
-                    <td>{{event.privateEvent}}</td>
-                    <td>{{event.attendanceCount}}</td>
-                    <td>
-                        <span ng-repeat="location in event.locations">
-                                    <a class="form-control-static" ui-sref="location-detail({id: location.id})">{{location.id}}</a>{{$last ? '' : ', '}}
-                        </span>
-                    </td>
-                    <td>
-                        {{event.ownerLogin}}
-                    </td>
-                    <td>
-                        <a ui-sref="event-category-detail({id:event.eventCategory.id})">{{event.eventCategory.title}}</a>
-                    </td>
-                    <td class="text-right">
-                        <div class="btn-group flex-btn-group-container">
-                            <button type="submit"
-                                    ui-sref="event-detail({id:event.id})"
-                                    class="btn btn-info btn-sm">
-                                <span class="glyphicon glyphicon-eye-open"></span>
-                                <span class="hidden-xs hidden-sm" data-translate="entity.action.view"></span>
-                            </button>
-                            <button type="submit"
-                                    ui-sref="event.edit({id:event.id})"
-                                    class="btn btn-primary btn-sm">
-                                <span class="glyphicon glyphicon-pencil"></span>
-                                <span class="hidden-xs hidden-sm" data-translate="entity.action.edit"></span>
-                            </button>
-                            <button type="submit"
-                                    ui-sref="event.delete({id:event.id})"
-                                    class="btn btn-danger btn-sm">
-                                <span class="glyphicon glyphicon-remove-circle"></span>
-                                <span class="hidden-xs hidden-sm" data-translate="entity.action.delete"></span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div>
+        <div class="panel panel-default panel-primary" ng-repeat="event in vm.events track by event.id">
+            <div class="panel-heading"><h3>{{event.title}}</h3><span>Category: {{event.eventCategory.title}}</span></div>
+            <div class="panel-body">
+                <div class="thumbnail">
+                    <img src="{{event.imageUrl}}" />
+                </div>
+
+                <h4>Info</h4>
+                <ul class="list-group">
+                    <li class="list-group-item"><span class="glyphicon glyphicon-time"> Date </span> {{event.fromDate | date:'medium'}}, to: {{event.toDate | date:'medium'}}</li>
+                    <li class="list-group-item"><span class="glyphicon glyphicon-lock"> Private </span> {{event.privateEvent}}</li>
+                    <li class="list-group-item"><span class="glyphicon glyphicon-heart"> Attending</span> {{event.attendanceCount}}</li>
+                    <li class="list-group-item"><span class="glyphicon glyphicon-user"> Owner </span> {{event.ownerLogin}}</li>
+                </ul>
+                <h4>Locations</h4>
+                <table class="table">
+                    <thead>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>From</th>
+                        <th>To</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="location in event.locations">
+                            <td class="col-md-3">{{location.name}}</td>
+                            <td class="col-md-4">{{location.description}}</td>
+                            <td class="col-md-2">{{location.fromDate | date:'short'}}</td>
+                            <td class="col-md-2">{{location.toDate | date:'short'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel-footer text-right">
+                <div class="btn-group flex-btn-group-container">
+                    <button type="submit"
+                            ui-sref="event-detail({id:event.id})"
+                            class="btn btn-info btn-sm">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <span class="hidden-xs hidden-sm" data-translate="entity.action.view"></span>
+                    </button>
+                    <button type="submit"
+                            ui-sref="event.edit({id:event.id})"
+                            class="btn btn-primary btn-sm">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="hidden-xs hidden-sm" data-translate="entity.action.edit"></span>
+                    </button>
+                    <button type="submit"
+                            ui-sref="event.delete({id:event.id})"
+                            class="btn btn-danger btn-sm">
+                        <span class="glyphicon glyphicon-remove-circle"></span>
+                        <span class="hidden-xs hidden-sm" data-translate="entity.action.delete"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="text-center">
         <jhi-item-count page="vm.page" total="vm.queryCount" items-per-page="vm.itemsPerPage"></jhi-item-count>
