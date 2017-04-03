@@ -30,41 +30,61 @@
             </div>
         </div>
     </div>
-    <br/>
     <div>
-        <div class="panel panel-default panel-primary" ng-repeat="event in vm.events track by event.id">
-            <div class="panel-heading"><h3>{{event.title}}</h3><span data-translate="backendApp.event.category">Category</span> <span>{{event.eventCategory.title}}</span></div>
+        <div ng-repeat="event in vm.events track by event.id" class="panel {{event.eventCategory.theme}}">
+            <div class="panel-heading {{event.eventCategory.theme}}">
+                <h3>{{event.title}}</h3>
+                <span data-translate="backendApp.event.category">Category</span> <span>{{event.eventCategory.title}}</span>
+            </div>
             <div class="panel-body">
-                <div class="thumbnail">
+                <div class="thumbnail col-xs-6 col-md-4">
                     <img src="{{event.imageUrl}}" />
                 </div>
-
-                <h4>Info</h4>
-                <ul class="list-group">
-                    <li class="list-group-item"><span class="glyphicon glyphicon-time" data-translate="backendApp.event.date"> Date </span> {{event.fromDate | date:'medium'}}, to: {{event.toDate | date:'medium'}}</li>
-                    <li class="list-group-item"><span class="glyphicon glyphicon-lock" data-translate="backendApp.event.private"> Private </span> {{event.privateEvent}}</li>
-                    <li class="list-group-item"><span class="glyphicon glyphicon-heart" data-translate="backendApp.event.attending"> Attending</span> {{event.attendanceCount}}</li>
-                    <li class="list-group-item"><span class="glyphicon glyphicon-user" data-translate="backendApp.event.owner"> Owner </span> {{event.ownerLogin}}</li>
-                </ul>
-                <h4>Locations</h4>
-                <table class="table">
-                    <thead>
-                        <th data-translate="backendApp.event.location.name">Name</th>
-                        <th data-translate="backendApp.event.location.description">Description</th>
-                        <th data-translate="backendApp.event.location.fromDate">From</th>
-                        <th data-translate="backendApp.event.location.toDate">To</th>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="location in event.locations">
-                            <td class="col-md-3">{{location.name}}</td>
-                            <td class="col-md-4">{{location.description}}</td>
-                            <td class="col-md-2">{{location.fromDate | date:'short'}}</td>
-                            <td class="col-md-2">{{location.toDate | date:'short'}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="col-md-8">
+                    <h4 data-translate="backendApp.event.info">Info</h4>
+                    <table class="table">
+                        <thead>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-translate="backendApp.event.date">Date</td>
+                                <td>{{event.fromDate | date:'short'}} => {{event.toDate | date:'short'}}</td>
+                            </tr>
+                            <tr>
+                                <td data-translate="backendApp.event.private">Private</td>
+                                <td>{{event.privateEvent}}</td>
+                            </tr>
+                            <tr>
+                                <td data-translate="backendApp.event.attending">Attending</td>
+                                <td>{{event.attendanceCount}}</td>
+                            </tr>
+                            <tr>
+                                <td data-translate="backendApp.event.owner">Owner</td>
+                                <td>{{event.ownerLogin}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-12">
+                    <h4 data-translate="backendApp.event.locations">Locations</h4>
+                    <table class="table">
+                        <thead>
+                            <th data-translate="backendApp.event.location.name">Name</th>
+                            <th data-translate="backendApp.event.location.description">Description</th>
+                            <th data-translate="backendApp.event.location.fromDate">From</th>
+                            <th data-translate="backendApp.event.location.toDate">To</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="location in event.locations">
+                                <td class="col-md-3">{{location.name}}</td>
+                                <td class="col-md-4">{{location.description}}</td>
+                                <td class="col-md-2">{{location.fromDate | date:'short'}}</td>
+                                <td class="col-md-2">{{location.toDate | date:'short'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
             <div class="panel-footer text-right">
                 <div class="btn-group flex-btn-group-container">
                     <button type="submit"

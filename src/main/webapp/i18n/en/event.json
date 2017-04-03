@@ -8,6 +8,7 @@
                 "search": "Search for Event"
             },
             "category": "Category",
+            "info": "Info",
             "created": "A new Event is created with identifier {{ param }}",
             "updated": "A Event is updated with identifier {{ param }}",
             "deleted": "A Event is deleted with identifier {{ param }}",

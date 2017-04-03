@@ -389,3 +389,50 @@ Fix error field display
 }
 
 /* jhipster-needle-css-add-main JHipster will add new css style */
+
+.panel .panel-heading {
+    color: whitesmoke !important;
+}
+
+
+.panel-heading.RED {
+    background: linear-gradient(#AA3939, #801515);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #2D8633
+}
+
+.panel-heading.ORANGE {
+    background: linear-gradient(#AA6E39, #804715);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #236467;
+}
+
+.panel-heading.YELLOW {
+    background: linear-gradient(#AAA639, #807C15);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #592A71;
+}
+
+.panel-heading.GREEN {
+    background: linear-gradient(#6C9A33, #477413);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #973252;
+}
+
+.panel-heading.BLUE {
+    background: linear-gradient(#29516D, #123752);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #FF4081;
+}
+
+.panel-heading.INDIGO {
+    background: linear-gradient(#522B72, #371356);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #AAA539;
+}
+
+.panel-heading.VIOLET {
+    background: linear-gradient(#8C2F5E, #69113E);
+    box-shadow: 0 1px 6px 0 #000;
+    #border-bottom: 8px solid #7A9E35;
+}
