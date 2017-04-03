@@ -225,6 +225,12 @@ public class Event implements Serializable {
     public Event removeLocations(Location location) {
         locations.remove(location);
 
+        if (locations.size() == 0) {
+            setFromDate(null);
+            setToDate(null);
+            return this;
+        }
+
         List<Location> locationList = locations.stream().collect(Collectors.toList());
         locationList.sort(Comparator.comparing(Location::getFromDate));
         setFromDate(locationList.get(0).getFromDate());
