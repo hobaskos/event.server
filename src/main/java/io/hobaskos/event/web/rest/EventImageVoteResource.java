@@ -70,9 +70,17 @@ public class EventImageVoteResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("eventImageVote", "idexists", "A new eventImageVote cannot already have an ID")).body(null);
         }
         EventImageVote eventImageVote = eventImageVoteMapper.eventImageVoteDTOToEventImageVote(eventImageVoteDTO);
-        eventImageVote.setUser(userService.getUserWithAuthorities());
-        eventImageVote = eventImageVoteRepository.save(eventImageVote);
-        eventImageService.recalculateVoteStats(eventImageVoteDTO.getEventImageId());
+        Optional<EventImageVote> originalVote = eventImageVoteRepository
+            .findFirstByEventImageAndUser(eventImageVote.getEventImage(), userService.getUserWithAuthorities());
+
+        if (originalVote.isPresent()) {
+            eventImageVote = originalVote.get();
+        } else {
+            eventImageVote.setUser(userService.getUserWithAuthorities());
+            eventImageVote = eventImageVoteRepository.save(eventImageVote);
+            eventImageService.recalculateVoteStats(eventImageVoteDTO.getEventImageId());
+        }
+
         EventImageVoteDTO result = eventImageVoteMapper.eventImageVoteToEventImageVoteDTO(eventImageVote);
         eventImageVoteSearchRepository.save(eventImageVote);
         return ResponseEntity.created(new URI("/api/event-image-votes/" + result.getId()))
