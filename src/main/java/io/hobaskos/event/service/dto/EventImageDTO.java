@@ -18,7 +18,7 @@ public class EventImageDTO implements Serializable {
 
     private String imageUrl;
 
-    private boolean hasMyVote;
+    private Integer myVote;
 
     @Min(value = 0)
     private Integer voteCount;
@@ -59,12 +59,12 @@ public class EventImageDTO implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public boolean isHasMyVote() {
-        return hasMyVote;
+    public Integer getMyVote() {
+        return myVote;
     }
 
-    public void setHasMyVote(boolean hasMyVote) {
-        this.hasMyVote = hasMyVote;
+    public void setMyVote(Integer myVote) {
+        this.myVote = myVote;
     }
 
     public Integer getVoteCount() {

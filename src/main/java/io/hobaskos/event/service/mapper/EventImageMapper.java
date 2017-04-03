@@ -25,7 +25,7 @@ public abstract class EventImageMapper {
 
     @Mapping(target = "file", ignore = true)
     @Mapping(target = "fileContentType", ignore = true)
-    @Mapping(target = "hasMyVote", ignore = true)
+    @Mapping(target = "myVote", ignore = true)
     @Mapping(source = "poll.id", target = "pollId")
     @Mapping(source = "user.login", target = "userLogin")
     public abstract EventImageDTO eventImageToEventImageDTO(EventImage eventImage);
@@ -55,6 +55,6 @@ public abstract class EventImageMapper {
         User user = userService.getUserWithAuthorities();
         if (user == null) return;
         eventImageVoteRepository.findFirstByEventImageAndUser(eventImage, user)
-            .ifPresent(eventImageVote -> result.setHasMyVote(true));
+            .ifPresent(eventImageVote -> result.setMyVote(eventImageVote.getVote()));
     }
 }
