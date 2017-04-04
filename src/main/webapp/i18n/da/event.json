@@ -7,14 +7,25 @@
                 "createOrEditLabel": "Create or edit a Event",
                 "search": "Search for Event"
             },
+            "category": "Category",
+            "info": "Info",
             "created": "A new Event is created with identifier {{ param }}",
             "updated": "A Event is updated with identifier {{ param }}",
             "deleted": "A Event is deleted with identifier {{ param }}",
+            "date": "Date",
+            "attending": "Attending",
+            "private": "Private",
             "delete": {
                 "question": "Are you sure you want to delete Event {{ id }}?"
             },
             "detail": {
                 "title": "Event"
+            },
+            "location": {
+                "name": "Name",
+                "description": "Description",
+                "fromDate": "From date",
+                "toDate": "To date"
             },
             "title": "Title",
             "description": "Description",
