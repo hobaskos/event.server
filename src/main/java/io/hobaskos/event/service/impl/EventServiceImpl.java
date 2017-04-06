@@ -1,5 +1,6 @@
 package io.hobaskos.event.service.impl;
 
+import com.google.common.collect.Sets;
 import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.domain.EventPoll;
 import io.hobaskos.event.domain.enumeration.EventPollStatus;
@@ -13,6 +14,7 @@ import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.dto.EventPollDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
+import io.hobaskos.event.service.mapper.EventPollMapper;
 import io.hobaskos.event.service.util.ContentTypeUtil;
 import io.hobaskos.event.service.util.RandomUtil;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -27,6 +29,8 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +74,10 @@ public class EventServiceImpl implements EventService{
         Event event = eventMapper.eventDTOToEvent(eventDTO);
         event.setOwner(userService.getUserWithAuthorities());
 
+        boolean newEvent = true;
+
         if (event.getId() != null) { // done to keep elastic happy...
+            newEvent = false;
             Event originEvent = eventRepository.findOneWithEagerRelations(event.getId());
             event.setAttendings(originEvent.getAttendings());
             event.setPolls(originEvent.getPolls());
@@ -81,25 +88,24 @@ public class EventServiceImpl implements EventService{
             event.setInvitationCode(RandomUtil.generateRandomInviteCode());
         }
 
-
-        log.debug("eventDTO image check");
         if (eventDTO.getImage() != null && eventDTO.getImageContentType() != null) {
-            log.debug("Trying to save image");
             String filename = storageService.store(eventDTO.getImage(),
                 ContentTypeUtil.defineImageName(eventDTO.getImageContentType()));
             event.setImageUrl("/files/" + filename);
         }
 
-        event = eventRepository.save(event);
+        event = eventRepository.saveAndFlush(event);
         eventSearchRepository.save(event);
 
-        EventPollDTO poll = new EventPollDTO();
-        poll.setEventId(event.getId());
-        poll.setTitle("Default poll for " + event.getTitle());
-        poll.setStatus(EventPollStatus.ACTIVE);
-        eventPollService.save(poll);
+        if (newEvent) {
+            EventPollDTO poll = new EventPollDTO();
+            poll.setEventId(event.getId());
+            poll.setTitle("Default poll for " + event.getTitle());
+            poll.setStatus(EventPollStatus.ACTIVE);
+            eventPollService.save(poll);
+        }
 
-        return eventMapper.eventToEventDTO(event);
+        return findOne(event.getId());
     }
 
     /**

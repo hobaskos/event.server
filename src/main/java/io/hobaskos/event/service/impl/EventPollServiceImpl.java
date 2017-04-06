@@ -52,10 +52,9 @@ public class EventPollServiceImpl implements EventPollService{
     public EventPollDTO save(EventPollDTO eventPollDTO) {
         log.debug("Request to save EventPoll : {}", eventPollDTO);
         EventPoll eventPoll = eventPollMapper.eventPollDTOToEventPoll(eventPollDTO);
-        eventPoll = eventPollRepository.save(eventPoll);
-        EventPollDTO result = eventPollMapper.eventPollToEventPollDTO(eventPoll);
+        eventPoll = eventPollRepository.saveAndFlush(eventPoll);
         eventPollSearchRepository.save(eventPoll);
-        return result;
+        return eventPollMapper.eventPollToEventPollDTO(eventPoll);
     }
 
     /**
