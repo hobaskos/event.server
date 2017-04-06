@@ -1,6 +1,7 @@
 package io.hobaskos.event.service.mapper;
 
 import io.hobaskos.event.domain.*;
+import io.hobaskos.event.repository.EventPollRepository;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.service.UserService;
@@ -22,6 +23,9 @@ public abstract class EventMapper {
 
     @Inject
     private EventUserAttendingRepository eventUserAttendingRepository;
+
+    @Inject
+    private EventPollRepository eventPollRepository;
 
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "imageContentType", ignore = true)
@@ -48,7 +52,7 @@ public abstract class EventMapper {
         if (user == null) return;
         eventUserAttendingRepository.findOneByEventAndUser(event, user).ifPresent(eventUserAttending ->
             result.setMyAttendance(eventUserAttending.getType()));
-        result.setDefaultPollId(event.getDefaultPollId());
+        result.setDefaultPollId(eventPollRepository.findFirstByEventId(event.getId()).getId());
     }
 
 }

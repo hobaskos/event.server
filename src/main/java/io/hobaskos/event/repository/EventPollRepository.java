@@ -15,4 +15,5 @@ public interface EventPollRepository extends JpaRepository<EventPoll,Long> {
 
     Optional<EventPoll> findOneById(Long id);
 
+    EventPoll findFirstByEventId(Long id);
 }
