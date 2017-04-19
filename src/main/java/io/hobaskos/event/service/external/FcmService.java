@@ -1,10 +1,7 @@
 package io.hobaskos.event.service.external;
 
 import io.hobaskos.event.config.JHipsterProperties;
-import io.hobaskos.event.domain.external.FcmNotification;
-import io.hobaskos.event.domain.external.FcmNotificationMultiPayload;
-import io.hobaskos.event.domain.external.FcmNotificationSinglePayload;
-import io.hobaskos.event.domain.external.FcmResponse;
+import io.hobaskos.event.domain.external.*;
 import io.reactivex.Observable;
 import okhttp3.Request;
 import org.slf4j.Logger;
@@ -33,16 +30,16 @@ public class FcmService {
         SENDER_ID = jHipsterProperties.getFcm().getSenderId();
     }
 
-    public Observable<FcmResponse> sendNotificationToDevice(FcmNotification notification, String deviceToken) {
+    public Observable<FcmResponse> sendNotificationToDevice(String deviceToken, FcmNotification notification, FcmData data) {
         if (fcmInterface == null) { fcmInterface = createFcmService(); }
 
-        return fcmInterface.sendNotification(new FcmNotificationSinglePayload(deviceToken, notification));
+        return fcmInterface.sendNotification(new FcmNotificationSinglePayload(deviceToken, notification, data));
     }
 
-    public Observable<FcmResponse> sendNotificationsToDevices(Set<String> deviceTokens, FcmNotification notification) {
+    public Observable<FcmResponse> sendNotificationsToDevices(Set<String> deviceTokens, FcmNotification notification, FcmData data) {
         if (fcmInterface == null) {fcmInterface = createFcmService(); }
 
-        return fcmInterface.sendNotifications(new FcmNotificationMultiPayload(deviceTokens, notification));
+        return fcmInterface.sendNotifications(new FcmNotificationMultiPayload(deviceTokens, notification, data));
     }
 
     private FcmInterface createFcmService()  {

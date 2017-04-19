@@ -1,6 +1,7 @@
 package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.*;
+import io.hobaskos.event.domain.external.FcmData;
 import io.hobaskos.event.domain.external.FcmNotification;
 import io.hobaskos.event.repository.DeviceRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
@@ -32,16 +33,23 @@ public class TriggerService {
     public void eventImageUploaded(EventImage eventImage, Event event) {
         Set<User> users = eventUserAttendingRepository.findByEvent(event)
             .stream().map(EventUserAttending::getUser).collect(Collectors.toSet());
-        log.debug("Image uploaded, sending notification to users: {}",
+        log.info("Image uploaded, sending notification to users: {}",
             users.stream().map(User::getLogin).collect(Collectors.toList()));
 
         Set<String> deviceTokens = deviceRepository.findByUserIn(users)
             .stream().map(Device::getToken).collect(Collectors.toSet());
-        log.debug("Found {} devices", deviceTokens.toArray());
+        log.info("Found {} devices", deviceTokens.toArray());
 
         FcmNotification notification = new FcmNotification();
         notification.setTitle(String.format("Event: %s", event.getTitle()));
         notification.setBody(String.format("%s added a new image", eventImage.getUser().getFirstName()));
-        fcmService.sendNotificationsToDevices(deviceTokens, notification);
+
+        fcmService.sendNotificationsToDevices(deviceTokens, notification, new FcmData(event.getId()))
+            .subscribe(fcmResponse -> {
+                    log.info("FcmResponse Success!");
+                },
+                throwable -> {
+                    log.error(throwable.getMessage());
+                });
     }
 }
