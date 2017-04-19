@@ -14,9 +14,12 @@ public class FcmNotificationMultiPayload {
 
     private FcmNotification notification;
 
-    public FcmNotificationMultiPayload(Set<String> recipients, FcmNotification notification) {
+    private FcmData data;
+
+    public FcmNotificationMultiPayload(Set<String> recipients, FcmNotification notification, FcmData data) {
         this.recipients = recipients;
         this.notification = notification;
+        this.data = data;
     }
 
     public Set<String> getRecipients() {
@@ -35,11 +38,20 @@ public class FcmNotificationMultiPayload {
         this.notification = notification;
     }
 
+    public FcmData getData() {
+        return data;
+    }
+
+    public void setData(FcmData data) {
+        this.data = data;
+    }
+
     @Override
     public String toString() {
         return "FcmNotificationMultiPayload{" +
             "recipients=" + recipients +
             ", notification=" + notification +
+            ", data=" + data +
             '}';
     }
 }

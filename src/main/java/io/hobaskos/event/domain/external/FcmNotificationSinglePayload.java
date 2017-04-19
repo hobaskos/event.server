@@ -9,9 +9,12 @@ public class FcmNotificationSinglePayload {
 
     private FcmNotification notification;
 
-    public FcmNotificationSinglePayload(String to, FcmNotification notification) {
+    private FcmData data;
+
+    public FcmNotificationSinglePayload(String to, FcmNotification notification, FcmData data) {
         this.to = to;
         this.notification = notification;
+        this.data = data;
     }
 
     public String getTo() {
@@ -30,11 +33,20 @@ public class FcmNotificationSinglePayload {
         this.notification = notification;
     }
 
+    public FcmData getData() {
+        return data;
+    }
+
+    public void setData(FcmData data) {
+        this.data = data;
+    }
+
     @Override
     public String toString() {
         return "FcmNotificationSinglePayload{" +
             "to='" + to + '\'' +
             ", notification=" + notification +
+            ", data=" + data +
             '}';
     }
 }

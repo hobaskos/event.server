@@ -1,6 +1,7 @@
 package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.*;
+import io.hobaskos.event.domain.external.FcmData;
 import io.hobaskos.event.domain.external.FcmNotification;
 import io.hobaskos.event.repository.DeviceRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
@@ -42,7 +43,8 @@ public class TriggerService {
         FcmNotification notification = new FcmNotification();
         notification.setTitle(String.format("Event: %s", event.getTitle()));
         notification.setBody(String.format("%s added a new image", eventImage.getUser().getFirstName()));
-        fcmService.sendNotificationsToDevices(deviceTokens, notification)
+
+        fcmService.sendNotificationsToDevices(deviceTokens, notification, new FcmData(event.getId()))
             .subscribe(fcmResponse -> {
                     log.info("FcmResponse Success!");
                 },
