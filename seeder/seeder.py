@@ -28,8 +28,18 @@ event_images = [
     "https://www.ethos3.com/wp-content/uploads/2014/11/stock-photo-600x405.jpg",
     "https://g.foolcdn.com/editorial/images/245314/dice-1500_large.jpg"
 ]
-event_count = 100
-user_count = 20
+profile_images = [
+    "http://www.freedigitalphotos.net/images/category-images/401.jpg",
+    "https://www.stockvault.net/data/2009/06/09/109080/thumb16.jpg"
+    "https://www.stockvault.net/data/2011/03/15/118598/thumb16.jpg",
+    "http://images.all-free-download.com/images/graphiclarge/angry_woman_198033.jpg",
+    "https://abm-website-assets.s3.amazonaws.com/laboratoryequipment.com/s3fs-public/angry-woman.jpg",
+    "http://i.dailymail.co.uk/i/pix/2009/02/22/article-1152403-039FB68B000005DC-630_468x398.jpg",
+    "http://68.media.tumblr.com/622f1d08bb8ebeb5e5916c891b712ea9/tumblr_mn6dzf6lRH1srnoheo1_400.jpg",
+    "http://femalebreadwinners.com/wp-content/uploads/2011/08/MP900285144.jpg"
+]
+event_count = 1000
+user_count = 100
 default_password = "password"
 user_jwts = []
 
@@ -58,7 +68,7 @@ def create_random_user():
         "lastName": fake.name().split(" ")[1],
         "langKey": "en",
         "password": default_password,
-        "profileImageUrl": "http://no-url.no"
+        "profileImageUrl": random.choice(profile_images)
     }
 
 def random_event_title():

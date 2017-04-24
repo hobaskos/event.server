@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=$(./gradlew showVersion | sed '2q;d')
+VERSION=$(gradle showVersion | sed '2q;d')
 
 ./gradlew bootRepackage -Pprod buildDocker
 docker tag backend:latest plastboks/plod:$VERSION
