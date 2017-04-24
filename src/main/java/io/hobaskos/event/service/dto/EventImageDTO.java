@@ -35,6 +35,10 @@ public class EventImageDTO implements Serializable {
 
     private String userLogin;
 
+    private String userFirstName;
+
+    private String userLastName;
+
     public Long getId() {
         return id;
     }
@@ -113,6 +117,22 @@ public class EventImageDTO implements Serializable {
 
     public void setUserLogin(String userLogin) {
         this.userLogin = userLogin;
+    }
+
+    public String getUserFirstName() {
+        return userFirstName;
+    }
+
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
     }
 
     @Override
