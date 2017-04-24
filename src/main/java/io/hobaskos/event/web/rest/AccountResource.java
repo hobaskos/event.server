@@ -184,11 +184,10 @@ public class AccountResource {
     public ResponseEntity<List<EventDTO>> getAttendingEvents(@ApiParam Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get account attending events");
-        Page<EventUserAttending> page = eventUserAttendingRepository.findByUser(userService.getUserWithAuthorities(), pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/account/attending-events");
-        return new ResponseEntity<>(page.getContent().stream().map(eventUserAttending ->
-            eventMapper.eventToEventDTO(eventUserAttending.getEvent())
-        ).collect(Collectors.toList()), headers, HttpStatus.OK);
+        List<EventUserAttending> attendings = eventUserAttendingRepository.findByUser(userService.getUserWithAuthorities());
+        Page<Event> eventPage = eventRepository.findByAttendingsIn(attendings, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(eventPage, "/api/account/attending-events");
+        return new ResponseEntity<>(eventMapper.eventsToEventDTOs(eventPage.getContent()), headers, HttpStatus.OK);
     }
 
     /**

@@ -1,10 +1,7 @@
 package io.hobaskos.event.repository;
 
-import io.hobaskos.event.domain.Event;
+import io.hobaskos.event.domain.*;
 
-import io.hobaskos.event.domain.EventCategory;
-import io.hobaskos.event.domain.Location;
-import io.hobaskos.event.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -44,4 +41,5 @@ public interface EventRepository extends JpaRepository<Event,Long> {
         "where event.privateEvent = 'TRUE' and event.invitationCode = ?1")
     Optional<Event> findOneWithEagerRelations(String invitationCode);
 
+    Page<Event> findByAttendingsIn(List<EventUserAttending> attendings, Pageable pageable);
 }
