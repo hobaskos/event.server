@@ -9,6 +9,7 @@ import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.repository.search.EventUserAttendingSearchRepository;
+import io.hobaskos.event.service.TriggerService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.web.rest.util.HeaderUtil;
 import io.hobaskos.event.web.rest.util.PaginationUtil;
@@ -65,6 +66,9 @@ public class EventUserAttendingResource {
     @Inject
     private EventRepository eventRepository;
 
+    @Inject
+    private TriggerService triggerService;
+
     /**
      * POST  /event-user-attendings : Create a new eventUserAttending.
      *
@@ -91,6 +95,8 @@ public class EventUserAttendingResource {
         Event event = eventRepository.findOneWithEagerRelations(eventUserAttending.getEvent().getId());
         event.addAttending(eventUserAttending);
         eventSearchRepository.save(event);
+
+        triggerService.eventNewAttendingUser(event, user);
 
         EventUserAttendingDTO result = eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending);
         eventUserAttendingSearchRepository.save(eventUserAttending);

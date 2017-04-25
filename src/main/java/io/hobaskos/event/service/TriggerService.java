@@ -1,6 +1,7 @@
 package io.hobaskos.event.service;
 
 import io.hobaskos.event.domain.*;
+import io.hobaskos.event.domain.enumeration.EventAttendingType;
 import io.hobaskos.event.domain.external.FcmData;
 import io.hobaskos.event.domain.external.FcmNotification;
 import io.hobaskos.event.repository.DeviceRepository;
@@ -31,6 +32,38 @@ public class TriggerService {
 
     @Async
     public void eventImageUploaded(EventImage eventImage, Event event) {
+        sendNotification(createEventNotification(event, String.format("%s added a new image", eventImage.getUser().getName())), event);
+    }
+
+    @Async
+    public void eventChanged(Event event) {
+        sendNotification(createEventNotification(event, String.format("Changes has been made to the event")), event);
+    }
+
+    public void eventNewAttendingUser(Event event, User user) {
+        sendNotification(createEventNotification(event, String.format("%s is attending the event", user.getName())), event);
+    }
+
+    @Async
+    public void eventLocationAdded(Event event, Location location) {
+        sendNotification(createEventNotification(event, String.format("A new location %s has been added", location.getName())), event);
+    }
+
+    @Async
+    public void eventLocationDeleted(Event event, String locationName) {
+        sendNotification(createEventNotification(event, String.format("Location %s has been deleted", locationName)), event);
+    }
+
+    @Async
+    public void eventLocationChanged(Event event, Location location) {
+        sendNotification(createEventNotification(event, String.format("Location %s has been changed", location.getName())), event);
+    }
+
+    private FcmNotification createEventNotification(Event event, String body) {
+        return new FcmNotification(String.format("Event: %s", event.getTitle()), body);
+    }
+
+    private Set<String> getAttendingDevicesForEvent(Event event) {
         Set<User> users = eventUserAttendingRepository.findByEvent(event)
             .stream().map(EventUserAttending::getUser).collect(Collectors.toSet());
         log.info("Image uploaded, sending notification to users: {}",
@@ -40,16 +73,12 @@ public class TriggerService {
             .stream().map(Device::getToken).collect(Collectors.toSet());
         log.info("Found {} devices", deviceTokens.toArray());
 
-        FcmNotification notification = new FcmNotification();
-        notification.setTitle(String.format("Event: %s", event.getTitle()));
-        notification.setBody(String.format("%s added a new image", eventImage.getUser().getFirstName()));
+        return deviceTokens;
+    }
 
-        fcmService.sendNotificationsToDevices(deviceTokens, notification, new FcmData(event.getId()))
-            .subscribe(fcmResponse -> {
-                    log.info("FcmResponse Success!");
-                },
-                throwable -> {
-                    log.error(throwable.getMessage());
-                });
+    public void sendNotification(FcmNotification fcmNotification, Event event) {
+        fcmService.sendNotificationsToDevices(getAttendingDevicesForEvent(event), fcmNotification, new FcmData(event.getId()))
+            .subscribe(fcmResponse -> log.info("FcmResponse Success!"),
+                throwable -> log.error(throwable.getMessage()));
     }
 }

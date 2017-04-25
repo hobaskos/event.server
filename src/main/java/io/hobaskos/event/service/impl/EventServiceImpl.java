@@ -4,13 +4,10 @@ import com.google.common.collect.Sets;
 import io.hobaskos.event.domain.EventCategory;
 import io.hobaskos.event.domain.EventPoll;
 import io.hobaskos.event.domain.enumeration.EventPollStatus;
-import io.hobaskos.event.service.EventPollService;
-import io.hobaskos.event.service.EventService;
+import io.hobaskos.event.service.*;
 import io.hobaskos.event.domain.Event;
 import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.search.EventSearchRepository;
-import io.hobaskos.event.service.StorageService;
-import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.dto.EventPollDTO;
 import io.hobaskos.event.service.mapper.EventMapper;
@@ -63,6 +60,9 @@ public class EventServiceImpl implements EventService{
     @Inject
     private EventPollService eventPollService;
 
+    @Inject
+    private TriggerService triggerService;
+
     /**
      * Save a event.
      *
@@ -103,6 +103,8 @@ public class EventServiceImpl implements EventService{
             poll.setTitle("Default poll for " + event.getTitle());
             poll.setStatus(EventPollStatus.ACTIVE);
             eventPollService.save(poll);
+        } else {
+            triggerService.eventChanged(event);
         }
 
         return findOne(event.getId());
