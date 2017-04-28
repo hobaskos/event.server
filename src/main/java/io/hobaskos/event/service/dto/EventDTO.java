@@ -49,7 +49,7 @@ public class EventDTO implements Serializable {
 
     private EventCategoryDTO eventCategory;
 
-    private EventAttendingType myAttendance;
+    private EventUserAttendingDTO myAttendance;
 
     private int attendanceCount;
 
@@ -155,11 +155,11 @@ public class EventDTO implements Serializable {
         this.eventCategory = eventCategory;
     }
 
-    public EventAttendingType getMyAttendance() {
+    public EventUserAttendingDTO getMyAttendance() {
         return myAttendance;
     }
 
-    public void setMyAttendance(EventAttendingType myAttendance) {
+    public void setMyAttendance(EventUserAttendingDTO myAttendance) {
         this.myAttendance = myAttendance;
     }
 
