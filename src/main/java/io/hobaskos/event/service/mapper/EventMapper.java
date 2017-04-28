@@ -7,6 +7,7 @@ import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 
+import io.hobaskos.event.service.dto.EventUserAttendingDTO;
 import org.mapstruct.*;
 
 import javax.inject.Inject;
@@ -15,7 +16,8 @@ import java.util.List;
 /**
  * Mapper for the entity Event and its DTO EventDTO.
  */
-@Mapper(componentModel = "spring", uses = {UserMapper.class, LocationMapper.class, EventCategoryMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class,LocationMapper.class,
+    EventCategoryMapper.class, EventUserAttendingMapper.class})
 public abstract class EventMapper {
 
     @Inject
@@ -26,6 +28,9 @@ public abstract class EventMapper {
 
     @Inject
     private EventPollRepository eventPollRepository;
+
+    @Inject
+    private EventUserAttendingMapper eventUserAttendingMapper;
 
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "imageContentType", ignore = true)
@@ -49,9 +54,10 @@ public abstract class EventMapper {
     protected void sideLoadMetaData(Event event, @MappingTarget EventDTO result) {
         result.setAttendanceCount(eventUserAttendingRepository.countByEventId(event.getId()));
         User user = userService.getUserWithAuthorities();
+
         if (user == null) return;
         eventUserAttendingRepository.findOneByEventAndUser(event, user).ifPresent(eventUserAttending ->
-            result.setMyAttendance(eventUserAttending.getType()));
+            result.setMyAttendance(eventUserAttendingMapper.eventUserAttendingToEventUserAttendingDTO(eventUserAttending)));
         result.setDefaultPollId(eventPollRepository.findFirstByEventId(event.getId()).getId());
     }
 
