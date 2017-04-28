@@ -184,9 +184,12 @@ public class EventUserAttendingResource {
         log.debug("REST request to delete EventUserAttending : {}", id);
 
         EventUserAttending eventUserAttending = eventUserAttendingRepository.findOne(id);
+        User user = eventUserAttending.getUser();
         Event event = eventRepository.findOneWithEagerRelations(eventUserAttending.getEvent().getId());
         event.removeAttending(eventUserAttending);
         eventSearchRepository.save(event);
+
+        triggerService.eventRemovedAttendingUser(event, user);
 
         eventUserAttendingRepository.delete(id);
         eventUserAttendingSearchRepository.delete(id);

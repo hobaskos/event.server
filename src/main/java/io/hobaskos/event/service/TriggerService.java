@@ -40,8 +40,13 @@ public class TriggerService {
         sendNotification(createEventNotification(event, String.format("Changes has been made to the event")), event);
     }
 
+    @Async
     public void eventNewAttendingUser(Event event, User user) {
         sendNotification(createEventNotification(event, String.format("%s is attending the event", user.getName())), event);
+    }
+
+    public void eventRemovedAttendingUser(Event event, User user) {
+        sendNotification(createEventNotification(event, String.format("%s is no longer attending the event", user.getName())), event);
     }
 
     @Async
