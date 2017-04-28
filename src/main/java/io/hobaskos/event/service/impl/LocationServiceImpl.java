@@ -7,6 +7,7 @@ import io.hobaskos.event.service.LocationService;
 import io.hobaskos.event.domain.Location;
 import io.hobaskos.event.repository.LocationRepository;
 import io.hobaskos.event.repository.search.LocationSearchRepository;
+import io.hobaskos.event.service.TriggerService;
 import io.hobaskos.event.service.dto.LocationDTO;
 import io.hobaskos.event.service.mapper.LocationMapper;
 import org.slf4j.Logger;
@@ -49,6 +50,8 @@ public class LocationServiceImpl implements LocationService{
     @Inject
     private EventRepository eventRepository;
 
+    @Inject
+    private TriggerService triggerService;
     /**
      * Save a location.
      *
@@ -57,6 +60,8 @@ public class LocationServiceImpl implements LocationService{
      */
     public LocationDTO save(LocationDTO locationDTO) {
         log.debug("Request to save Location : {}", locationDTO);
+        boolean newLocation = locationDTO.getId() == null;
+
         Location location = locationMapper.locationDTOToLocation(locationDTO);
         location = locationRepository.save(location);
 
@@ -66,6 +71,12 @@ public class LocationServiceImpl implements LocationService{
 
         LocationDTO result = locationMapper.locationToLocationDTO(location);
         locationSearchRepository.save(location);
+
+        if (newLocation) {
+            triggerService.eventLocationAdded(event, location);
+        } else {
+            triggerService.eventLocationChanged(event, location);
+        }
         return result;
     }
 
@@ -105,12 +116,15 @@ public class LocationServiceImpl implements LocationService{
         log.debug("Request to delete Location : {}", id);
 
         Location location = locationRepository.findOne(id);
+        String locationName = location.getName();
         Event event = eventRepository.findOne(location.getEvent().getId());
         event.removeLocations(location);
         eventSearchRepository.save(event);
 
         locationRepository.delete(id);
         locationSearchRepository.delete(id);
+
+        triggerService.eventLocationDeleted(event, locationName);
     }
 
     /**

@@ -10,9 +10,11 @@ import io.hobaskos.event.repository.EventRepository;
 import io.hobaskos.event.repository.EventUserAttendingRepository;
 import io.hobaskos.event.repository.search.EventSearchRepository;
 import io.hobaskos.event.repository.search.EventUserAttendingSearchRepository;
+import io.hobaskos.event.service.TriggerService;
 import io.hobaskos.event.service.UserService;
 import io.hobaskos.event.service.dto.EventDTO;
 import io.hobaskos.event.service.dto.EventUserAttendingDTO;
+import io.hobaskos.event.service.external.FcmService;
 import io.hobaskos.event.service.mapper.EventMapper;
 import io.hobaskos.event.service.mapper.EventUserAttendingMapper;
 
@@ -90,6 +92,9 @@ public class EventUserAttendingResourceIntTest {
     @Inject
     private EventMapper eventMapper;
 
+    @Mock
+    private TriggerService triggerService;
+
     @Inject
     private EntityManager em;
 
@@ -105,6 +110,9 @@ public class EventUserAttendingResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+
+        doNothing().when(triggerService).sendNotification(anyObject(), anyObject());
+
         EventUserAttendingResource eventUserAttendingResource = new EventUserAttendingResource();
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventUserAttendingSearchRepository", eventUserAttendingSearchRepository);
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventUserAttendingRepository", eventUserAttendingRepository);
@@ -112,6 +120,8 @@ public class EventUserAttendingResourceIntTest {
         ReflectionTestUtils.setField(eventUserAttendingResource, "userService", userService);
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventRepository", eventRepository);
         ReflectionTestUtils.setField(eventUserAttendingResource, "eventSearchRepository", eventSearchRepository);
+        ReflectionTestUtils.setField(eventUserAttendingResource, "triggerService", triggerService);
+
         this.restEventUserAttendingMockMvc = MockMvcBuilders.standaloneSetup(eventUserAttendingResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
