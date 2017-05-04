@@ -45,6 +45,10 @@ public class EventDTO implements Serializable {
 
     private String ownerLogin;
 
+    private String ownerFirstName;
+
+    private String ownerLastName;
+
     private Set<LocationDTO> locations;
 
     private EventCategoryDTO eventCategory;
@@ -177,6 +181,22 @@ public class EventDTO implements Serializable {
 
     public void setDefaultPollId(Long defaultPollId) {
         this.defaultPollId = defaultPollId;
+    }
+
+    public String getOwnerFirstName() {
+        return ownerFirstName;
+    }
+
+    public void setOwnerFirstName(String ownerFirstName) {
+        this.ownerFirstName = ownerFirstName;
+    }
+
+    public String getOwnerLastName() {
+        return ownerLastName;
+    }
+
+    public void setOwnerLastName(String ownerLastName) {
+        this.ownerLastName = ownerLastName;
     }
 
     @Override

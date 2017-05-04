@@ -38,6 +38,8 @@ public abstract class EventMapper {
     @Mapping(target = "attendanceCount", ignore = true)
     @Mapping(target = "defaultPollId", ignore = true)
     @Mapping(source = "owner.login", target = "ownerLogin")
+    @Mapping(source = "owner.firstName", target = "ownerFirstName")
+    @Mapping(source = "owner.lastName", target = "ownerLastName")
     public abstract EventDTO eventToEventDTO(Event event);
 
     public abstract List<EventDTO> eventsToEventDTOs(List<Event> events);
