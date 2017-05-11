@@ -29,14 +29,25 @@ event_images = [
     "https://g.foolcdn.com/editorial/images/245314/dice-1500_large.jpg"
 ]
 profile_images = [
-    "http://www.freedigitalphotos.net/images/category-images/401.jpg",
-    "https://www.stockvault.net/data/2009/06/09/109080/thumb16.jpg"
-    "https://www.stockvault.net/data/2011/03/15/118598/thumb16.jpg",
-    "http://images.all-free-download.com/images/graphiclarge/angry_woman_198033.jpg",
-    "https://abm-website-assets.s3.amazonaws.com/laboratoryequipment.com/s3fs-public/angry-woman.jpg",
-    "http://i.dailymail.co.uk/i/pix/2009/02/22/article-1152403-039FB68B000005DC-630_468x398.jpg",
-    "http://68.media.tumblr.com/622f1d08bb8ebeb5e5916c891b712ea9/tumblr_mn6dzf6lRH1srnoheo1_400.jpg",
-    "http://femalebreadwinners.com/wp-content/uploads/2011/08/MP900285144.jpg"
+    "http://4.bp.blogspot.com/-BHhUazKytmw/VbCfWPqrOJI/AAAAAAAAB7c/qj6WVX3du-s/s1600/51b91bba5a3fd9b6c8b9c53bc0ab6c65.jpg",
+    "http://silenteye.net/ui/images/16/WDF_1102495.jpg",
+    "https://i1.wp.com/devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg?resize=448%2C448",
+    "https://upload.wikimedia.org/wikipedia/en/7/70/Shawn_Tok_Profile.jpg",
+    "https://www.engineering.cornell.edu/engineering/customcf/iws_ai_faculty_display/ai_images/caa238-profile.jpg",
+    "http://sbpmv.org.in/images/photo-profile.jpg",
+    "http://www.trickscity.com/wp-content/uploads/2016/07/Cool-And-Stylish-Profile-Pictures-For-Facebook-For-Girls-17-1024x993.jpg",
+    "https://yt3.ggpht.com/-OHiWZDaQu3A/AAAAAAAAAAI/AAAAAAAAAAA/yvCrjK_9iR4/s900-c-k-no-mo-rj-c0xffffff/photo.jpg",
+    "https://cdn.pixabay.com/photo/2013/04/07/17/57/woman-101542__340.jpg",
+    "http://www.celebbra.com/wp-content/uploads/2016/01/Nayantara-Height-Weight-Bra-Pics-Profile.jpg",
+    "https://justinjackson.ca/wp-content/uploads/2008/08/justin-jackson-black-and-white-canada-profile.jpg",
+    "https://www2.mmu.ac.uk/media/mmuacuk/style-assets/images/r-research/profile-Zeyad.jpg",
+    "http://thunder-team.com/friend-finder/images/users/user-12.jpg",
+    "https://s3-media3.fl.yelpcdn.com/bphoto/YOhv2_7yGqiLEL28R4knJg/ls.jpg",
+    "http://www.johnson.cornell.edu/people/faculty/jdh362/jdh362_profile.jpg",
+    "https://s-media-cache-ak0.pinimg.com/originals/74/05/2f/74052f225f4bae0e308bcb0ca1407e6b.jpg",
+    "https://s-media-cache-ak0.pinimg.com/originals/0e/59/b3/0e59b3766f8a43fd00912ef0c6d5bb96.jpg",
+    "http://www.johnson.cornell.edu/people/faculty/mnc35/mnc35_profile.jpg",
+    "http://i.dailymail.co.uk/i/pix/2013/09/02/article-0-1B955792000005DC-63_644x715.jpg"
 ]
 event_count = 1000
 user_count = 100
@@ -169,35 +180,6 @@ def main():
         user_jwt_header = create_jwt_header(user_token)
         user_jwts.append(user_jwt_header)
 
-    print("# Generating categories")
-    for cat in event_categories_titles:
-        eventCategory = requests.post(base_url + "/api/event-categories",
-                                      headers=jwt_header,
-                                      json=create_category_payload(cat))
-        event_categories.append(eventCategory.json())
-
-    print("# Generating events")
-    for ei in range(1, event_count):
-        event_payload = create_event_payload()
-        e = requests.post(base_url + "/api/events",
-                          headers=jwt_header,
-                          json=event_payload)
-        print("## Generating locations for event")
-        locations = create_locations(e)
-        for loc in locations:
-            location = requests.post(base_url + "/api/locations",
-                                     headers=jwt_header,
-                                     json=loc)
-        print("## Generating attendings for event")
-        for user_jwt in random_user_jwt_selection():
-            attendance = requests.post(base_url + "/api/event-user-attendings",
-                                       headers=user_jwt,
-                                       json=create_event_attendance(e.json().get("id")))
-            print("### Uploading images to event")
-            poll_id = e.json().get("defaultPollId")
-            event_image = requests.post(base_url + "/api/event-images",
-                                       headers=user_jwt,
-                                       json=create_event_image(poll_id))
 
 if __name__ == "__main__":
     main()

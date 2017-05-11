@@ -211,19 +211,14 @@ public class Event implements Serializable {
 
     public Event addLocations(Location location) {
         locations.add(location);
-
-        List<Location> locationList = locations.stream().collect(Collectors.toList());
-        locationList.sort(Comparator.comparing(Location::getFromDate));
-        setFromDate(locationList.get(0).getFromDate());
-        locationList.sort(Comparator.comparing(Location::getToDate).reversed());
-        setToDate(locationList.get(0).getToDate());
-
+        recalculateDates();
         location.setEvent(this);
         return this;
     }
 
     public Event removeLocations(Location location) {
         locations.remove(location);
+        recalculateDates();
         location.setEvent(null);
         return this;
     }
@@ -288,6 +283,19 @@ public class Event implements Serializable {
     public Event eventCategory(EventCategory eventCategory) {
         this.eventCategory = eventCategory;
         return this;
+    }
+
+    private void recalculateDates() {
+        if (locations == null || locations.isEmpty()) {
+            setFromDate(null);
+            setToDate(null);
+            return;
+        }
+        List<Location> locationList = locations.stream().collect(Collectors.toList());
+        locationList.sort(Comparator.comparing(Location::getFromDate));
+        setFromDate(locationList.get(0).getFromDate());
+        locationList.sort(Comparator.comparing(Location::getToDate).reversed());
+        setToDate(locationList.get(0).getToDate());
     }
 
     @Override

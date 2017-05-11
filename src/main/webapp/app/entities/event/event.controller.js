@@ -50,6 +50,11 @@
                 vm.totalItems = headers('X-Total-Count');
                 vm.queryCount = vm.totalItems;
                 vm.events = data;
+                vm.events.forEach(function (event) {
+                    if (event.imageUrl !== null && event.imageUrl.indexOf("http") < 0) {
+                        event.imageUrl = "/api" + event.imageUrl;
+                    }
+                });
                 vm.page = pagingParams.page;
             }
             function onError(error) {
